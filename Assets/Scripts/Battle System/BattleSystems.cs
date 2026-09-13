@@ -8,7 +8,8 @@ public class BattleSystem : MonoBehaviour
     [Header("Scene")]
     [SerializeField] private Battlefield battlefield;
     [SerializeField] private Camera battleCamera;
-    
+    [SerializeField] private DialogSystem dialogSystem;
+
     [Header("Turns")]
     [SerializeField] private BattleTeam playerTeam = BattleTeam.Player;
     [Min(0f)][SerializeField] private float enemyMoveDelay = 0.5f;
@@ -21,6 +22,9 @@ public class BattleSystem : MonoBehaviour
     private SpriteRenderer attackTargetHighlight;
     private Vector2Int controllerCursor;
     private bool isPlayerTurn;
+
+    // Battle messages remain readable briefly after their typewriter animation finishes.
+    private const float MessageHoldSeconds = 0.75f;
 
     private static readonly Vector2Int[] Directions =
     {
@@ -40,6 +44,11 @@ public class BattleSystem : MonoBehaviour
         if (battleCamera == null)
         {
             battleCamera = Camera.main;
+        }
+
+        if (dialogSystem == null)
+        {
+            dialogSystem = FindFirstObjectByType<DialogSystem>();
         }
 
 
@@ -144,6 +153,7 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        yield return ShowBattleMessage(player.Pilot, PilotEmotion.Motivated, $"{GetPilotName(player)}'s turn.");
         SelectUnit(player);
         isPlayerTurn = true;
     }
@@ -171,6 +181,13 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        yield return ShowBattleMessage(enemy.Pilot, PilotEmotion.Angry, $"{GetPilotName(enemy)}'s turn.");
+
+        if (enemyMoveDelay > 0f)
+        {
+            yield return new WaitForSeconds(enemyMoveDelay);
+        }
+
         if (ManhattanDistance(enemy.GridPosition, player.GridPosition) == 1)
         {
             yield return ResolveAttack(enemy, player);
@@ -194,14 +211,67 @@ public class BattleSystem : MonoBehaviour
         }
 
         PilotBase attackerPilot = attacker.Pilot;
+        PilotBase targetPilot = target.Pilot;
         string attackerName = GetPilotName(attacker);
         string targetName = GetPilotName(target);
         int attack = attackerPilot != null ? attackerPilot.Attack : 0;
         int damage = target.TakeDamage(attack);
         bool defeated = target.IsDefeated;
+
+        // Damage and defeat messages use text only, so their portrait flag remains false.
+        yield return ShowBattleMessage(
+            targetPilot,
+            defeated ? PilotEmotion.Defeated : PilotEmotion.Sad,
+            $"{targetName} took {damage} damage.");
+
+        if (!defeated)
+        {
+            yield break;
+        }
+
+        yield return ShowBattleMessage(targetPilot, PilotEmotion.Defeated, $"{targetName} was defeated.");
+
+        if (attackerPilot == null)
+        {
+            yield break;
+        }
+
+        // Success lines play in list order and are the only battle messages that show a portrait.
+        foreach (string successLine in attackerPilot.OnSuccessLines)
+        {
+            if (!string.IsNullOrWhiteSpace(successLine))
+            {
+                yield return ShowBattleMessage(attackerPilot, PilotEmotion.Motivated, successLine, true);
+            }
+        }
     }
 
-    private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
+    private IEnumerator ShowBattleMessage(
+        PilotBase pilot,
+        PilotEmotion emotion,
+        string message,
+        bool showPortrait = false)
+    {
+        // Dialogue is optional; skipping it must never stop the battle coroutine.
+        if (dialogSystem == null)
+        {
+            yield break;
+        }
+
+        dialogSystem.SetVisibleImmediate(true);
+        dialogSystem.DisplayLine(pilot, emotion, message, showPortrait);
+
+        while (dialogSystem.IsTyping)
+        {
+            yield return null;
+        }
+
+        yield return new WaitForSecondsRealtime(MessageHoldSeconds);
+
+        yield return dialogSystem.FadeOut();
+    }
+
+private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
     {
         List<Vector2Int> openMoves = new();
         List<Vector2Int> closerMoves = new();
