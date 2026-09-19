@@ -94,6 +94,7 @@ public class BattleSystem : MonoBehaviour
 
     private void HandleMouse()
     {
+
         if (Mouse.current == null || !Mouse.current.leftButton.wasPressedThisFrame || battleCamera == null)
         {
             return;
@@ -586,7 +587,9 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         selectionStep = SelectionStep.Movement;
         actionsMenu.Hide();
         battlefield.ShowMovement(selectedUnit);
-        if (HasAnyTarget()) ShowActions();
+
+        // Stay in Movement mode after selecting a unit.
+        // The player chooses where to move before opening the action menu.
     }
 
     // WEEK 3: Check the clicked enemy and start the chosen weapon attack with one click.
