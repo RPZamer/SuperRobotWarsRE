@@ -9,10 +9,80 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
+  m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
   m_Name: Great Mazinger
-  m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: 
+  m_EditorClassIdentifier: Assembly-CSharp::MechBase
+  mechName: Great Mazinger
   battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
-  health: 10
-  attack: 2
+  health: 3200
+  energy: 120
+  movement: 6
+  mobility: 120
+  armor: 1000
+  size: 2
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  weapons:
+  - weaponName: Mazinger Blade
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 1
+    maxRange: 1
+    power: 1000
+    accuracyModifier: 50
+    criticalModifier: 10
+    energyCost: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  - weaponName: Drill Pressure Punch
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 2
+    maxRange: 3
+    power: 1700
+    accuracyModifier: 15
+    criticalModifier: 15
+    energyCost: 20
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Breast Burn
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 20
+    criticalModifier: 20
+    energyCost: 40
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Thunder Break
+    damageType: 0
+    weaponType: 0
+    classification: 0
+    minRange: 1
+    maxRange: 5
+    power: 3000
+    accuracyModifier: 30
+    criticalModifier: 10
+    energyCost: 70
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 1
+      space: 3

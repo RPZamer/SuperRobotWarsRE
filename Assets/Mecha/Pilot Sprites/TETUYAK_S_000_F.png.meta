@@ -1,0 +1,431 @@
+fileFormatVersion: 2
+guid: 46f5cbc28ff020d439d7e5df46662bfc
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -5323764410733424744
+    second: TETUYAK_S_000_F_0
+  - first:
+      213: 7523426226691985892
+    second: TETUYAK_S_000_F_1
+  - first:
+      213: -1360319314246835129
+    second: TETUYAK_S_000_F_2
+  - first:
+      213: 1112893453959745335
+    second: TETUYAK_S_000_F_3
+  - first:
+      213: 7689175992974966080
+    second: TETUYAK_S_000_F_4
+  - first:
+      213: -1765242872626262242
+    second: TETUYAK_S_000_F_5
+  - first:
+      213: 1869711075761216937
+    second: TETUYAK_S_000_F_6
+  - first:
+      213: 4337387566887273096
+    second: TETUYAK_S_000_F_7
+  - first:
+      213: 2191016834987355371
+    second: TETUYAK_S_000_F_8
+  - first:
+      213: 1783167982192711674
+    second: TETUYAK_S_000_F_9
+  - first:
+      213: 3901320422720413067
+    second: TETUYAK_S_000_F_10
+  - first:
+      213: -7944233913978615974
+    second: TETUYAK_S_000_F_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_0
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 299
+        width: 22
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89f0e5699703e16b0800000000000000
+      internalID: -5323764410733424744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_1
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 327
+        width: 22
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4e155d7da44986860800000000000000
+      internalID: 7523426226691985892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_2
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 327
+        width: 12
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 744e63d7acc2f1de0800000000000000
+      internalID: -1360319314246835129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_3
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 315
+        width: 9
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73fc02433bac17f00800000000000000
+      internalID: 1112893453959745335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_4
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 55
+        width: 107
+        height: 264
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04dfbbc93d075ba60800000000000000
+      internalID: 7689175992974966080
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_5
+      rect:
+        serializedVersion: 2
+        x: 123
+        y: 315
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1f42d2c5f89087e0800000000000000
+      internalID: -1765242872626262242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_6
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 283
+        width: 22
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ad5c57315c82f910800000000000000
+      internalID: 1869711075761216937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_7
+      rect:
+        serializedVersion: 2
+        x: 157
+        y: 315
+        width: 12
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8820389f20f713c30800000000000000
+      internalID: 4337387566887273096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_8
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 307
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bec6252f33e086e10800000000000000
+      internalID: 2191016834987355371
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_9
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 303
+        width: 140
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af7527905d51fb810800000000000000
+      internalID: 1783167982192711674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_10
+      rect:
+        serializedVersion: 2
+        x: 239
+        y: 307
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8d1a3f1146442630800000000000000
+      internalID: 3901320422720413067
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: TETUYAK_S_000_F_11
+      rect:
+        serializedVersion: 2
+        x: 17
+        y: 0
+        width: 383
+        height: 306
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5781b8785960c190800000000000000
+      internalID: -7944233913978615974
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      TETUYAK_S_000_F_0: -5323764410733424744
+      TETUYAK_S_000_F_1: 7523426226691985892
+      TETUYAK_S_000_F_10: 3901320422720413067
+      TETUYAK_S_000_F_11: -7944233913978615974
+      TETUYAK_S_000_F_2: -1360319314246835129
+      TETUYAK_S_000_F_3: 1112893453959745335
+      TETUYAK_S_000_F_4: 7689175992974966080
+      TETUYAK_S_000_F_5: -1765242872626262242
+      TETUYAK_S_000_F_6: 1869711075761216937
+      TETUYAK_S_000_F_7: 4337387566887273096
+      TETUYAK_S_000_F_8: 2191016834987355371
+      TETUYAK_S_000_F_9: 1783167982192711674
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

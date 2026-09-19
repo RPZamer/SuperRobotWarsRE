@@ -10,12 +10,26 @@ public enum BattleTeam
 public class BattleUnit : MonoBehaviour
 {
     [SerializeField] private PilotBase pilot;
+    // WEEK 3: Assign the mech asset and the terrain this unit is currently using.
+    [SerializeField] private MechBase mech;
+    [SerializeField] private TerrainType terrain = TerrainType.Ground;
     [SerializeField] private BattleTeam team;
     [SerializeField] private Vector2Int startingPosition;
 
     private Battlefield battlefield;
 
     public PilotBase Pilot => pilot;
+    // WEEK 3: Expose mech settings and keep energy and movement state on this individual unit.
+    public MechBase Mech => mech;
+    public TerrainType Terrain => terrain;
+    public int CurrentEnergy { get; private set; }
+    public bool HasMoved { get; private set; }
+    // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
+    public int AvailableMovement => mech != null && !HasMoved ? Mathf.Min(mech.Movement, CurrentEnergy) : 0;
+
+    // WEEK 3: Allow movement at the start of a turn, then remember when it has been used.
+    public void BeginTurn() => HasMoved = false;
+    public void MarkMoved() => HasMoved = true;
     public BattleTeam Team => team;
     public Vector2Int GridPosition { get; private set; }
     public int CurrentHealth { get; private set; }
@@ -23,11 +37,17 @@ public class BattleUnit : MonoBehaviour
 
     private void Awake()
     {
-        CurrentHealth = pilot != null ? pilot.Health : 1;
+        // WEEK 3: Start with the mech health and energy, and show its battle sprite.
+        CurrentHealth = mech != null ? mech.Health : 1;
+        CurrentEnergy = mech != null ? mech.Energy : 0;
 
-        if (pilot != null)
+        if (mech != null)
         {
-            GetComponent<SpriteRenderer>().sprite = pilot.BattleSprite;
+            GetComponent<SpriteRenderer>().sprite = mech.BattleSprite;
+        }
+        else
+        {
+            Debug.LogError("BattleUnit needs a MechBase asset.", this);
         }
     }
 
@@ -43,6 +63,62 @@ public class BattleUnit : MonoBehaviour
         transform.position = battlefield.GridToWorld(position);
     }
 
+    // WEEK 3: Spend energy only when the unit is alive and can afford the full cost.
+    public bool TrySpendEnergy(int amount)
+    {
+        if (amount < 0 || amount > CurrentEnergy || IsDefeated) return false;
+        CurrentEnergy -= amount;
+        return true;
+    }
+
+    // WEEK 3: Undo an unconfirmed move by restoring its energy and movement allowance.
+    public void RestoreMove(int energyBeforeMove)
+    {
+        CurrentEnergy = Mathf.Clamp(energyBeforeMove, 0, mech.Energy);
+        HasMoved = false;
+    }
+
+    // WEEK 3: Use the exact selected weapon, checking ownership, energy and target range.
+    public bool CanUseWeapon(Weapon weapon, BattleUnit target)
+    {
+        if (weapon == null || mech == null || pilot == null || IsDefeated ||
+            target == null || !target.CanBeTargetedBy(this) || weapon.EnergyCost > CurrentEnergy)
+            return false;
+
+        bool owned = false;
+        foreach (Weapon equipped in mech.Weapons)
+            if (equipped == weapon) { owned = true; break; }
+        int distance = Mathf.Abs(GridPosition.x - target.GridPosition.x)
+            + Mathf.Abs(GridPosition.y - target.GridPosition.y);
+        return owned && weapon.IsInRange(distance);
+    }
+
+    // WEEK 3: Pick the first weapon that can reach the enemy and has enough energy.
+    public Weapon GetUsableWeapon(BattleUnit target, WeaponType requiredType = WeaponType.None)
+    {
+        if (mech == null || pilot == null || IsDefeated || target == null ||
+            target.IsDefeated || target.Mech == null || target.Pilot == null || target.Team == Team)
+            return null;
+
+        int distance = Mathf.Abs(GridPosition.x - target.GridPosition.x)
+            + Mathf.Abs(GridPosition.y - target.GridPosition.y);
+        // WEEK 3: All weapons can attack after moving if their range and energy cost allow it.
+        foreach (Weapon weapon in mech.Weapons)
+        {
+            if (weapon != null &&
+                weapon.IsInRange(distance) && weapon.EnergyCost <= CurrentEnergy &&
+                (weapon.Type & requiredType) == requiredType)
+                return weapon;
+        }
+        return null;
+    }
+
+    // WEEK 3: Check that an extra adjacent target is a living enemy with pilot and mech data.
+    public bool CanBeTargetedBy(BattleUnit attacker)
+    {
+        return attacker != null && Team != attacker.Team && !IsDefeated && mech != null && pilot != null;
+    }
+
     public int TakeDamage(int damage)
     {
         int appliedDamage = Mathf.Min(CurrentHealth, Mathf.Max(0, damage));
@@ -50,7 +126,8 @@ public class BattleUnit : MonoBehaviour
 
         if (IsDefeated)
         {
-            battlefield.Remove(this);
+            // WEEK 3: Remove a defeated unit from the grid only if it has a battlefield.
+            if (battlefield != null) battlefield.Remove(this);
             Destroy(gameObject);
         }
 
