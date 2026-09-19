@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
+  m_Name: Koji Kabuto
+  m_EditorClassIdentifier: Assembly-CSharp::PilotBase
+  pilotName: Koji Kabuto
+  melee: 100
+  ranged: 100
+  defense: 100
+  evade: 100
+  accuracy: 100
+  skill: 100
+  morale: 120
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  onSuccessLines:
+  - Heh- Serves you right
+  defaultPortrait: {fileID: -8615392254259920525, guid: 7a2cb69bf5b4f5c408994920e6959082, type: 3}
+  angryPortrait: {fileID: 0}
+  madPortrait: {fileID: 0}
+  sadPortrait: {fileID: 0}
+  motivatedPortrait: {fileID: 0}
+  defeatedPortrait: {fileID: 0}

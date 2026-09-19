@@ -9,10 +9,80 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
+  m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
   m_Name: Mazinger Z
-  m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: 
+  m_EditorClassIdentifier: Assembly-CSharp::MechBase
+  mechName: Mazinger Z
   battleSprite: {fileID: 5036436323287202684, guid: d2205c473740b5849b5ee8ee5d953e69, type: 3}
-  health: 10
-  attack: 2
+  health: 3000
+  energy: 120
+  movement: 5
+  mobility: 100
+  armor: 1200
+  size: 2
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  weapons:
+  - weaponName: Photon Beam
+    damageType: 0
+    weaponType: 0
+    classification: 0
+    minRange: 1
+    maxRange: 5
+    power: 1200
+    accuracyModifier: 130
+    criticalModifier: 10
+    energyCost: 10
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 1
+      space: 3
+  - weaponName: Scrander Cutter
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 1
+    maxRange: 1
+    power: 1500
+    accuracyModifier: 30
+    criticalModifier: 15
+    energyCost: 0
+    terrainRatings:
+      air: 3
+      ground: 2
+      water: 1
+      space: 3
+  - weaponName: Rocket Punch
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 2
+    maxRange: 3
+    power: 1700
+    accuracyModifier: 15
+    criticalModifier: 20
+    energyCost: 20
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Breast Fire
+    damageType: 0
+    weaponType: 2
+    classification: 0
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 20
+    criticalModifier: 20
+    energyCost: 40
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3

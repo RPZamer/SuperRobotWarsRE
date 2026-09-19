@@ -61,9 +61,12 @@ public class Battlefield : MonoBehaviour
         return true;
     }
 
+    // WEEK 3: Move only to a reachable square and pay energy for the actual number of steps.
     public bool TryMove(BattleUnit unit, Vector2Int destination)
     {
-        if (unit == null || !IsInside(destination) || occupants.ContainsKey(destination))
+        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit ||
+            !GetReachableCells(unit).TryGetValue(destination, out int steps) || steps == 0 ||
+            !unit.TrySpendEnergy(steps))
         {
             return false;
         }
@@ -71,7 +74,41 @@ public class Battlefield : MonoBehaviour
         occupants.Remove(unit.GridPosition);
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
+        // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
+        unit.MarkMoved();
         return true;
+    }
+
+    // WEEK 3: Put an unconfirmed move back without charging energy or crossing occupied squares.
+    public bool TryUndoMove(BattleUnit unit, Vector2Int originalPosition, int originalEnergy)
+    {
+        if (unit == null || unit.IsDefeated || !IsInside(originalPosition) ||
+            GetUnit(unit.GridPosition) != unit) return false;
+        BattleUnit occupant = GetUnit(originalPosition);
+        if (occupant != null && occupant != unit) return false;
+        occupants.Remove(unit.GridPosition);
+        occupants[originalPosition] = unit;
+        unit.SetGridPosition(originalPosition);
+        unit.RestoreMove(originalEnergy);
+        return true;
+    }
+
+    // WEEK 3: Preview every square within this weapon range and mark its valid enemies red.
+    public void ShowWeaponRange(BattleUnit unit, Weapon weapon)
+    {
+        ClearHighlights();
+        if (unit == null || weapon == null) return;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Vector2Int position = new(x, y);
+                int distance = Mathf.Abs(x - unit.GridPosition.x) + Mathf.Abs(y - unit.GridPosition.y);
+                if (!weapon.IsInRange(distance)) continue;
+                bool target = unit.CanUseWeapon(weapon, GetUnit(position));
+                CreateHighlight(position, target ? blockedColor : new Color(0.25f, 0.7f, 1f, 0.25f));
+            }
+        }
     }
 
     public void Remove(BattleUnit unit)
@@ -113,23 +150,44 @@ public class Battlefield : MonoBehaviour
             return;
         }
 
-        Vector2Int[] directions =
+        // WEEK 3: Highlight all squares the unit can reach with its movement and energy.
+        foreach (Vector2Int position in GetReachableCells(selectedUnit).Keys)
         {
-            Vector2Int.up,
-            Vector2Int.down,
-            Vector2Int.left,
-            Vector2Int.right
-        };
-
-        foreach (Vector2Int direction in directions)
+            if (position != selectedUnit.GridPosition)
+                CreateHighlight(position, movableColor);
+        }
+        // WEEK 3: Also highlight enemies that an affordable weapon can reach.
+        foreach (BattleUnit target in occupants.Values)
         {
-            Vector2Int position = selectedUnit.GridPosition + direction;
+            if (selectedUnit.GetUsableWeapon(target) != null)
+                CreateHighlight(target.GridPosition, blockedColor);
+        }
+    }
 
-            if (IsInside(position))
+    // WEEK 3: Search outward one step at a time to find reachable squares and their shortest distances.
+    // WEEK 3: Stay inside the grid, avoid occupied squares, and stop at the movement limit.
+    public Dictionary<Vector2Int, int> GetReachableCells(BattleUnit unit)
+    {
+        Dictionary<Vector2Int, int> distances = new();
+        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return distances;
+        Queue<Vector2Int> pending = new();
+        distances[unit.GridPosition] = 0;
+        pending.Enqueue(unit.GridPosition);
+        Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        while (pending.Count > 0)
+        {
+            Vector2Int position = pending.Dequeue();
+            int steps = distances[position];
+            if (steps >= unit.AvailableMovement) continue;
+            foreach (Vector2Int direction in directions)
             {
-                CreateHighlight(position, GetUnit(position) == null ? movableColor : blockedColor);
+                Vector2Int next = position + direction;
+                if (!IsInside(next) || occupants.ContainsKey(next) || distances.ContainsKey(next)) continue;
+                distances[next] = steps + 1;
+                pending.Enqueue(next);
             }
         }
+        return distances;
     }
 
     public SpriteRenderer ShowAttackTarget(Vector2Int position)
