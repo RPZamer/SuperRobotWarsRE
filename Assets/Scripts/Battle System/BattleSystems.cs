@@ -17,6 +17,8 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private float enemyPulseSeconds = 1f;
 
     private BattleUnit selectedUnit;
+    public BattleUnit SelectedUnit => selectedUnit;
+
     private BattleUnit pendingAttackTarget;
     private SpriteRenderer attackTargetHighlight;
     private Vector2Int controllerCursor;
@@ -275,7 +277,20 @@ public class BattleSystem : MonoBehaviour
 
     private void SelectUnit(BattleUnit unit)
     {
+
+        if (unit == null || unit.Team != playerTeam)
+        {
+            return;
+        }
+
+        if (selectedUnit != null)
+        {
+            selectedUnit.SetSelected(false);
+        }
+
         selectedUnit = unit;
+        selectedUnit.SetSelected(true);
+
         controllerCursor = unit.GridPosition;
         ClearAttackTarget();
         battlefield.ShowMovement(selectedUnit);
