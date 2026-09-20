@@ -69,17 +69,19 @@ public class GridMovement : MonoBehaviour
 
             CustomTiles ClickedCellType = CustomTile.GetTile<CustomTiles>(ClickedCell);
 
-            if (ClickedCellType != null && ClickedCellType.NotPassable)
+            if (GridManager.Instance.IsOccupied(ClickedCell))
+            {
+                Debug.Log("Cell is occupied");
+                return;
+            }
+
+            if (ClickedCellType == null || ClickedCellType.NotPassable || !ClickedCellType.GroundUnitPassable)
             {
                 Debug.Log("Cannot Move here");
                 return;
             }
 
-            if (!ClickedCellType.GroundUnitPassable)
-            {
-                Debug.Log("Cannot Move here");
-                return;
-            }
+            
 
             int Distance = Mathf.Abs(ClickedCell.x - CurrentCell.x) + Mathf.Abs(ClickedCell.y - CurrentCell.y);
             Debug.Log("Distance: " + Distance); // debug log for testing
@@ -87,9 +89,15 @@ public class GridMovement : MonoBehaviour
             // if the player can move to the clicked cell, if not it gives a debug log with the max range
             if (Distance <= MovementRange)
             {
+                // clear the old cell (the current one before the script updates it)
+                GridManager.Instance.FreeCell(CurrentCell);
+
                 CurrentCell = ClickedCell;
                 FixedPosition = GridTile.GetCellCenterWorld(CurrentCell);
                 isMoving = true;
+
+                // then set the new cell as occupied
+                GridManager.Instance.OccupyCell(CurrentCell, gameObject);
             }
             else
             {
