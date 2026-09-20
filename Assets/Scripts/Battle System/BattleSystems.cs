@@ -11,6 +11,8 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private DialogSystem dialogSystem;
     // WEEK 3: Assign the ActionsMenu object from the Hierarchy.
     [SerializeField] private ActionsMenu actionsMenu;
+    // WEEK 3: Connect the Combat HUD so the battle system can send selected unit and battle state information to the player.
+    [SerializeField] private CombatHUD combatHUD;
 
     [Header("Turns")]
     [SerializeField] private BattleTeam playerTeam = BattleTeam.Player;
@@ -29,6 +31,9 @@ public class BattleSystem : MonoBehaviour
     // directly modifying the BattleSystem's private selection state.
     public BattleUnit SelectedUnit => selectedUnit;
     private bool isPlayerTurn;
+    // WEEK 3: Track the current battle turn so the Combat HUD
+    // can show the player which turn is currently being played.
+    private int currentTurn = 1;
 
     // WEEK 3: Remember the current menu step and selected weapon.
     private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby }
@@ -276,6 +281,13 @@ public class BattleSystem : MonoBehaviour
     {
         isPlayerTurn = false;
 
+        // WEEK 3: Update the Combat HUD when the player's phase begins
+        // while keeping the current turn number visible.
+        if (combatHUD != null)
+        {
+            combatHUD.ShowBattleStatus("Player Phase", currentTurn);
+        }
+
         // WEEK 3: Reset player movement at the start of the player turn.
         foreach (BattleUnit unit in battlefield.Units)
             if (unit.Team == playerTeam) unit.BeginTurn();
@@ -289,6 +301,7 @@ public class BattleSystem : MonoBehaviour
         yield return ShowBattleMessage(player.Pilot, PilotEmotion.Motivated, $"{GetPilotName(player)}'s turn.");
         SelectUnit(player);
         isPlayerTurn = true;
+
     }
 
     private IEnumerator ResolvePlayerAttack(BattleUnit target, Weapon weapon)
@@ -305,6 +318,13 @@ public class BattleSystem : MonoBehaviour
     private IEnumerator RunEnemyTurn()
     {
         isPlayerTurn = false;
+
+        // WEEK 3: Update the Combat HUD when the enemy phase begins
+        // while keeping the current turn number visible.
+        if (combatHUD != null)
+        {
+            combatHUD.ShowBattleStatus("Enemy Phase", currentTurn);
+        }
 
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
         // WEEK 3: Reset enemy movement at the start of the enemy turn.
@@ -340,6 +360,9 @@ public class BattleSystem : MonoBehaviour
 
         if (FindFirstUnit(playerTeam) != null && FindFirstUnit(enemyTeam) != null)
         {
+            // WEEK 3: A full player/enemy cycle is complete, so advance
+            // the turn number before beginning the next player phase.
+            currentTurn++;
             yield return BeginPlayerTurn();
         }
     }
@@ -581,12 +604,20 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         // can immediately distinguish the active unit from other units.
         selectedUnit.SetSelected(true);
 
+        // WEEK 3: Send the newly selected unit to the Combat HUD so its
+        // identifying information and current HP are displayed to the player.
+        if (combatHUD != null)
+        {
+            combatHUD.ShowSelectedUnit(selectedUnit);
+        }
+
         // WEEK 3: Reset the action state for the newly selected unit.
         // This preserves integration with the movement, weapon, and combat UI systems.
         selectedWeapon = null;
         selectionStep = SelectionStep.Movement;
         actionsMenu.Hide();
         battlefield.ShowMovement(selectedUnit);
+        if (HasAnyTarget()) ShowActions();
 
         // Stay in Movement mode after selecting a unit.
         // The player chooses where to move before opening the action menu.
@@ -602,6 +633,12 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
             return;
         }
         Debug.Log($"[Attack Debug] Target accepted: {target.name} with {selectedWeapon.WeaponName}.", this);
+        // WEEK 3: Show the valid enemy target's mech name and current HP
+        // on the Combat HUD before the attack is resolved.
+        if (combatHUD != null)
+        {
+            combatHUD.ShowTargetedEnemy(target);
+        }
         // WEEK 3: Click a valid enemy once to attack with the weapon already chosen.
         Weapon weapon = selectedWeapon;
         PrepareForTurnChange();
