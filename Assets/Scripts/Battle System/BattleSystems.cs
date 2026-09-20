@@ -127,11 +127,27 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        if (selectionStep == SelectionStep.Weapons) return;
+        // WEEK 3: Allow any player unit to be selected for inspection.
+        // Units that already acted can still highlight yellow, but they
+        // cannot receive another action during the same Player Phase.
         if (occupant != null && occupant.Team == playerTeam)
         {
-            if (!selectedUnit.HasMoved) SelectUnit(occupant);
-            else ShowActions();
+            SelectUnit(occupant);
+
+            if (occupant.HasActed)
+            {
+                actionsMenu.Hide();
+                battlefield.ClearHighlights();
+                selectionStep = SelectionStep.Standby;
+            }
+
+            return;
+        }
+
+        // WEEK 3: A unit that already completed its action may still be
+        // selected for inspection, but it cannot move or act again.
+        if (selectedUnit.HasActed)
+        {
             return;
         }
 
@@ -260,18 +276,37 @@ public class BattleSystem : MonoBehaviour
     }
 
     // WEEK 3: Standby ends this unit's action without undoing its move.
+    // WEEK 3: Standby permanently completes this unit's action for the
+    // current Player Phase and visually marks the unit as finished.
     public void Standby()
     {
-        if (!isPlayerTurn || selectedUnit == null || selectionStep != SelectionStep.Actions) return;
+        if (!isPlayerTurn || selectedUnit == null ||
+            selectionStep != SelectionStep.Actions || selectedUnit.HasActed)
+        {
+            return;
+        }
+
         actionsMenu.Hide();
         selectedWeapon = null;
         battlefield.ClearHighlights();
+
+        // WEEK 3: Mark this individual unit as finished without ending
+        // the entire Player Phase.
+        selectedUnit.SetSelected(false);
+        selectedUnit.MarkActed();
+
         selectionStep = SelectionStep.Standby;
     }
 
-    // WEEK 3: Right-click after Standby restores the unit's action at its current position.
+    // WEEK 3: Standby now permanently completes the selected unit's
+    // action for this phase, so it cannot be restored by right-clicking.
     private void UndoStandby()
     {
+        if (selectedUnit == null || selectedUnit.HasActed)
+        {
+            return;
+        }
+
         selectionStep = SelectionStep.Movement;
         battlefield.ShowMovement(selectedUnit);
         ShowActions();
@@ -306,20 +341,67 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator ResolvePlayerAttack(BattleUnit target, Weapon weapon)
     {
-        // WEEK 3: Use the chosen weapon rather than automatically picking the first one.
-        yield return ResolveAttack(selectedUnit, target, weapon);
+        // WEEK 3: Remember which player unit is performing the attack so
+        // its action can be completed after combat finishes.
+        BattleUnit attackingUnit = selectedUnit;
 
-        if (FindFirstUnit(OpposingTeam(playerTeam)) != null)
+        // WEEK 3: Use the chosen weapon rather than automatically picking the first one.
+        yield return ResolveAttack(attackingUnit, target, weapon);
+
+        // WEEK 3: Completing an attack finishes only this individual unit's
+        // action. The Player Phase remains active until the player ends it.
+        if (attackingUnit != null && !attackingUnit.IsDefeated)
         {
-            yield return RunEnemyTurn();
+            attackingUnit.SetSelected(false);
+            attackingUnit.MarkActed();
+        }
+
+        selectedWeapon = null;
+        actionsMenu.Hide();
+        battlefield.ClearHighlights();
+        selectionStep = SelectionStep.Standby;
+
+        // WEEK 3: Return control to the Player Phase so another available
+        // player unit can be selected before the phase is manually ended.
+        if (FindFirstUnit(playerTeam) != null &&
+            FindFirstUnit(OpposingTeam(playerTeam)) != null)
+        {
+            isPlayerTurn = true;
         }
     }
 
+    // WEEK 3: Allow the player to manually end the Player Phase.
+    // Individual units keep their movement/action state until the next
+    // Player Phase begins, preventing any unit from acting twice.
+    public void EndPlayerPhase()
+    {
+        if (!isPlayerTurn)
+        {
+            return;
+        }
+
+        isPlayerTurn = false;
+
+        // WEEK 3: Remove the current selection and close player controls
+        // before handing control to the enemy AI.
+        if (selectedUnit != null)
+        {
+            selectedUnit.SetSelected(false);
+        }
+
+        selectedUnit = null;
+        selectedWeapon = null;
+
+        actionsMenu.Hide();
+        battlefield.ClearHighlights();
+
+        StartCoroutine(RunEnemyTurn());
+    }
     private IEnumerator RunEnemyTurn()
     {
         isPlayerTurn = false;
 
-        // WEEK 3: Update the Combat HUD when the enemy phase begins
+        // WEEK 3: Update the Combat HUD when the Enemy Phase begins
         // while keeping the current turn number visible.
         if (combatHUD != null)
         {
@@ -327,41 +409,94 @@ public class BattleSystem : MonoBehaviour
         }
 
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
-        // WEEK 3: Reset enemy movement at the start of the enemy turn.
+
+        // WEEK 3: Create a snapshot of the enemy units before processing
+        // actions so battlefield changes during combat do not modify the
+        // collection currently being processed.
+        List<BattleUnit> enemies = new();
+
         foreach (BattleUnit unit in battlefield.Units)
-            if (unit.Team == enemyTeam) unit.BeginTurn();
-        BattleUnit enemy = FindFirstUnit(enemyTeam);
-        BattleUnit player = FindClosestUnit(enemy, playerTeam);
-
-        if (enemy == null || player == null)
         {
-            yield break;
+            if (unit != null && unit.Team == enemyTeam && !unit.IsDefeated)
+            {
+                unit.BeginTurn();
+                enemies.Add(unit);
+            }
         }
 
-        yield return ShowBattleMessage(enemy.Pilot, PilotEmotion.Angry, $"{GetPilotName(enemy)}'s turn.");
+        // WEEK 3: Process every eligible enemy exactly once during the
+        // Enemy Phase instead of allowing only the first enemy to act.
+        foreach (BattleUnit enemy in enemies)
+        {
+            if (enemy == null || enemy.IsDefeated || enemy.HasActed)
+            {
+                continue;
+            }
 
-        if (enemyMoveDelay > 0f)
-        {
-            yield return new WaitForSeconds(enemyMoveDelay);
-        }
+            // WEEK 3: Stop processing enemy actions if all player units
+            // have been defeated.
+            BattleUnit player = FindClosestUnit(enemy, playerTeam);
 
-        // WEEK 3: Let the enemy attack from its weapon range instead of only one square away.
-        if (enemy.GetUsableWeapon(player) != null)
-        {
-            yield return ResolveAttack(enemy, player);
-        }
-        else
-        {
-            // WEEK 3: After moving, let the enemy attack with any affordable weapon in range.
-            MoveEnemyCloser(enemy, player);
+            if (player == null)
+            {
+                break;
+            }
+
+            // WEEK 3: Highlight only the enemy currently performing its
+            // AI action in blue.
+            enemy.SetActing(true);
+
+            yield return ShowBattleMessage(
+                enemy.Pilot,
+                PilotEmotion.Angry,
+                $"{GetPilotName(enemy)}'s turn.");
+
+            if (enemyMoveDelay > 0f)
+            {
+                yield return new WaitForSeconds(enemyMoveDelay);
+            }
+
+            // WEEK 3: Attack immediately when a valid player target is
+            // already within weapon range.
             if (enemy.GetUsableWeapon(player) != null)
+            {
                 yield return ResolveAttack(enemy, player);
+            }
+            else
+            {
+                // WEEK 3: If the enemy cannot currently attack, move toward
+                // the selected player target using valid reachable grid cells.
+                MoveEnemyCloser(enemy, player);
+
+                // WEEK 3: Recheck attack availability after movement.
+                if (!enemy.IsDefeated &&
+                    player != null &&
+                    !player.IsDefeated &&
+                    enemy.GetUsableWeapon(player) != null)
+                {
+                    yield return ResolveAttack(enemy, player);
+                }
+            }
+
+            // WEEK 3: This enemy has completed its one action for the phase.
+            // Removing the blue acting state allows MarkActed to display grey.
+            if (enemy != null && !enemy.IsDefeated)
+            {
+                enemy.SetActing(false);
+                enemy.MarkActed();
+            }
+
+            if (enemyMoveDelay > 0f)
+            {
+                yield return new WaitForSeconds(enemyMoveDelay);
+            }
         }
 
-        if (FindFirstUnit(playerTeam) != null && FindFirstUnit(enemyTeam) != null)
+        // WEEK 3: The Enemy Phase ends only after every required enemy
+        // action has been processed.
+        if (FindFirstUnit(playerTeam) != null &&
+            FindFirstUnit(enemyTeam) != null)
         {
-            // WEEK 3: A full player/enemy cycle is complete, so advance
-            // the turn number before beginning the next player phase.
             currentTurn++;
             yield return BeginPlayerTurn();
         }
@@ -588,39 +723,53 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
 
     private void SelectUnit(BattleUnit unit)
     {
-
         if (unit == null || unit.Team != playerTeam)
         {
             return;
         }
 
+        // WEEK 3: Deselect the previous unit first. Its visual state will
+        // automatically return to grey if it already acted, or its original
+        // color if it is still available this phase.
         if (selectedUnit != null)
         {
             selectedUnit.SetSelected(false);
         }
 
         selectedUnit = unit;
-        // WEEK 3: Visually mark the newly selected player unit so the player
-        // can immediately distinguish the active unit from other units.
+
+        // WEEK 3: The currently selected player unit always highlights yellow,
+        // including units that have already completed their action.
         selectedUnit.SetSelected(true);
 
-        // WEEK 3: Send the newly selected unit to the Combat HUD so its
-        // identifying information and current HP are displayed to the player.
+        // WEEK 3: Keep selected unit information available for inspection
+        // whether or not the unit has already acted this phase.
         if (combatHUD != null)
         {
             combatHUD.ShowSelectedUnit(selectedUnit);
         }
 
-        // WEEK 3: Reset the action state for the newly selected unit.
-        // This preserves integration with the movement, weapon, and combat UI systems.
         selectedWeapon = null;
-        selectionStep = SelectionStep.Movement;
         actionsMenu.Hide();
-        battlefield.ShowMovement(selectedUnit);
-        if (HasAnyTarget()) ShowActions();
+        battlefield.ClearHighlights();
 
-        // Stay in Movement mode after selecting a unit.
-        // The player chooses where to move before opening the action menu.
+        // WEEK 3: An acted unit may still be selected and highlighted yellow
+        // for inspection, but it cannot receive another action this phase.
+        if (selectedUnit.HasActed)
+        {
+            selectionStep = SelectionStep.Standby;
+            return;
+        }
+
+        // WEEK 3: Fresh units begin in Movement mode and may continue through
+        // the normal Move, Attack, or Standby action flow.
+        selectionStep = SelectionStep.Movement;
+        battlefield.ShowMovement(selectedUnit);
+
+        if (HasAnyTarget())
+        {
+            ShowActions();
+        }
     }
 
     // WEEK 3: Check the clicked enemy and start the chosen weapon attack with one click.
