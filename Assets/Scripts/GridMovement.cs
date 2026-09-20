@@ -1,11 +1,14 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Tilemaps;
 
 public class GridMovement : MonoBehaviour
 {
+    
+
     // The grid Size i set in unity is 0.5 x and z, 0.25 for y.
     [SerializeField] Grid GridTile;
+    [SerializeField] Tilemap CustomTile;
     [SerializeField] int MovementRange;
     [SerializeField] float MovementSpeed = 5f;
     [SerializeField] int MoveCount;
@@ -63,6 +66,20 @@ public class GridMovement : MonoBehaviour
             Vector3 MousePosition = Ray.GetPoint(CameraDistance);
 
             Vector3Int ClickedCell = GridTile.WorldToCell(MousePosition);   // this grabs the cell that the mouse is currently over
+
+            CustomTiles ClickedCellType = CustomTile.GetTile<CustomTiles>(ClickedCell);
+
+            if (ClickedCellType != null && ClickedCellType.NotPassable)
+            {
+                Debug.Log("Cannot Move here");
+                return;
+            }
+
+            if (!ClickedCellType.GroundUnitPassable)
+            {
+                Debug.Log("Cannot Move here");
+                return;
+            }
 
             int Distance = Mathf.Abs(ClickedCell.x - CurrentCell.x) + Mathf.Abs(ClickedCell.y - CurrentCell.y);
             Debug.Log("Distance: " + Distance); // debug log for testing
