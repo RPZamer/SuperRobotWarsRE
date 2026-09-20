@@ -70,11 +70,31 @@ public class ActionsMenu : MonoBehaviour
     private Weapon lastClicked;
     private float lastClickTime;
 
+    // WEEK 3: Position the Action Panel beside the currently selected
+    // player unit instead of keeping the action controls fixed on screen.
+    private RectTransform actionsRect;
+    private Canvas actionsCanvas;
+
+    [SerializeField] private Vector2 actionMenuOffset = new Vector2(40f, 30f);
+
     // WEEK 3: Hide only your assigned panels. This script does not create or arrange UI.
     // WEEK 3: Find the Move button created in the ActionsMenu hierarchy.
     private void Awake()
     {
-        if (moveButton == null) moveButton = transform.Find("ActionPanel/MoveButton")?.GetComponent<Button>();
+        if (moveButton == null)
+            moveButton = transform.Find("ActionPanel/MoveButton")?.GetComponent<Button>();
+
+        // WEEK 3: Cache the existing Action Panel RectTransform so its
+        // screen position can follow the currently selected player unit.
+        if (actionsPanel != null)
+        {
+            actionsRect = actionsPanel.GetComponent<RectTransform>();
+        }
+
+        // WEEK 3: Cache the Canvas containing the Actions Menu so the
+        // selected unit's world position can be converted into UI space.
+        actionsCanvas = GetComponentInParent<Canvas>();
+
         Hide();
     }
 
@@ -219,6 +239,47 @@ public class ActionsMenu : MonoBehaviour
         weaponPowerText != null && weaponRangeText != null && weaponEnergyCostText != null &&
         weaponAccuracyText != null && weaponCriticalText != null &&
         weaponAirText != null && weaponGroundText != null && weaponWaterText != null && weaponSpaceText != null;
+
+    // WEEK 3: Move the Action Panel beside the selected player's mech
+    // by converting the unit's world position into Canvas UI coordinates.
+    public void PositionActionsBesideUnit(BattleUnit selectedUnit, Camera battleCamera)
+    {
+        if (selectedUnit == null ||
+            battleCamera == null ||
+            actionsRect == null ||
+            actionsCanvas == null)
+        {
+            return;
+        }
+
+        Vector2 screenPosition =
+            battleCamera.WorldToScreenPoint(selectedUnit.transform.position);
+
+        RectTransform canvasRect =
+            actionsCanvas.transform as RectTransform;
+
+        if (canvasRect == null)
+        {
+            return;
+        }
+
+        // WEEK 3: Screen Space Overlay canvases do not require a camera
+        // when converting the unit's screen position into local UI space.
+        Camera uiCamera =
+            actionsCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+            ? null
+            : actionsCanvas.worldCamera;
+
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect,
+            screenPosition,
+            uiCamera,
+            out Vector2 localPosition))
+        {
+            actionsRect.anchoredPosition =
+                localPosition + actionMenuOffset;
+        }
+    }
 
     private static void SetVisible(CanvasGroup panel, bool visible)
     {

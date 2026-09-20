@@ -179,6 +179,10 @@ public class BattleSystem : MonoBehaviour
         selectedWeapon = null;
         battlefield.ShowMovement(selectedUnit);
         actionsMenu.ShowActions(HasAnyTarget());
+
+        // WEEK 3: Position the Action HUD beside the currently selected unit
+        // before displaying the player's available actions.
+        actionsMenu.PositionActionsBesideUnit(selectedUnit, battleCamera);
     }
 
     private bool HasAnyTarget()
