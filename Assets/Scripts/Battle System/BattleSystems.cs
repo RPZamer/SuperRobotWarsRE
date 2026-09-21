@@ -14,6 +14,13 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Connect the Combat HUD so the battle system can send selected unit and battle state information to the player.
     [SerializeField] private CombatHUD combatHUD;
 
+    // WEEK 3: Assign the specific objective units for this scenario.
+    // Mazinger Z being defeated causes Defeat.
+    // Great Mazinger Z being defeated causes Victory.
+    [Header("Scenario Objectives")]
+    [SerializeField] private BattleUnit playerObjectiveUnit;
+    [SerializeField] private BattleUnit enemyObjectiveUnit;
+
     [Header("Turns")]
     [SerializeField] private BattleTeam playerTeam = BattleTeam.Player;
     [Min(0f)][SerializeField] private float enemyMoveDelay = 0.5f;
@@ -34,6 +41,22 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Track the current battle turn so the Combat HUD
     // can show the player which turn is currently being played.
     private int currentTurn = 1;
+
+    // WEEK 3: Store the possible final states for the current battle scenario.
+    // Only one final result can become active during normal gameplay.
+    private enum ScenarioResult
+    {
+        InProgress,
+        Victory,
+        Defeat
+    }
+
+    // WEEK 3: Track the final scenario result so player and enemy actions
+    // can stop permanently after Victory or Defeat has been reached.
+    private ScenarioResult scenarioResult = ScenarioResult.InProgress;
+
+    private bool ScenarioEnded =>
+        scenarioResult != ScenarioResult.InProgress;
 
     // WEEK 3: Remember the current menu step and selected weapon.
     private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby }
@@ -84,6 +107,26 @@ public class BattleSystem : MonoBehaviour
             return;
         }
         battlefield.RegisterSceneUnits();
+
+        // WEEK 3: Require both designated objective units before the scenario
+        // begins so a missing objective cannot create an invalid battle state.
+        if (playerObjectiveUnit == null || enemyObjectiveUnit == null)
+        {
+            Debug.LogError(
+                "BattleSystem requires both a Player Objective Unit and Enemy Objective Unit.",
+                this);
+
+            enabled = false;
+            return;
+        }
+
+        // WEEK 3: Begin every scenario with no Victory or Defeat message
+        // visible while normal battle gameplay is still in progress.
+        if (combatHUD != null)
+        {
+            combatHUD.HideScenarioResult();
+        }
+
         StartCoroutine(BeginPlayerTurn());
     }
 
@@ -318,6 +361,13 @@ public class BattleSystem : MonoBehaviour
 
     private IEnumerator BeginPlayerTurn()
     {
+        // WEEK 3: Never begin another Player Phase after the scenario
+        // has already reached Victory or Defeat.
+        if (ScenarioEnded)
+        {
+            yield break;
+        }
+
         isPlayerTurn = false;
 
         // WEEK 3: Update the Combat HUD when the player's phase begins
@@ -352,6 +402,12 @@ public class BattleSystem : MonoBehaviour
         // WEEK 3: Use the chosen weapon rather than automatically picking the first one.
         yield return ResolveAttack(attackingUnit, target, weapon);
 
+        // WEEK 3: If this attack completed the scenario, stop the normal
+        // Player Phase flow so control cannot resume after Victory or Defeat.
+        if (ScenarioEnded)
+        {
+            yield break;
+        }
         // WEEK 3: Completing an attack finishes only this individual unit's
         // action. The Player Phase remains active until the player ends it.
         if (attackingUnit != null && !attackingUnit.IsDefeated)
@@ -403,6 +459,13 @@ public class BattleSystem : MonoBehaviour
     }
     private IEnumerator RunEnemyTurn()
     {
+        // WEEK 3: Never begin another Enemy Phase after the scenario
+        // has already reached Victory or Defeat.
+        if (ScenarioEnded)
+        {
+            yield break;
+        }
+
         isPlayerTurn = false;
 
         // WEEK 3: Update the Combat HUD when the Enemy Phase begins
@@ -428,10 +491,17 @@ public class BattleSystem : MonoBehaviour
             }
         }
 
+
         // WEEK 3: Process every eligible enemy exactly once during the
         // Enemy Phase instead of allowing only the first enemy to act.
         foreach (BattleUnit enemy in enemies)
         {
+            // WEEK 3: Stop remaining enemy units from acting immediately
+            // after the scenario reaches Victory or Defeat.
+            if (ScenarioEnded)
+            {
+                yield break;
+            }
             if (enemy == null || enemy.IsDefeated || enemy.HasActed)
             {
                 continue;
@@ -494,12 +564,20 @@ public class BattleSystem : MonoBehaviour
             {
                 yield return new WaitForSeconds(enemyMoveDelay);
             }
+
+            // WEEK 3: Stop remaining enemy units from acting immediately
+            // after the scenario reaches Victory or Defeat.
+            if (ScenarioEnded)
+            {
+                yield break;
+            }
         }
 
         // WEEK 3: The Enemy Phase ends only after every required enemy
         // action has been processed.
-        if (FindFirstUnit(playerTeam) != null &&
-            FindFirstUnit(enemyTeam) != null)
+        if (!ScenarioEnded &&
+    FindFirstUnit(playerTeam) != null &&
+    FindFirstUnit(enemyTeam) != null)
         {
             currentTurn++;
             yield return BeginPlayerTurn();
@@ -599,6 +677,10 @@ public class BattleSystem : MonoBehaviour
         bool critical = Random.Range(0, 100) < criticalRate;
         int damage = target.TakeDamage(BattleFormulas.Damage(attacker, target, weapon, critical));
         bool defeated = target.IsDefeated;
+
+        // WEEK 3: Check the designated Victory and Defeat objectives
+        // immediately after combat damage has been applied.
+        EvaluateScenarioResult();
 
         // Damage and defeat messages use text only, so their portrait flag remains false.
         yield return ShowBattleMessage(
@@ -806,6 +888,64 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         battlefield.ClearHighlights();
     }
 
+    // WEEK 3: Evaluate the designated scenario objectives after relevant
+    // combat events. Once a final result is reached, it cannot be changed.
+    private void EvaluateScenarioResult()
+    {
+        if (ScenarioEnded)
+        {
+            return;
+        }
+
+        // WEEK 3: Great Mazinger Z is the designated enemy objective.
+        // Defeating it completes the scenario with Victory.
+        if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
+        {
+            EndScenario(ScenarioResult.Victory);
+            return;
+        }
+
+        // WEEK 3: Mazinger Z is the designated player objective.
+        // Defeating it completes the scenario with Defeat.
+        if (playerObjectiveUnit != null && playerObjectiveUnit.IsDefeated)
+        {
+            EndScenario(ScenarioResult.Defeat);
+        }
+    }
+
+    // WEEK 3: Store one permanent final result and immediately stop normal
+    // player controls and battlefield interaction.
+    private void EndScenario(ScenarioResult result)
+    {
+        if (ScenarioEnded)
+        {
+            return;
+        }
+
+        scenarioResult = result;
+        isPlayerTurn = false;
+
+        if (selectedUnit != null)
+        {
+            selectedUnit.SetSelected(false);
+        }
+
+        selectedUnit = null;
+        selectedWeapon = null;
+
+        actionsMenu.Hide();
+        battlefield.ClearHighlights();
+
+        // WEEK 3: Keep the final scenario result visible on the Combat HUD
+        // after normal battle controls have been stopped.
+        if (combatHUD != null)
+        {
+            combatHUD.ShowScenarioResult(
+                scenarioResult == ScenarioResult.Victory ? "VICTORY" : "DEFEAT");
+        }
+
+        Debug.Log($"[SCENARIO END] {scenarioResult}", this);
+    }
     private static BattleTeam OpposingTeam(BattleTeam team)
     {
         return team == BattleTeam.Player ? BattleTeam.Enemy : BattleTeam.Player;

@@ -7,6 +7,11 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private TMP_Text selectedUnitNameText;
     [SerializeField] private TMP_Text selectedUnitHPText;
 
+    // WEEK 3: Store the persistent HUD text used to display the final
+    // Victory or Defeat result when the scenario ends.
+    [Header("Scenario Result")]
+    [SerializeField] private TMP_Text scenarioResultText;
+
     // WEEK 3: Store the HUD text used to display information about
     // the enemy currently being targeted by the player.
     [Header("Targeted Enemy")]
@@ -68,5 +73,26 @@ public class CombatHUD : MonoBehaviour
     {
         selectedUnitNameText.text = "Selected Unit";
         selectedUnitHPText.text = "HP: -- / --";
+    }
+
+    // WEEK 3: Hide the final scenario result while normal battle
+    // gameplay is still in progress.
+    public void HideScenarioResult()
+    {
+        if (scenarioResultText != null)
+        {
+            scenarioResultText.gameObject.SetActive(false);
+        }
+    }
+
+    // WEEK 3: Display a persistent Victory or Defeat message after
+    // the battle reaches its final scenario result.
+    public void ShowScenarioResult(string resultText)
+    {
+        if (scenarioResultText != null)
+        {
+            scenarioResultText.text = resultText;
+            scenarioResultText.gameObject.SetActive(true);
+        }
     }
 }
