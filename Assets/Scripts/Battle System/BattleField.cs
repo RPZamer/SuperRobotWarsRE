@@ -24,16 +24,37 @@ public class Battlefield : MonoBehaviour
     private Sprite highlightSprite;
     private Material gridLineMaterial;
 
+    //Store the battlefield's terrain detector so units can be assigned terrain based on their current grid position.
+    private TerrainDetector terrainDetector;
+  
     public IEnumerable<BattleUnit> Units => occupants.Values;
 
     private void Awake()
     {
+        //Get the TerrainDetector attached to this Battlefield object.
+        terrainDetector = GetComponent<TerrainDetector>();
+
         highlightSprite = CreateSquareSprite();
 
         if (showGridLines)
         {
             CreateRuntimeGridLines();
         }
+    }
+
+    //Check the terrain at a unit's current grid position and store the dected terrain on that individual unit.
+    private void UpdateUnitTerrain(BattleUnit unit)
+    {
+        if (unit == null || terrainDetector == null)
+        { 
+            return;
+        }
+
+        TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
+
+        unit.SetTerrain(detectedTerrain);
+        
+        Debug.Log("[Terrain Detector] " + unit.name + " at " + unit.GridPosition + " is on " + detectedTerrain );
     }
 
     public void RegisterSceneUnits()
@@ -58,6 +79,8 @@ public class Battlefield : MonoBehaviour
 
         occupants[position] = unit;
         unit.SetGridPosition(position);
+        // Detect the unit's terrain when it is first placed on the battlefield.
+        UpdateUnitTerrain(unit);
         return true;
     }
 
@@ -74,6 +97,10 @@ public class Battlefield : MonoBehaviour
         occupants.Remove(unit.GridPosition);
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
+
+        // Detect the unit's terrain after it has moved to a new grid position.
+        UpdateUnitTerrain(unit);
+
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         unit.MarkMoved();
         return true;
@@ -90,6 +117,8 @@ public class Battlefield : MonoBehaviour
         occupants[originalPosition] = unit;
         unit.SetGridPosition(originalPosition);
         unit.RestoreMove(originalEnergy);
+        // Detect the unit's terrain after it has been moved back to its original position.
+        UpdateUnitTerrain(unit);
         return true;
     }
 

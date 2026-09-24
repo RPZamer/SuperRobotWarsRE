@@ -10,7 +10,7 @@ public enum BattleTeam
 public class BattleUnit : MonoBehaviour
 {
     [SerializeField] private PilotBase pilot;
-    // WEEK 3: Assign the mech asset and the terrain this unit is currently using.
+    // WEEK 3: Assign the mech asset and stores the terrain this unit is currently using.
     [SerializeField] private MechBase mech;
     [SerializeField] private TerrainType terrain = TerrainType.Ground;
     [SerializeField] private BattleTeam team;
@@ -28,7 +28,15 @@ public class BattleUnit : MonoBehaviour
     public PilotBase Pilot => pilot;
     // WEEK 3: Expose mech settings and keep energy and movement state on this individual unit.
     public MechBase Mech => mech;
+    // Expose the terrain currently assigned to this unit.
+    
     public TerrainType Terrain => terrain;
+    // Allow the terrain detector to update this unit's terrain type when it moves to a new grid cell.
+    public void SetTerrain(TerrainType newTerrain)
+    {
+        terrain = newTerrain;
+    }
+
     public int CurrentEnergy { get; private set; }
     public bool HasMoved { get; private set; }
     // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
