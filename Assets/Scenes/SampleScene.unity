@@ -336,7 +336,7 @@ MonoBehaviour:
   battlefield: {fileID: 2007392314}
   battleCamera: {fileID: 519420031}
   dialogSystem: {fileID: 874664673}
-  actionsMenu: {fileID: 685094149}
+  actionsMenu: {fileID: 0}
   playerTeam: 0
   enemyMoveDelay: 0.5
   debugBattleCalculations: 1
@@ -507,17 +507,6 @@ RectTransform:
   m_AnchoredPosition: {x: -1126.8076, y: 2.2417}
   m_SizeDelta: {x: 212.3997, y: 213.45}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &685094149 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6216664007392988509, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
-  m_PrefabInstance: {fileID: 2101961644}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5a518f5af5e03d4ca534964f8431979, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ActionsMenu
 --- !u!1 &874664671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,7 +1106,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 61354326748675060, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.00026588546
+      value: 0.00040782004
       objectReference: {fileID: 0}
     - target: {fileID: 540589525834640078, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1137,7 +1126,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1483078094517055311, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.99999803
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1544348867201578458, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2919351313972528229, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3359606658270800796, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3847930835924475216, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_Name
@@ -1166,6 +1167,10 @@ PrefabInstance:
     - target: {fileID: 4482854874375976926, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_SizeDelta.x
       value: -17
+      objectReference: {fileID: 0}
+    - target: {fileID: 4919107668586354179, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6167665217608593584, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchorMax.y

@@ -20,6 +20,11 @@ public class BattleUnit : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Color normalColor = Color.white;
 
+    // WEEK 3: Track the unit's temporary visual state so selection,
+    // enemy AI actions, and completed actions can use different colors.
+    private bool isSelected;
+    private bool isActing;
+
     public PilotBase Pilot => pilot;
     // WEEK 3: Expose mech settings and keep energy and movement state on this individual unit.
     public MechBase Mech => mech;
@@ -27,10 +32,24 @@ public class BattleUnit : MonoBehaviour
     public int CurrentEnergy { get; private set; }
     public bool HasMoved { get; private set; }
     // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
+
+    // WEEK 3: Track whether this unit has completed its full action
+    // during the current phase.
+    public bool HasActed { get; private set; }
     public int AvailableMovement => mech != null && !HasMoved ? Mathf.Min(mech.Movement, CurrentEnergy) : 0;
 
     // WEEK 3: Allow movement at the start of a turn, then remember when it has been used.
-    public void BeginTurn() => HasMoved = false;
+    
+    // WEEK 3: Reset movement and action availability when this unit's
+    // new phase begins, then restore its original visual state.
+    public void BeginTurn()
+    {
+        HasMoved = false;
+        HasActed = false;
+        isSelected = false;
+        isActing = false;
+        RefreshVisualState();
+    }
     public void MarkMoved() => HasMoved = true;
     public BattleTeam Team => team;
     public Vector2Int GridPosition { get; private set; }
@@ -62,14 +81,67 @@ public class BattleUnit : MonoBehaviour
         }
     }
 
-    public void SetSelected(bool isSelected)
+    // WEEK 3: Selection always has visual priority so even a unit that
+    // already acted can still turn yellow when the player clicks it.
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        RefreshVisualState();
+    }
+
+    // WEEK 3: Highlight an enemy blue while its AI action is actively
+    // being processed. When finished, it can return to grey.
+    public void SetActing(bool acting)
+    {
+        isActing = acting;
+        RefreshVisualState();
+    }
+
+    // WEEK 3: Mark this unit as finished for the current phase.
+    // Finished units appear grey unless currently selected or acting.
+    public void MarkActed()
+    {
+        HasActed = true;
+        RefreshVisualState();
+    }
+
+    // WEEK 3: Restore the unit's normal appearance without changing
+    // its logical action state. Phase management will use this when needed.
+    public void RestoreNormalColor()
+    {
+        isSelected = false;
+        isActing = false;
+
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = normalColor;
+        }
+    }
+
+    // WEEK 3: Visual priority is Selected > Acting > Acted > Normal.
+    private void RefreshVisualState()
     {
         if (spriteRenderer == null)
         {
             return;
         }
 
-        spriteRenderer.color = isSelected ? Color.yellow : normalColor;
+        if (isSelected)
+        {
+            spriteRenderer.color = Color.yellow;
+        }
+        else if (isActing)
+        {
+            spriteRenderer.color = Color.blue;
+        }
+        else if (HasActed)
+        {
+            spriteRenderer.color = Color.grey;
+        }
+        else
+        {
+            spriteRenderer.color = normalColor;
+        }
     }
     public bool PlaceOn(Battlefield targetBattlefield)
     {
