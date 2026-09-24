@@ -132,11 +132,22 @@ public class BattleSystem : MonoBehaviour
 
     private void Update()
     {
+        // Right clicking and pressing escape exits a menu
         if (isPlayerTurn)
         {
-            // WEEK 3: Right-click backs out even while the cursor is over a menu.
-            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame) Back();
-            else HandleMouse();
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                Back();
+                return;
+            }
+
+            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
+            {
+                Back();
+                return;
+            }
+
+            HandleMouse();
         }
     }
 

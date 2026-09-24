@@ -12,6 +12,11 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private Button moveButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button standbyButton;
+    [SerializeField] private Button StatusButton;
+
+    [Header("Unit Info UI")]
+    [SerializeField] private CanvasGroup UnitInfoPanel;
+
 
     [Header("Your Weapon UI")]
     [SerializeField] private CanvasGroup weaponsPanel;
@@ -32,7 +37,7 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text accuracyStat;
     // [SerializeField] private TMP_Text skillText;  // What is this for?
 
-    
+    /*
     [Header("Pilot Terrain TMP Fields")]
     [SerializeField] private TMP_Text pilotAirText;
     [SerializeField] private TMP_Text pilotGroundText;
@@ -45,7 +50,7 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text mechWaterText;
     [SerializeField] private TMP_Text mechSpaceText;
 
-    /*
+    
     [Header("Selected Weapon TMP Fields")]
     [SerializeField] private TMP_Text weaponNameText;
     [SerializeField] private TMP_Text weaponTypeText;
@@ -108,6 +113,8 @@ public class ActionsMenu : MonoBehaviour
         actionsCanvas = GetComponentInParent<Canvas>();
 
         Hide();
+
+        SetVisible(UnitInfoPanel, false);
     }
 
     // WEEK 3: Require the controls and TMP fields you create before battle starts.
@@ -124,12 +131,20 @@ public class ActionsMenu : MonoBehaviour
         attackButton.onClick.AddListener(battle.OpenWeapons);
         standbyButton.onClick.AddListener(battle.Standby);
         confirmButton.onClick.AddListener(battle.ConfirmWeapon);
+        StatusButton.onClick.AddListener(UnitScreen);
         return true;
     }
 
     // WEEK 3: Blink only the selected weapon row using colors you choose.
     private void Update()
     {
+        // pressing escape closes a menu.
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseCurrentMenu();
+            return;
+        }
+
         if (weaponsPanel == null || weaponsPanel.alpha <= 0f) return;
         foreach (WeaponRowView row in rows)
             row.SetSelected(row.Weapon == selected, normalWeaponColor, selectedWeaponColor, blinkSeconds);
@@ -248,10 +263,11 @@ public class ActionsMenu : MonoBehaviour
 
         /*
         Set(skillText, $"Skill: {pilot.Skill}");
-        */
+        
 
         SetTerrainFields(pilot.TerrainRatings, pilotAirText, pilotGroundText, pilotWaterText, pilotSpaceText);
         SetTerrainFields(mech.TerrainRatings, mechAirText, mechGroundText, mechWaterText, mechSpaceText);
+        */
     }
 
     private static void SetTerrainFields(TerrainRatings ratings, TMP_Text air, TMP_Text ground, TMP_Text water, TMP_Text space)
@@ -331,4 +347,34 @@ public class ActionsMenu : MonoBehaviour
     }
 
     private static void Set(TMP_Text text, string value) => text.text = value;
+
+    private void UnitScreen()
+    {
+        if (battle == null || battle.SelectedUnit == null)
+        {
+            return;
+        }
+
+        SetPilotAndMechFields(battle.SelectedUnit);
+
+        SetVisible(actionsPanel, false);
+        SetVisible(UnitInfoPanel, true);
+    }
+
+    private void CloseCurrentMenu()
+    {
+        if (UnitInfoPanel != null && UnitInfoPanel.alpha > 0f)
+        {
+            SetVisible(UnitInfoPanel, false);
+            SetVisible(actionsPanel, true);
+            return;
+        }
+
+        if (weaponsPanel != null && weaponsPanel.alpha > 0f)
+        {
+            SetVisible(weaponsPanel, false);
+            SetVisible(actionsPanel, true);
+            return;
+        }
+    }
 }
