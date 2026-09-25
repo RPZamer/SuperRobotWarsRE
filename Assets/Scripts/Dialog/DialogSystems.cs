@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 [DisallowMultipleComponent]
@@ -7,8 +8,8 @@ public class DialogSystem : MonoBehaviour
 {
     [Header("Dialogue UI")]
     [SerializeField] private CanvasGroup dialogueCanvas;
-    [SerializeField] private Text speakerNameText;
-    [SerializeField] private Text dialogueText;
+    [SerializeField] private TMP_Text speakerNameText;
+    [SerializeField] private TMP_Text dialogueText;
     [SerializeField] private Image profileBox;
 
     [Header("Presentation")]

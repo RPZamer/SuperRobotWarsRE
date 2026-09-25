@@ -507,8 +507,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1126.8076, y: 2.2417}
-  m_SizeDelta: {x: 212.3997, y: 213.45}
+  m_AnchoredPosition: {x: -607.1227, y: 53.0968}
+  m_SizeDelta: {x: 93.0264, y: 111.7399}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &874664671
 GameObject:
@@ -699,8 +699,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 108.29, y: -0.0032883}
-  m_SizeDelta: {x: 2257.8, y: 217.94}
+  m_AnchoredPosition: {x: -66.177155, y: 51.921524}
+  m_SizeDelta: {x: 988.8667, y: 114.0904}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1431048159
 CanvasRenderer:
@@ -953,7 +953,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
+  m_Sprite: {fileID: 2078375184, guid: d2205c473740b5849b5ee8ee5d953e69, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1009,8 +1009,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 108.29, y: -0.0032883}
-  m_SizeDelta: {x: 2257.8, y: 217.94}
+  m_AnchoredPosition: {x: -66.177155, y: 51.921524}
+  m_SizeDelta: {x: 988.8667, y: 114.0904}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1765834005
 CanvasRenderer:
@@ -1201,6 +1201,10 @@ PrefabInstance:
     - target: {fileID: 6226474026097835291, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6337637407772324406, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6398436156892373712, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchorMax.y

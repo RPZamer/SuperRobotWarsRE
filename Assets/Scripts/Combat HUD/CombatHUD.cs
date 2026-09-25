@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CombatHUD : MonoBehaviour
 {
@@ -17,6 +18,18 @@ public class CombatHUD : MonoBehaviour
     [Header("Targeted Enemy")]
     [SerializeField] private TMP_Text targetedEnemyNameText;
     [SerializeField] private TMP_Text targetedEnemyHPText;
+
+    [SerializeField] private Button EndPhaseButton;
+
+    private BattleSystem BattleHud;
+
+    private void Start()
+    {
+        BattleHud = FindFirstObjectByType<BattleSystem>();
+
+        if (EndPhaseButton != null)
+            EndPhaseButton.onClick.AddListener(BattleHud.EndPlayerPhase);
+    }
 
     // WEEK 3: Displays the currently selected player's mech information.
     public void ShowSelectedUnit(BattleUnit unit)
