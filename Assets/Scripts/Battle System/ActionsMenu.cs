@@ -12,6 +12,11 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private Button moveButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button standbyButton;
+    [SerializeField] private Button StatusButton;
+
+    [Header("Unit Info UI")]
+    [SerializeField] private CanvasGroup UnitInfoPanel;
+
 
     [Header("Your Weapon UI")]
     [SerializeField] private CanvasGroup weaponsPanel;
@@ -25,13 +30,14 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text healthText;
     [SerializeField] private TMP_Text energyText;
     [SerializeField] private TMP_Text moraleText;
-    [SerializeField] private TMP_Text meleeText;
-    [SerializeField] private TMP_Text rangedText;
-    [SerializeField] private TMP_Text defenseText;
-    [SerializeField] private TMP_Text evadeText;
-    [SerializeField] private TMP_Text accuracyText;
-    [SerializeField] private TMP_Text skillText;
+    [SerializeField] private TMP_Text meleePower;
+    [SerializeField] private TMP_Text rangedPower;
+    [SerializeField] private TMP_Text defenseStat;
+    [SerializeField] private TMP_Text evadeStat;
+    [SerializeField] private TMP_Text accuracyStat;
+    // [SerializeField] private TMP_Text skillText;  // What is this for?
 
+    /*
     [Header("Pilot Terrain TMP Fields")]
     [SerializeField] private TMP_Text pilotAirText;
     [SerializeField] private TMP_Text pilotGroundText;
@@ -44,6 +50,7 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text mechWaterText;
     [SerializeField] private TMP_Text mechSpaceText;
 
+    
     [Header("Selected Weapon TMP Fields")]
     [SerializeField] private TMP_Text weaponNameText;
     [SerializeField] private TMP_Text weaponTypeText;
@@ -57,6 +64,16 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text weaponGroundText;
     [SerializeField] private TMP_Text weaponWaterText;
     [SerializeField] private TMP_Text weaponSpaceText;
+    */
+
+    // theres alot of text fields being used that feel unnecessary, but will be kept for now.
+
+    [Header("Selected Weapon TMP Fields")]
+    [SerializeField] private TMP_Text weaponNameText;
+    [SerializeField] private TMP_Text weaponDamageText;
+    [SerializeField] private TMP_Text weaponRangeText;
+    [SerializeField] private TMP_Text weaponEnergyCostText;
+
 
     [Header("Optional Presentation")]
     [Min(0.1f)][SerializeField] private float blinkSeconds = 0.8f;
@@ -96,6 +113,8 @@ public class ActionsMenu : MonoBehaviour
         actionsCanvas = GetComponentInParent<Canvas>();
 
         Hide();
+
+        SetVisible(UnitInfoPanel, false);
     }
 
     // WEEK 3: Require the controls and TMP fields you create before battle starts.
@@ -112,12 +131,20 @@ public class ActionsMenu : MonoBehaviour
         attackButton.onClick.AddListener(battle.OpenWeapons);
         standbyButton.onClick.AddListener(battle.Standby);
         confirmButton.onClick.AddListener(battle.ConfirmWeapon);
+        StatusButton.onClick.AddListener(UnitScreen);
         return true;
     }
 
     // WEEK 3: Blink only the selected weapon row using colors you choose.
     private void Update()
     {
+        // pressing escape closes a menu.
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            CloseCurrentMenu();
+            return;
+        }
+
         if (weaponsPanel == null || weaponsPanel.alpha <= 0f) return;
         foreach (WeaponRowView row in rows)
             row.SetSelected(row.Weapon == selected, normalWeaponColor, selectedWeaponColor, blinkSeconds);
@@ -175,6 +202,7 @@ public class ActionsMenu : MonoBehaviour
     }
 
     // WEEK 3: Fill each selected-weapon TMP field independently.
+    /*
     public void SetWeapon(Weapon weapon)
     {
         selected = weapon;
@@ -191,6 +219,26 @@ public class ActionsMenu : MonoBehaviour
         Set(weaponCriticalText, $"Critical: {weapon.CriticalModifier:+0;-0;0}");
         SetTerrainFields(weapon.TerrainRatings, weaponAirText, weaponGroundText, weaponWaterText, weaponSpaceText);
     }
+    */
+    // The code wont be deleted but same thing as above, dont know why we need all these text values.
+
+    public void SetWeapon(Weapon weapon)
+    {
+        selected = weapon;
+
+        confirmButton.interactable = weapon != null && battle != null && battle.HasTarget(weapon);
+
+        if (weapon == null)
+        { 
+            return; 
+        }
+
+        Set(weaponNameText, "Name: " + weapon.WeaponName);
+        Set(weaponDamageText, "Damage: " + weapon.Power);
+        Set(weaponRangeText, "Range: " + weapon.MinRange + "-" + weapon.MaxRange);
+        Set(weaponEnergyCostText, "EN Cost: " + weapon.EnergyCost);
+    }
+
 
     public void Hide()
     {
@@ -207,14 +255,19 @@ public class ActionsMenu : MonoBehaviour
         Set(healthText, $"HP: {selectedUnit.CurrentHealth}/{mech.Health}");
         Set(energyText, $"EN: {selectedUnit.CurrentEnergy}/{mech.Energy}");
         Set(moraleText, $"Morale: {pilot.Morale}");
-        Set(meleeText, $"Melee: {pilot.Melee}");
-        Set(rangedText, $"Ranged: {pilot.Ranged}");
-        Set(defenseText, $"Defense: {pilot.Defense}");
-        Set(evadeText, $"Evade: {pilot.Evade}");
-        Set(accuracyText, $"Accuracy: {pilot.Accuracy}");
+        Set(meleePower, $"Melee: {pilot.Melee}");
+        Set(rangedPower, $"Ranged: {pilot.Ranged}");
+        Set(defenseStat, $"Defense: {pilot.Defense}");
+        Set(evadeStat, $"Evade: {pilot.Evade}");
+        Set(accuracyStat, $"Accuracy: {pilot.Accuracy}");
+
+        /*
         Set(skillText, $"Skill: {pilot.Skill}");
+        
+
         SetTerrainFields(pilot.TerrainRatings, pilotAirText, pilotGroundText, pilotWaterText, pilotSpaceText);
         SetTerrainFields(mech.TerrainRatings, mechAirText, mechGroundText, mechWaterText, mechSpaceText);
+        */
     }
 
     private static void SetTerrainFields(TerrainRatings ratings, TMP_Text air, TMP_Text ground, TMP_Text water, TMP_Text space)
@@ -225,6 +278,7 @@ public class ActionsMenu : MonoBehaviour
         Set(space, $"Space: {ratings.Get(TerrainType.Space)}");
     }
 
+    /*
     private bool IsConfigured() =>
         actionsPanel != null && weaponsPanel != null &&
         moveButton != null && attackButton != null && standbyButton != null && confirmButton != null &&
@@ -239,6 +293,10 @@ public class ActionsMenu : MonoBehaviour
         weaponPowerText != null && weaponRangeText != null && weaponEnergyCostText != null &&
         weaponAccuracyText != null && weaponCriticalText != null &&
         weaponAirText != null && weaponGroundText != null && weaponWaterText != null && weaponSpaceText != null;
+    */
+
+    private bool IsConfigured() => weaponNameText != null && weaponDamageText != null && weaponRangeText != null && weaponEnergyCostText != null;
+
 
     // WEEK 3: Move the Action Panel beside the selected player's mech
     // by converting the unit's world position into Canvas UI coordinates.
@@ -289,4 +347,34 @@ public class ActionsMenu : MonoBehaviour
     }
 
     private static void Set(TMP_Text text, string value) => text.text = value;
+
+    private void UnitScreen()
+    {
+        if (battle == null || battle.SelectedUnit == null)
+        {
+            return;
+        }
+
+        SetPilotAndMechFields(battle.SelectedUnit);
+
+        SetVisible(actionsPanel, false);
+        SetVisible(UnitInfoPanel, true);
+    }
+
+    private void CloseCurrentMenu()
+    {
+        if (UnitInfoPanel != null && UnitInfoPanel.alpha > 0f)
+        {
+            SetVisible(UnitInfoPanel, false);
+            SetVisible(actionsPanel, true);
+            return;
+        }
+
+        if (weaponsPanel != null && weaponsPanel.alpha > 0f)
+        {
+            SetVisible(weaponsPanel, false);
+            SetVisible(actionsPanel, true);
+            return;
+        }
+    }
 }
