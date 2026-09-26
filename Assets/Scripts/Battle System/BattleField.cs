@@ -55,6 +55,10 @@ public class Battlefield : MonoBehaviour
         unit.SetTerrain(detectedTerrain);
         
         Debug.Log("[Terrain Detector] " + unit.name + " at " + unit.GridPosition + " is on " + detectedTerrain );
+        
+        TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
+        Debug.Log("[TILE TYPE] " + unit.name + " at " + unit.GridPosition + " | Battle Terrain: " + unit.Terrain
+            + " | Tile Type: " + tileType);
     }
 
     public void RegisterSceneUnits()
