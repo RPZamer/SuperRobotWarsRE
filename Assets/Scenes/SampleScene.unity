@@ -3269,11 +3269,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3678879811108251444, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 108
+      value: 6.3
       objectReference: {fileID: 0}
     - target: {fileID: 3678879811108251444, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -90
+      value: -86.8
       objectReference: {fileID: 0}
     - target: {fileID: 3795694562319518973, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_Content
@@ -3385,7 +3385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5156557701968973919, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6167665217608593584, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: m_AnchorMax.y
@@ -3415,6 +3415,10 @@ PrefabInstance:
       propertyPath: EndPhase
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6216664007392988509, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
+      propertyPath: combatHUD
+      value: 
+      objectReference: {fileID: 1486179437}
     - target: {fileID: 6216664007392988509, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
       propertyPath: EndPhaseButton
       value: 
