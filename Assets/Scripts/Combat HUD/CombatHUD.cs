@@ -47,7 +47,7 @@ public class CombatHUD : MonoBehaviour
         selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
 
         //Display the terrain information for the selected unit's current tile.
-        tileInforText.text = $"Terrain: {unit.TileType}";
+        tileInforText.text = $"Terrain: {unit.Terrain}";
 
     }
 

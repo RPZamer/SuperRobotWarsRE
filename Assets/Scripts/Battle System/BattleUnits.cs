@@ -14,7 +14,6 @@ public class BattleUnit : MonoBehaviour
     [SerializeField] private MechBase mech;
     [SerializeField] private TerrainType terrain = TerrainType.Ground;
     [SerializeField] private BattleTeam team;
-    [SerializeField] private TileTypes tileType = TileTypes.Ground;
     [SerializeField] private Vector2Int startingPosition;
 
     private Battlefield battlefield;
@@ -37,12 +36,7 @@ public class BattleUnit : MonoBehaviour
     {
         terrain = newTerrain;
     }
-    public TileTypes TileType => tileType;
 
-    public void SetTileType(TileTypes newTileType)
-    {
-        tileType = newTileType;
-    }   
     public int CurrentEnergy { get; private set; }
     public bool HasMoved { get; private set; }
     // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
