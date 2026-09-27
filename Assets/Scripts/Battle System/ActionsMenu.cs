@@ -71,9 +71,13 @@ public class ActionsMenu : MonoBehaviour
 
     [Header("Selected Weapon TMP Fields")]
     [SerializeField] private TMP_Text weaponNameText;
+    [SerializeField] private TMP_Text weaponTypeText; //
     [SerializeField] private TMP_Text weaponDamageText;
     [SerializeField] private TMP_Text weaponRangeText;
+    [SerializeField] private TMP_Text weaponAccuracyText; //
     [SerializeField] private TMP_Text weaponEnergyCostText;
+    [SerializeField] private TMP_Text weaponCriticalText; //
+
 
 
     [Header("Optional Presentation")]
@@ -234,10 +238,13 @@ public class ActionsMenu : MonoBehaviour
             return; 
         }
 
-        Set(weaponNameText, "Name: " + weapon.WeaponName);
-        Set(weaponDamageText, "Damage: " + weapon.Power);
-        Set(weaponRangeText, "Range: " + weapon.MinRange + "-" + weapon.MaxRange);
-        Set(weaponEnergyCostText, "EN Cost: " + weapon.EnergyCost);
+        Set(weaponNameText, weapon.WeaponName);
+        Set(weaponTypeText, weapon.DamageType.ToString());
+        Set(weaponDamageText, weapon.Power.ToString());
+        Set(weaponRangeText, weapon.MinRange + "-" + weapon.MaxRange);
+        Set(weaponAccuracyText, weapon.AccuracyModifier.ToString());
+        Set(weaponCriticalText, weapon.CriticalModifier.ToString());
+        Set(weaponEnergyCostText, weapon.EnergyCost.ToString());
     }
 
 
