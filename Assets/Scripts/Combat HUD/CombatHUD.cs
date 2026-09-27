@@ -8,6 +8,9 @@ public class CombatHUD : MonoBehaviour
     [SerializeField] private TMP_Text selectedUnitNameText;
     [SerializeField] private TMP_Text selectedUnitHPText;
 
+    // Store the HUD text used to display information about the terrain.
+    [SerializeField] private TMP_Text tileInforText;
+
     // WEEK 3: Store the persistent HUD text used to display the final
     // Victory or Defeat result when the scenario ends.
     [Header("Scenario Result")]
@@ -42,6 +45,10 @@ public class CombatHUD : MonoBehaviour
 
         selectedUnitNameText.text = unit.Mech.MechName;
         selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
+
+        //Display the terrain information for the selected unit's current tile.
+        tileInforText.text = $"Terrain: {unit.Terrain}";
+
     }
 
     // WEEK 3: Displays identifying information and current HP for
@@ -86,6 +93,8 @@ public class CombatHUD : MonoBehaviour
     {
         selectedUnitNameText.text = "Selected Unit";
         selectedUnitHPText.text = "HP: -- / --";
+        // Clear the terrain information when no unit is selected.
+        tileInforText.text = "Terrain: --";
     }
 
     // WEEK 3: Hide the final scenario result while normal battle

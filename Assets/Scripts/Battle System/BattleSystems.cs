@@ -212,6 +212,13 @@ public class BattleSystem : MonoBehaviour
         if (occupant == null && battlefield.TryMove(selectedUnit, position))
         {
             battlefield.ShowMovement(selectedUnit);
+
+            // Refresh the selected unit HUD after movement so the terrain display shows the terrain detected at the unit's new position.
+            if (combatHUD != null)
+            {
+                combatHUD.ShowSelectedUnit(selectedUnit);
+            }
+
             // WEEK 3: Report the move before reopening the action menu.
             Debug.Log($"[Move Debug] Move succeeded. New position: {position}.", this);
             ShowActions();
