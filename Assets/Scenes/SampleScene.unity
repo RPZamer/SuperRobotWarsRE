@@ -606,6 +606,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2143663778499081243, guid: 316b4cb0741de33438d3d573048b51d1, type: 3}
   m_PrefabInstance: {fileID: 2101961644}
   m_PrefabAsset: {fileID: 0}
+--- !u!1839735485 &373920960 stripped
+Tilemap:
+  m_CorrespondingSourceObject: {fileID: 6970392572373139877, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
+  m_PrefabInstance: {fileID: 1713566764}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &380079001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1881,6 +1886,7 @@ MonoBehaviour:
   mech: {fileID: 11400000, guid: 73c9671d48699b24e95af4575bf6e322, type: 2}
   terrain: 1
   team: 1
+  tileType: 0
   startingPosition: {x: 12, y: 10}
 --- !u!212 &1435154528
 SpriteRenderer:
@@ -2067,6 +2073,7 @@ MonoBehaviour:
   mech: {fileID: 11400000, guid: 9917b5e1b2e3c73439734b4e5da29b24, type: 2}
   terrain: 1
   team: 0
+  tileType: 0
   startingPosition: {x: 17, y: 10}
 --- !u!212 &1516142470
 SpriteRenderer:
@@ -2273,6 +2280,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1023176182473720622, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.1879468
+      objectReference: {fileID: 0}
+    - target: {fileID: 1023176182473720622, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -9.1326
+      objectReference: {fileID: 0}
+    - target: {fileID: 1023176182473720622, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -5.37
+      objectReference: {fileID: 0}
+    - target: {fileID: 3683198871506143589, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
       propertyPath: m_Name
       value: Grid
@@ -3037,6 +3060,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2007392315}
   - component: {fileID: 2007392314}
+  - component: {fileID: 2007392316}
   m_Layer: 0
   m_Name: Battle Field
   m_TagString: Untagged
@@ -3083,6 +3107,22 @@ Transform:
   - {fileID: 1435154526}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2007392316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2007392313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 424c49dc50a8ba14dac23eb715d85853, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainDetector
+  terrainTilemap: {fileID: 373920960}
+  battlefield: {fileID: 2007392314}
+  defaultTerrain: 1
+  terrainCells: []
 --- !u!1001 &2101961644
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3783,6 +3823,26 @@ PrefabInstance:
     - target: {fileID: 1782842038480981538, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038515309843896679, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
+      propertyPath: m_UiScaleMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038515309843896679, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
+      propertyPath: m_MatchWidthOrHeight
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038515309843896679, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
+      propertyPath: m_ReferenceResolution.x
+      value: 1920
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038515309843896679, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
+      propertyPath: m_ReferenceResolution.y
+      value: 1080
+      objectReference: {fileID: 0}
+    - target: {fileID: 6038515309843896679, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
+      propertyPath: m_ReferencePixelsPerUnit
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8687095800101834179, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
       propertyPath: m_Name
