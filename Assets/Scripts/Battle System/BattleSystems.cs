@@ -727,6 +727,7 @@ public class BattleSystem : MonoBehaviour
                 yield return ShowBattleMessage(attackerPilot, PilotEmotion.Motivated, successLine, true);
             }
         }
+        
     }
 
     private IEnumerator ShowBattleMessage(

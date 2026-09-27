@@ -117,4 +117,15 @@ public class CombatHUD : MonoBehaviour
             scenarioResultText.gameObject.SetActive(true);
         }
     }
+    
+    // this is to hide the Hud in certain actions of the game
+    public void ShowHUD()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void HideHUD()
+    {
+        gameObject.SetActive(false);
+    }
 }
