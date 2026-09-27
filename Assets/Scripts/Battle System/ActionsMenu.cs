@@ -50,33 +50,21 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private TMP_Text mechGroundText;
     [SerializeField] private TMP_Text mechWaterText;
     [SerializeField] private TMP_Text mechSpaceText;
+    */
 
-    
+  
     [Header("Selected Weapon TMP Fields")]
     [SerializeField] private TMP_Text weaponNameText;
-    [SerializeField] private TMP_Text weaponTypeText;
-    [SerializeField] private TMP_Text weaponClassificationText;
-    [SerializeField] private TMP_Text weaponPowerText;
+    [SerializeField] private TMP_Text weaponTypeText; 
+    [SerializeField] private TMP_Text weaponDamageText;
     [SerializeField] private TMP_Text weaponRangeText;
+    [SerializeField] private TMP_Text weaponAccuracyText; 
     [SerializeField] private TMP_Text weaponEnergyCostText;
-    [SerializeField] private TMP_Text weaponAccuracyText;
     [SerializeField] private TMP_Text weaponCriticalText;
     [SerializeField] private TMP_Text weaponAirText;
     [SerializeField] private TMP_Text weaponGroundText;
     [SerializeField] private TMP_Text weaponWaterText;
     [SerializeField] private TMP_Text weaponSpaceText;
-    */
-
-    // theres alot of text fields being used that feel unnecessary, but will be kept for now.
-
-    [Header("Selected Weapon TMP Fields")]
-    [SerializeField] private TMP_Text weaponNameText;
-    [SerializeField] private TMP_Text weaponTypeText; //
-    [SerializeField] private TMP_Text weaponDamageText;
-    [SerializeField] private TMP_Text weaponRangeText;
-    [SerializeField] private TMP_Text weaponAccuracyText; //
-    [SerializeField] private TMP_Text weaponEnergyCostText;
-    [SerializeField] private TMP_Text weaponCriticalText; //
 
 
 
@@ -207,25 +195,7 @@ public class ActionsMenu : MonoBehaviour
     }
 
     // WEEK 3: Fill each selected-weapon TMP field independently.
-    /*
-    public void SetWeapon(Weapon weapon)
-    {
-        selected = weapon;
-        confirmButton.interactable = weapon != null && battle != null && battle.HasTarget(weapon);
-        if (weapon == null) return;
-
-        Set(weaponNameText, $"Weapon: {weapon.WeaponName}");
-        Set(weaponTypeText, $"Type: {weapon.DamageType}");
-        Set(weaponClassificationText, $"Class: {weapon.Classification}");
-        Set(weaponPowerText, $"Power: {weapon.Power}");
-        Set(weaponRangeText, $"Range: {weapon.MinRange}-{weapon.MaxRange}");
-        Set(weaponEnergyCostText, $"EN Cost: {weapon.EnergyCost}");
-        Set(weaponAccuracyText, $"Accuracy: {weapon.AccuracyModifier:+0;-0;0}");
-        Set(weaponCriticalText, $"Critical: {weapon.CriticalModifier:+0;-0;0}");
-        SetTerrainFields(weapon.TerrainRatings, weaponAirText, weaponGroundText, weaponWaterText, weaponSpaceText);
-    }
-    */
-    // The code wont be deleted but same thing as above, dont know why we need all these text values.
+   
 
     public void SetWeapon(Weapon weapon)
     {
@@ -245,6 +215,7 @@ public class ActionsMenu : MonoBehaviour
         Set(weaponAccuracyText, weapon.AccuracyModifier.ToString());
         Set(weaponCriticalText, weapon.CriticalModifier.ToString());
         Set(weaponEnergyCostText, weapon.EnergyCost.ToString());
+        SetTerrainFields(weapon.TerrainRatings, weaponAirText, weaponGroundText, weaponWaterText, weaponSpaceText);
     }
 
 
