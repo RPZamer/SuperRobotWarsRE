@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using TMPro;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class BattleSystem : MonoBehaviour
 {
@@ -33,12 +34,16 @@ public class BattleSystem : MonoBehaviour
     private void Awake() => BattleDebug.Enabled = debugBattleCalculations;
     private void OnValidate() => BattleDebug.Enabled = debugBattleCalculations;
 
+    // WEEK 4: MOTHERSHIP - Reuse UI raycast results when checking a left-click.
+    private readonly List<RaycastResult> pointerHits = new();
     private BattleUnit selectedUnit;
     // WEEK 3: Expose the currently selected player unit so movement,
     // combat, and UI systems can access the active unit without
     // directly modifying the BattleSystem's private selection state.
     public BattleUnit SelectedUnit => selectedUnit;
     private bool isPlayerTurn;
+    // WEEK 4: MOTHERSHIP - The phase button is available only while player commands are allowed.
+    public bool CanEndPlayerPhase => isActiveAndEnabled && isPlayerTurn && !ScenarioEnded;
     // WEEK 3: Track the current battle turn so the Combat HUD
     // can show the player which turn is currently being played.
     private int currentTurn = 1;
@@ -60,7 +65,19 @@ public class BattleSystem : MonoBehaviour
         scenarioResult != ScenarioResult.InProgress;
 
     // WEEK 3: Remember the current menu step and selected weapon.
-    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby }
+    // WEEK 4: MOTHERSHIP - Boarding, hangar list and deployment reuse the selection flow.
+    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby, Boarding, Hangar, Deployment }
+    private BattleUnit passengerToDeploy;
+    // WEEK 4: MOTHERSHIP - Preview docking without overwriting the ship's grid occupancy.
+    private Mothership pendingDock;
+    // WEEK 4: MOTHERSHIP - The menu reads the same docking state used by its confirmation callback.
+    public bool IsDockConfirmation => pendingDock != null && selectedUnit != null &&
+        selectionStep == SelectionStep.Actions;
+    // WEEK 4: MOTHERSHIP - Keep unconfirmed movement rollback per unit when switching selection.
+    private readonly Dictionary<BattleUnit, (Vector2Int position, int energy)> unconfirmedMoves = new();
+    public bool CanUndoSelectedMove => selectedUnit != null && !selectedUnit.HasActed &&
+        unconfirmedMoves.TryGetValue(selectedUnit, out var move) &&
+        (battlefield.GetUnit(move.position) == null || battlefield.GetUnit(move.position) == selectedUnit);
     private SelectionStep selectionStep;
     private Weapon selectedWeapon;
 
@@ -133,7 +150,6 @@ public class BattleSystem : MonoBehaviour
 
     private void Update()
     {
-        // Right clicking and pressing escape exits a menu
         if (isPlayerTurn)
         {
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -141,14 +157,9 @@ public class BattleSystem : MonoBehaviour
                 Back();
                 return;
             }
-
-            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame)
-            {
-                Back();
-                return;
-            }
-
-            HandleMouse();
+            // WEEK 3: Right-click backs out even while the cursor is over a menu.
+            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame) Back();
+            else HandleMouse();
         }
     }
 
@@ -160,8 +171,11 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Menu buttons handle their own clicks. Movement and target clicks always reach the battlefield.
-        if (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Weapons) return;
+        // WEEK 4: MOTHERSHIP - Only controls consume map clicks; background Images and TMP text do not.
+        // Raycast at this click's position instead of using the EventSystem's previous pointer state.
+        if (IsPointerOverControl(Mouse.current.position.ReadValue())) return;
+
+        // WEEK 4: MOTHERSHIP - Map clicks may switch friendly units even while a menu is open.
         Vector2 mousePosition = Mouse.current.position.ReadValue();
         float distanceToGrid = Mathf.Abs(battleCamera.transform.position.z - battlefield.transform.position.z);
         Vector3 screenPosition = new(mousePosition.x, mousePosition.y, distanceToGrid);
@@ -169,33 +183,72 @@ public class BattleSystem : MonoBehaviour
         ConfirmCell(battlefield.WorldToGrid(worldPosition));
     }
 
+    // WEEK 4: MOTHERSHIP - Keep End Phase/button clicks off the grid without blocking the map background.
+    private bool IsPointerOverControl(Vector2 position)
+    {
+        EventSystem events = EventSystem.current;
+        if (events == null) return false;
+        pointerHits.Clear();
+        events.RaycastAll(new PointerEventData(events) { position = position }, pointerHits);
+        foreach (RaycastResult hit in pointerHits)
+        {
+            if (!(hit.module is GraphicRaycaster) || hit.gameObject == null) continue;
+            Selectable control = hit.gameObject.GetComponentInParent<Selectable>();
+            // Disabled buttons still occupy UI space and should not send clicks through to a unit.
+            if (control != null && control.isActiveAndEnabled) return true;
+        }
+        return false;
+    }
+
     // WEEK 3: Move first, then choose an action, a weapon, and a target.
     private void ConfirmCell(Vector2Int position)
     {
-        if (!battlefield.IsInside(position) || selectedUnit == null) return;
+        if (!CanEndPlayerPhase || !battlefield.IsInside(position)) return;
         BattleUnit occupant = battlefield.GetUnit(position);
+
+        // WEEK 4: MOTHERSHIP - A second click on the previewed ship must not select it and cancel Dock.
+        if (IsDockConfirmation && occupant == pendingDock.Unit)
+        {
+            ShowActions();
+            return;
+        }
+
+        // WEEK 4: MOTHERSHIP - In Move mode, clicking a reachable ship previews that destination.
+        if (selectionStep == SelectionStep.Movement && selectedUnit != null && occupant != null &&
+            occupant.TryGetComponent(out Mothership carrier) && carrier.CanDock(selectedUnit))
+        {
+            pendingDock = carrier;
+            selectedUnit.transform.position = battlefield.GridToWorld(carrier.Unit.GridPosition);
+            ShowActions();
+            return;
+        }
+
+        // WEEK 4: MOTHERSHIP - Left-click any friendly map unit to take control or inspect it.
+        // Switching cancels pending targeting/deployment, but never resets movement or actions.
+        if (occupant != null && occupant.Team == playerTeam && !occupant.IsDefeated && !occupant.IsDocked)
+        {
+            SelectUnit(occupant);
+            return;
+        }
+        if (selectedUnit == null) return;
+        // Empty/enemy clicks must not execute movement behind an open menu.
+        if (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Weapons ||
+            selectionStep == SelectionStep.Hangar || selectionStep == SelectionStep.Boarding) return;
+        if (selectionStep == SelectionStep.Deployment)
+        {
+            Mothership ship = selectedUnit.GetComponent<Mothership>();
+            if (ship != null && ship.TryDeploy(passengerToDeploy, position))
+            {
+                passengerToDeploy = null;
+                OpenHangar();
+            }
+            return;
+        }
 
         if (selectionStep == SelectionStep.Targets)
         {
             // WEEK 3: Send enemy clicks through the target check before attacking.
             ChooseAttackTarget(occupant);
-            return;
-        }
-
-        // WEEK 3: Allow any player unit to be selected for inspection.
-        // Units that already acted can still highlight yellow, but they
-        // cannot receive another action during the same Player Phase.
-        if (occupant != null && occupant.Team == playerTeam)
-        {
-            SelectUnit(occupant);
-
-            if (occupant.HasActed)
-            {
-                actionsMenu.Hide();
-                battlefield.ClearHighlights();
-                selectionStep = SelectionStep.Standby;
-            }
-
             return;
         }
 
@@ -209,16 +262,14 @@ public class BattleSystem : MonoBehaviour
         // WEEK 3: Report every movement cell click before attempting the move.
         if (occupant == null)
             Debug.Log($"[Move Debug] Trying {selectedUnit.name} from {selectedUnit.GridPosition} to {position}.", this);
+        Vector2Int moveOrigin = selectedUnit.GridPosition;
+        int energyBeforeMove = selectedUnit.CurrentEnergy;
         if (occupant == null && battlefield.TryMove(selectedUnit, position))
         {
+            unconfirmedMoves[selectedUnit] = (moveOrigin, energyBeforeMove);
             battlefield.ShowMovement(selectedUnit);
-
-            // Refresh the selected unit HUD after movement so the terrain display shows the terrain detected at the unit's new position.
-            if (combatHUD != null)
-            {
-                combatHUD.ShowSelectedUnit(selectedUnit);
-            }
-
+            // Preserve the team's terrain HUD refresh after movement.
+            if (combatHUD != null) combatHUD.ShowSelectedUnit(selectedUnit);
             // WEEK 3: Report the move before reopening the action menu.
             Debug.Log($"[Move Debug] Move succeeded. New position: {position}.", this);
             ShowActions();
@@ -241,10 +292,57 @@ public class BattleSystem : MonoBehaviour
         selectedWeapon = null;
         battlefield.ShowMovement(selectedUnit);
         actionsMenu.ShowActions(HasAnyTarget());
+        // WEEK 4: MOTHERSHIP - Show transport choices alongside the existing actions.
+        actionsMenu.ShowMothershipActions(selectedUnit, CanBoardSelected());
+        // WEEK 4: MOTHERSHIP - One menu refresh always restores the correct Dock/Standby state.
+        actionsMenu.SetDockConfirmation(pendingDock != null);
+        if (pendingDock != null) battlefield.ClearHighlights();
 
         // WEEK 3: Position the Action HUD beside the currently selected unit
         // before displaying the player's available actions.
         actionsMenu.PositionActionsBesideUnit(selectedUnit, battleCamera);
+    }
+
+    // WEEK 4: MOTHERSHIP - Choose a neighboring friendly ship, then open its stored-unit list.
+    private bool CanBoardSelected()
+    {
+        if (selectedUnit == null || selectedUnit.HasActed || selectedUnit.IsDocked) return false;
+        foreach (BattleUnit unit in battlefield.Units)
+            if (unit.TryGetComponent(out Mothership ship) && ship.CanDock(selectedUnit)) return true;
+        return false;
+    }
+
+    // WEEK 4: MOTHERSHIP - Legacy Board callbacks now enter movement instead of docking from adjacency.
+    public void OpenBoarding() => OpenMovement();
+
+    private void CancelDockPreview()
+    {
+        if (ReferenceEquals(pendingDock, null)) return;
+        if (selectedUnit != null) selectedUnit.transform.position = battlefield.GridToWorld(selectedUnit.GridPosition);
+        pendingDock = null;
+        actionsMenu.SetDockConfirmation(false);
+    }
+
+    public void OpenHangar()
+    {
+        if (pendingDock != null) return;
+        if (!isPlayerTurn || selectedUnit == null || selectedUnit.IsDefeated ||
+            !selectedUnit.TryGetComponent(out Mothership ship) || !actionsMenu.HasHangarUI) return;
+        passengerToDeploy = null;
+        selectionStep = SelectionStep.Hangar;
+        battlefield.ClearHighlights();
+        actionsMenu.ShowPassengers(ship);
+    }
+
+    public void ChoosePassenger(BattleUnit passenger)
+    {
+        if (!isPlayerTurn || selectionStep != SelectionStep.Hangar || selectedUnit == null ||
+            !selectedUnit.TryGetComponent(out Mothership ship) || !ship.CanDeploy(passenger)) return;
+        passengerToDeploy = passenger;
+        actionsMenu.Hide();
+        selectionStep = SelectionStep.Deployment;
+        battlefield.ClearHighlights();
+        foreach (Vector2Int cell in ship.GetDeploymentCells()) battlefield.ShowTransportCell(cell);
     }
 
     private bool HasAnyTarget()
@@ -268,11 +366,13 @@ public class BattleSystem : MonoBehaviour
     public void OpenMovement()
     {
         // WEEK 3: Report whether the Move button can return to movement selection.
-        if (!isPlayerTurn || selectedUnit == null || selectionStep != SelectionStep.Actions)
+        if (!isPlayerTurn || selectedUnit == null || selectionStep != SelectionStep.Actions || selectedUnit.HasActed)
         {
             Debug.Log($"[Move Debug] Move button ignored. PlayerTurn: {isPlayerTurn}; selected: {selectedUnit != null}; step: {selectionStep}.", this);
             return;
         }
+        CancelDockPreview();
+        if (selectedUnit.HasMoved && !TryUndoSelectedMove()) return;
         Debug.Log($"[Move Debug] Move button accepted for {selectedUnit.name}.", this);
         actionsMenu.Hide();
         selectedWeapon = null;
@@ -285,7 +385,7 @@ public class BattleSystem : MonoBehaviour
         // WEEK 3: Report whether Attack can open a weapon list with a valid enemy target.
         bool hasTarget = HasAnyTarget();
         Debug.Log($"[Attack Debug] Attack button. PlayerTurn: {isPlayerTurn}; step: {selectionStep}; target available: {hasTarget}.", this);
-        if (!isPlayerTurn || selectionStep != SelectionStep.Actions || !hasTarget) return;
+        if (!isPlayerTurn || pendingDock != null || selectionStep != SelectionStep.Actions || selectedUnit == null || selectedUnit.HasActed || !hasTarget) return;
         if (selectedWeapon == null)
         {
             foreach (Weapon weapon in selectedUnit.Mech.Weapons)
@@ -319,10 +419,47 @@ public class BattleSystem : MonoBehaviour
         Debug.Log($"[Attack Debug] Target selection is active for {selectedWeapon.WeaponName}.", this);
     }
 
+    // WEEK 4: MOTHERSHIP - Undo only an unconfirmed move; never overwrite another unit's tile.
+    private bool TryUndoSelectedMove()
+    {
+        if (!CanUndoSelectedMove) return false;
+        var move = unconfirmedMoves[selectedUnit];
+        if (!battlefield.TryUndoMove(selectedUnit, move.position, move.energy)) return false;
+        unconfirmedMoves.Remove(selectedUnit);
+        return true;
+    }
+
     // WEEK 3: Right-click returns to the previous menu step.
     public void Back()
     {
         if (!isPlayerTurn || selectedUnit == null) return;
+        if (pendingDock != null)
+        {
+            CancelDockPreview();
+            actionsMenu.Hide();
+            selectionStep = SelectionStep.Movement;
+            battlefield.ShowMovement(selectedUnit);
+            return;
+        }
+        // WEEK 4: MOTHERSHIP - Cancel transport without moving a unit or consuming an action.
+        if (selectionStep == SelectionStep.Deployment)
+        {
+            OpenHangar();
+            return;
+        }
+        if (selectionStep == SelectionStep.Boarding || selectionStep == SelectionStep.Hangar)
+        {
+            ShowActions();
+            return;
+        }
+        // WEEK 4: MOTHERSHIP - Leave an acted ship's menu so another unit can be selected.
+        if (selectionStep == SelectionStep.Actions && selectedUnit.HasActed)
+        {
+            actionsMenu.Hide();
+            battlefield.ClearHighlights();
+            selectionStep = SelectionStep.Standby;
+            return;
+        }
         if (selectionStep == SelectionStep.Targets)
         {
             actionsMenu.Hide();
@@ -338,7 +475,19 @@ public class BattleSystem : MonoBehaviour
         {
             UndoStandby();
         }
-        // WEEK 3: Do not change movement while the Attack/Standby menu is open.
+        else if (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Movement)
+        {
+            // WEEK 4: MOTHERSHIP - Back out of an unconfirmed move and restore its EN.
+            if (selectedUnit.HasMoved && !TryUndoSelectedMove())
+            {
+                Debug.Log("Cannot undo this move: its starting tile is occupied or the move is committed.", this);
+                return;
+            }
+            actionsMenu.Hide();
+            selectedWeapon = null;
+            selectionStep = SelectionStep.Movement;
+            battlefield.ShowMovement(selectedUnit);
+        }
     }
 
     // WEEK 3: Standby ends this unit's action without undoing its move.
@@ -352,16 +501,34 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // WEEK 4: MOTHERSHIP - The renamed Standby button confirms the pending docking move.
+        if (pendingDock != null)
+        {
+            Mothership carrier = pendingDock;
+            if (!carrier.TryDock(selectedUnit))
+            {
+                CancelDockPreview();
+                ShowActions();
+                return;
+            }
+            pendingDock = null;
+            unconfirmedMoves.Remove(selectedUnit);
+            SelectUnit(carrier.Unit);
+            OpenHangar();
+            return;
+        }
+
         actionsMenu.Hide();
         selectedWeapon = null;
         battlefield.ClearHighlights();
 
         // WEEK 3: Mark this individual unit as finished without ending
         // the entire Player Phase.
-        selectedUnit.SetSelected(false);
-        selectedUnit.MarkActed();
-
-        selectionStep = SelectionStep.Standby;
+        BattleUnit completedUnit = selectedUnit;
+        completedUnit.SetSelected(false);
+        completedUnit.MarkActed();
+        unconfirmedMoves.Remove(completedUnit);
+        ReturnToPlayerSelection(completedUnit);
     }
 
     // WEEK 3: Standby now permanently completes the selected unit's
@@ -376,6 +543,39 @@ public class BattleSystem : MonoBehaviour
         selectionStep = SelectionStep.Movement;
         battlefield.ShowMovement(selectedUnit);
         ShowActions();
+    }
+
+    // WEEK 4 TURN FLOW: A completed unit must not remain as the active selection.
+    // Clear its UI/state and hand control to the next unit that can still act.
+    private void ReturnToPlayerSelection(BattleUnit completedUnit)
+    {
+        if (completedUnit != null) completedUnit.SetSelected(false);
+
+        selectedUnit = null;
+        selectedWeapon = null;
+        pendingDock = null;
+        passengerToDeploy = null;
+        selectionStep = SelectionStep.Movement;
+        actionsMenu.Hide();
+        battlefield.ClearHighlights();
+
+        if (combatHUD != null)
+        {
+            combatHUD.ClearSelectedUnit();
+            combatHUD.ClearTargetedEnemy();
+        }
+
+        isPlayerTurn = !ScenarioEnded && FindFirstUnit(playerTeam) != null &&
+            FindFirstUnit(OpposingTeam(playerTeam)) != null;
+        if (!isPlayerTurn) return;
+
+        foreach (BattleUnit unit in battlefield.Units)
+        {
+            if (unit == null || unit.Team != playerTeam || unit.IsDefeated ||
+                unit.IsDocked || unit.HasActed) continue;
+            SelectUnit(unit);
+            break;
+        }
     }
 
     private IEnumerator BeginPlayerTurn()
@@ -435,18 +635,9 @@ public class BattleSystem : MonoBehaviour
             attackingUnit.MarkActed();
         }
 
-        selectedWeapon = null;
-        actionsMenu.Hide();
-        battlefield.ClearHighlights();
-        selectionStep = SelectionStep.Standby;
-
-        // WEEK 3: Return control to the Player Phase so another available
-        // player unit can be selected before the phase is manually ended.
-        if (FindFirstUnit(playerTeam) != null &&
-            FindFirstUnit(OpposingTeam(playerTeam)) != null)
-        {
-            isPlayerTurn = true;
-        }
+        // WEEK 4 TURN FLOW: Release the completed attacker and continue with
+        // another living player unit that has not acted this phase.
+        ReturnToPlayerSelection(attackingUnit);
     }
 
     // WEEK 3: Allow the player to manually end the Player Phase.
@@ -454,10 +645,14 @@ public class BattleSystem : MonoBehaviour
     // Player Phase begins, preventing any unit from acting twice.
     public void EndPlayerPhase()
     {
-        if (!isPlayerTurn)
+        if (!CanEndPlayerPhase)
         {
             return;
         }
+        // WEEK 4: MOTHERSHIP - Unconfirmed docking is canceled before enemies can act.
+        CancelDockPreview();
+        passengerToDeploy = null;
+        unconfirmedMoves.Clear();
 
         isPlayerTurn = false;
 
@@ -630,7 +825,8 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
-        if (weapon == null || !attacker.TrySpendEnergy(weapon.EnergyCost))
+        // WEEK 4: MOTHERSHIP - Ammo and EN are spent once, including first strikes and MAP attacks.
+        if (weapon == null || !attacker.TrySpendWeapon(weapon))
         {
             yield break;
         }
@@ -687,9 +883,15 @@ public class BattleSystem : MonoBehaviour
         int hitRate = Mathf.Clamp(BattleFormulas.AccuracyRate(attacker, target, weapon, distance), 0, 100);
         if (Random.Range(0, 100) >= hitRate)
         {
+            // WEEK 4 MORALE SYSTEM: Successfully evading an attack grants 1 morale.
+            target.ChangeMorale(1);
             yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{GetPilotName(attacker)} missed.");
             yield break;
         }
+
+        // WEEK 4 MORALE SYSTEM: Landing an attack and being hit each grant 1 morale.
+        attacker.ChangeMorale(1);
+        target.ChangeMorale(1);
 
         // WEEK 3: Roll for a critical hit and use the result when calculating damage.
         int criticalRate = Mathf.Clamp(BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
@@ -712,6 +914,20 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        // WEEK 4 MORALE SYSTEM: An enemy shot down grants 2 morale, while every
+        // surviving ally of the defeated unit gains 1 morale for the ally loss.
+        if (attacker.Team != target.Team)
+        {
+            attacker.ChangeMorale(2);
+        }
+        foreach (BattleUnit ally in battlefield.Units)
+        {
+            if (ally != null && !ally.IsDefeated && ally.Team == target.Team)
+            {
+                ally.ChangeMorale(1);
+            }
+        }
+
         yield return ShowBattleMessage(targetPilot, PilotEmotion.Defeated, $"{targetName} was defeated.");
 
         if (attackerPilot == null)
@@ -727,7 +943,6 @@ public class BattleSystem : MonoBehaviour
                 yield return ShowBattleMessage(attackerPilot, PilotEmotion.Motivated, successLine, true);
             }
         }
-        
     }
 
     private IEnumerator ShowBattleMessage(
@@ -755,7 +970,7 @@ public class BattleSystem : MonoBehaviour
         yield return dialogSystem.FadeOut();
     }
 
-private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
+    private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
     {
         List<Vector2Int> openMoves = new();
         List<Vector2Int> closerMoves = new();
@@ -842,7 +1057,10 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
             selectedUnit.SetSelected(false);
         }
 
+        CancelDockPreview();
         selectedUnit = unit;
+        // WEEK 4: MOTHERSHIP - A new selection cancels an unfinished deployment choice.
+        passengerToDeploy = null;
 
         // WEEK 3: The currently selected player unit always highlights yellow,
         // including units that have already completed their action.
@@ -863,6 +1081,12 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         // for inspection, but it cannot receive another action this phase.
         if (selectedUnit.HasActed)
         {
+            // WEEK 4: MOTHERSHIP - An acted ship may still inspect/deploy passengers, but cannot act twice.
+            if (selectedUnit.GetComponent<Mothership>() != null && actionsMenu.HasHangarUI)
+            {
+                ShowActions();
+                return;
+            }
             selectionStep = SelectionStep.Standby;
             return;
         }
@@ -872,7 +1096,8 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         selectionStep = SelectionStep.Movement;
         battlefield.ShowMovement(selectedUnit);
 
-        if (HasAnyTarget())
+        // WEEK 4: MOTHERSHIP - Transport actions must also be accessible when no enemy is nearby.
+        if (selectedUnit.HasMoved || HasAnyTarget() || CanBoardSelected() || selectedUnit.GetComponent<Mothership>() != null)
         {
             ShowActions();
         }
@@ -902,6 +1127,8 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
 
     private void PrepareForTurnChange()
     {
+        // WEEK 4: MOTHERSHIP - Confirming an attack commits its movement, even if the attack misses.
+        if (selectedUnit != null) unconfirmedMoves.Remove(selectedUnit);
         isPlayerTurn = false;
         // WEEK 3: Close the action UI when a confirmed attack commits the turn.
         actionsMenu.Hide();
@@ -942,6 +1169,9 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
             return;
         }
 
+        CancelDockPreview();
+        passengerToDeploy = null;
+        unconfirmedMoves.Clear();
         scenarioResult = result;
         isPlayerTurn = false;
 

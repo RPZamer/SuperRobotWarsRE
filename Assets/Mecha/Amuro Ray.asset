@@ -10,27 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
-  m_Name: Koji Kabuto
+  m_Name: Amuro Ray
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: Koji Kabuto
-  melee: 120
-  ranged: 100
-  defense: 120
-  evade: 80
-  accuracy: 110
-  skill: 110
+  pilotName: Amuro Ray
+  melee: 100
+  ranged: 120
+  defense: 90
+  evade: 110
+  accuracy: 120
+  skill: 120
   morale: 100
   terrainRatings:
     air: 3
     ground: 3
     water: 3
     space: 3
-  saveBLevel: 0
+  saveBLevel: 1
   saveELevel: 0
-  potentialLevel: 7
-  onSuccessLines:
-  - Heh- Serves you right
-  defaultPortrait: {fileID: -8615392254259920525, guid: 7a2cb69bf5b4f5c408994920e6959082, type: 3}
+  potentialLevel: 4
+  onSuccessLines: []
+  defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

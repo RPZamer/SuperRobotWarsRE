@@ -33,6 +33,15 @@ public class PilotBase : ScriptableObject
     // WEEK 3: Store how well this pilot handles each terrain.
     [SerializeField] private TerrainRatings terrainRatings = new();
 
+    // WEEK 4: PILOT SKILLS - Zero disables a skill. Configure these on each pilot asset before battle.
+    [Header("Pilot Skills")]
+    [Range(0, 2)][SerializeField] private int saveBLevel;
+    [Range(0, 2)][SerializeField] private int saveELevel;
+    [Range(0, 9)][SerializeField] private int potentialLevel;
+    public int SaveBLevel => Mathf.Clamp(saveBLevel, 0, 2);
+    public int SaveELevel => Mathf.Clamp(saveELevel, 0, 2);
+    public int PotentialLevel => Mathf.Clamp(potentialLevel, 0, 9);
+
     [Header("Battle Dialogue")]
     [SerializeField] private List<string> onSuccessLines = new();
 

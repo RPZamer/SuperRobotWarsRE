@@ -7,10 +7,9 @@ public class CombatHUD : MonoBehaviour
     [Header("Selected Unit")]
     [SerializeField] private TMP_Text selectedUnitNameText;
     [SerializeField] private TMP_Text selectedUnitHPText;
-
-    // Store the HUD text used to display information about the terrain.
+    // Preserve the team's terrain readout.
     [SerializeField] private TMP_Text tileInforText;
-    
+
     // WEEK 3: Store the persistent HUD text used to display the final
     // Victory or Defeat result when the scenario ends.
     [Header("Scenario Result")]
@@ -21,17 +20,22 @@ public class CombatHUD : MonoBehaviour
     [Header("Targeted Enemy")]
     [SerializeField] private TMP_Text targetedEnemyNameText;
     [SerializeField] private TMP_Text targetedEnemyHPText;
-
     [SerializeField] private Button EndPhaseButton;
 
-    private BattleSystem BattleHud;
+    private BattleSystem battleHud;
+
+    // WEEK 4: UI VISIBILITY - Hide unit and target readouts until they are needed.
+    private void Awake()
+    {
+        ClearSelectedUnit();
+        ClearTargetedEnemy();
+    }
 
     private void Start()
     {
-        BattleHud = FindFirstObjectByType<BattleSystem>();
-
-        if (EndPhaseButton != null)
-            EndPhaseButton.onClick.AddListener(BattleHud.EndPlayerPhase);
+        battleHud = FindFirstObjectByType<BattleSystem>();
+        if (EndPhaseButton != null && battleHud != null)
+            EndPhaseButton.onClick.AddListener(battleHud.EndPlayerPhase);
     }
 
     // WEEK 3: Displays the currently selected player's mech information.
@@ -43,12 +47,21 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
+        // WEEK 4: UI VISIBILITY - Restore selected-unit text and clear the previous target.
+        selectedUnitNameText.enabled = true;
+        selectedUnitHPText.enabled = true;
+        ClearTargetedEnemy();
+        selectedUnitNameText.text = unit.Mech.MechName;
+        selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
+        ClearTargetedEnemy();
         selectedUnitNameText.text = unit.Mech.MechName;
         selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
 
-        //Display the terrain information for the selected unit's current tile.
-        tileInforText.text = $"Terrain: {unit.TileType}";
-
+        if (tileInforText != null)
+        {
+            tileInforText.enabled = true;
+            tileInforText.text = $"Terrain: {unit.TileType}";
+        }
     }
 
     // WEEK 3: Displays identifying information and current HP for
@@ -61,6 +74,9 @@ public class CombatHUD : MonoBehaviour
             return;
         }
 
+        // WEEK 4: UI VISIBILITY - Restore target text when an attack target is chosen.
+        targetedEnemyNameText.enabled = true;
+        targetedEnemyHPText.enabled = true;
         targetedEnemyNameText.text = $"Enemy: {enemy.Mech.MechName}";
         targetedEnemyHPText.text = $"HP: {enemy.CurrentHealth} / {enemy.Mech.Health}";
     }
@@ -69,8 +85,9 @@ public class CombatHUD : MonoBehaviour
     // so the HUD does not continue displaying information from an old target.
     public void ClearTargetedEnemy()
     {
-        targetedEnemyNameText.text = "Enemy: --";
-        targetedEnemyHPText.text = "HP: -- / --";
+        // WEEK 4: UI VISIBILITY - Hide unused labels without changing their Inspector references or layout.
+        targetedEnemyNameText.enabled = false;
+        targetedEnemyHPText.enabled = false;
     }
 
     // WEEK 3: Store the HUD text used to show the current battle phase
@@ -83,6 +100,9 @@ public class CombatHUD : MonoBehaviour
     // and turn number whenever control changes between teams.
     public void ShowBattleStatus(string phaseName, int turnNumber)
     {
+        // WEEK 4: UI VISIBILITY - Clear old readouts at phase changes; keep phase and turn visible.
+        ClearSelectedUnit();
+        ClearTargetedEnemy();
         phaseText.text = phaseName;
         turnText.text = $"Turn: {turnNumber}";
     }
@@ -91,10 +111,10 @@ public class CombatHUD : MonoBehaviour
     // from a unit that is no longer selected.
     public void ClearSelectedUnit()
     {
-        selectedUnitNameText.text = "Selected Unit";
-        selectedUnitHPText.text = "HP: -- / --";
-        // Clear the terrain information when no unit is selected.
-        tileInforText.text = "Terrain: --";
+        // WEEK 4: UI VISIBILITY - Hide the readout while preserving manual Inspector assignments.
+        selectedUnitNameText.enabled = false;
+        selectedUnitHPText.enabled = false;
+        if (tileInforText != null) tileInforText.enabled = false;
     }
 
     // WEEK 3: Hide the final scenario result while normal battle
@@ -111,21 +131,17 @@ public class CombatHUD : MonoBehaviour
     // the battle reaches its final scenario result.
     public void ShowScenarioResult(string resultText)
     {
+        // WEEK 4: UI VISIBILITY - Hide combat readouts when the final result appears.
+        ClearSelectedUnit();
+        ClearTargetedEnemy();
         if (scenarioResultText != null)
         {
             scenarioResultText.text = resultText;
             scenarioResultText.gameObject.SetActive(true);
         }
     }
-    
-    // this is to hide the Hud in certain actions of the game
-    public void ShowHUD()
-    {
-        gameObject.SetActive(true);
-    }
 
-    public void HideHUD()
-    {
-        gameObject.SetActive(false);
-    }
+    // Preserve the team's explicit HUD visibility controls.
+    public void ShowHUD() => gameObject.SetActive(true);
+    public void HideHUD() => gameObject.SetActive(false);
 }

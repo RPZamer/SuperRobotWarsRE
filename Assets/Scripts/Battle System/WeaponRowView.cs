@@ -8,17 +8,12 @@ using UnityEngine.UI;
 public class WeaponRowView : MonoBehaviour
 {
     [SerializeField] private Button button;
-
     [SerializeField] private TMP_Text weaponNameText;
-
-    /*
     [SerializeField] private TMP_Text damageTypeText;
     [SerializeField] private TMP_Text powerText;
     [SerializeField] private TMP_Text rangeText;
     [SerializeField] private TMP_Text energyCostText;
     [SerializeField] private TMP_Text availabilityText;
-
-    */
     [SerializeField] private Image selectionGraphic;
 
     public Weapon Weapon { get; private set; }
@@ -28,17 +23,25 @@ public class WeaponRowView : MonoBehaviour
     {
         Weapon = weapon;
         weaponNameText.text = weapon.WeaponName;
-
-        /*
         damageTypeText.text = weapon.DamageType.ToString();
         powerText.text = weapon.Power.ToString();
         rangeText.text = $"{weapon.MinRange}-{weapon.MaxRange}";
         energyCostText.text = weapon.EnergyCost.ToString();
         availabilityText.text = affordable ? (canTarget ? string.Empty : "No target") : "Not enough EN";
-
-        */
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => clicked?.Invoke());
+    }
+
+    // WEEK 4: MOTHERSHIP - Show per-unit ammo and distinguish empty magazines from insufficient EN.
+    public void ShowAmmo(BattleUnit unit, Weapon weapon)
+    {
+        // WEEK 4: PILOT SKILLS - Replace the base cost with the same effective cost used when firing.
+        energyCostText.text = unit.GetWeaponEnergyCost(weapon).ToString();
+        if (weapon.MaxAmmo > 0)
+        {
+            energyCostText.text += $" | Ammo {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}";
+            if (unit.GetAmmo(weapon) <= 0) availabilityText.text = "No ammo";
+        }
     }
 
     // WEEK 3: Change only the assigned selection graphic when this weapon is highlighted.
@@ -62,15 +65,11 @@ public class WeaponRowView : MonoBehaviour
     {
         button = assignedButton;
         weaponNameText = assignedWeaponName;
-
-        /*
         damageTypeText = assignedDamageType;
         powerText = assignedPower;
         rangeText = assignedRange;
         energyCostText = assignedEnergyCost;
         availabilityText = assignedAvailability;
-
-        */
         selectionGraphic = assignedSelectionGraphic;
     }
 }

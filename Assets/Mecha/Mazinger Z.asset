@@ -28,6 +28,7 @@ MonoBehaviour:
   weapons:
   - weaponName: Photon Beam
     damageType: 0
+    travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
     minRange: 1
@@ -36,6 +37,7 @@ MonoBehaviour:
     accuracyModifier: 130
     criticalModifier: 10
     energyCost: 10
+    maxAmmo: 0
     terrainRatings:
       air: 3
       ground: 3
@@ -43,6 +45,7 @@ MonoBehaviour:
       space: 3
   - weaponName: Scrander Cutter
     damageType: 0
+    travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
     minRange: 1
@@ -51,6 +54,7 @@ MonoBehaviour:
     accuracyModifier: 30
     criticalModifier: 15
     energyCost: 0
+    maxAmmo: 0
     terrainRatings:
       air: 3
       ground: 2
@@ -58,6 +62,7 @@ MonoBehaviour:
       space: 3
   - weaponName: Rocket Punch
     damageType: 0
+    travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
     minRange: 2
@@ -65,7 +70,8 @@ MonoBehaviour:
     power: 1700
     accuracyModifier: 15
     criticalModifier: 20
-    energyCost: 20
+    energyCost: 0
+    maxAmmo: 4
     terrainRatings:
       air: 3
       ground: 3
@@ -73,6 +79,7 @@ MonoBehaviour:
       space: 3
   - weaponName: Breast Fire
     damageType: 0
+    travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
     minRange: 1
@@ -81,6 +88,7 @@ MonoBehaviour:
     accuracyModifier: 20
     criticalModifier: 20
     energyCost: 40
+    maxAmmo: 0
     terrainRatings:
       air: 3
       ground: 3
