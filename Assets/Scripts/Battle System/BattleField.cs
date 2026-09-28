@@ -24,16 +24,14 @@ public class Battlefield : MonoBehaviour
     private Sprite highlightSprite;
     private Material gridLineMaterial;
 
-    //Store the battlefield's terrain detector so units can be assigned terrain based on their current grid position.
+    // Preserve the team's tilemap-driven terrain updates.
     private TerrainDetector terrainDetector;
-  
+
     public IEnumerable<BattleUnit> Units => occupants.Values;
 
     private void Awake()
     {
-        //Get the TerrainDetector attached to this Battlefield object.
         terrainDetector = GetComponent<TerrainDetector>();
-
         highlightSprite = CreateSquareSprite();
 
         if (showGridLines)
@@ -42,28 +40,25 @@ public class Battlefield : MonoBehaviour
         }
     }
 
-    //Check the terrain at a unit's current grid position and store the dected terrain on that individual unit.
     private void UpdateUnitTerrain(BattleUnit unit)
     {
-        if (unit == null || terrainDetector == null)
-        { 
-            return;
-        }
-
+        if (unit == null || terrainDetector == null) return;
         TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
-
         unit.SetTerrain(detectedTerrain);
-        
-        Debug.Log("[Terrain Detector] " + unit.name + " at " + unit.GridPosition + " is on " + detectedTerrain );
-        
-        TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
-        Debug.Log("[TILE TYPE] " + unit.name + " at " + unit.GridPosition + " | Battle Terrain: " + unit.Terrain
-            + " | Tile Type: " + tileType);
+        Debug.Log($"[Terrain Detector] {unit.name} at {unit.GridPosition} is on {detectedTerrain}", unit);
     }
 
     public void RegisterSceneUnits()
     {
         BattleUnit[] sceneUnits = FindObjectsByType<BattleUnit>(FindObjectsSortMode.None);
+        // WEEK 4 UNIT IDENTITY: Keep placement order stable between play sessions.
+        System.Array.Sort(sceneUnits, (left, right) =>
+        {
+            int comparison = left.StartingPosition.y.CompareTo(right.StartingPosition.y);
+            if (comparison == 0) comparison = left.StartingPosition.x.CompareTo(right.StartingPosition.x);
+            if (comparison == 0) comparison = left.Team.CompareTo(right.Team);
+            return comparison != 0 ? comparison : string.CompareOrdinal(left.name, right.name);
+        });
 
         foreach (BattleUnit unit in sceneUnits)
         {
@@ -83,7 +78,6 @@ public class Battlefield : MonoBehaviour
 
         occupants[position] = unit;
         unit.SetGridPosition(position);
-        // Detect the unit's terrain when it is first placed on the battlefield.
         UpdateUnitTerrain(unit);
         return true;
     }
@@ -91,20 +85,17 @@ public class Battlefield : MonoBehaviour
     // WEEK 3: Move only to a reachable square and pay energy for the actual number of steps.
     public bool TryMove(BattleUnit unit, Vector2Int destination)
     {
-        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit ||
-            !GetReachableCells(unit).TryGetValue(destination, out int steps) || steps == 0 ||
-            !unit.TrySpendEnergy(steps))
-        {
-            return false;
-        }
+        bool alive = unit != null && !unit.IsDefeated;
+        bool registered = unit != null && GetUnit(unit.GridPosition) == unit;
+        int steps = 0;
+        bool reachable = alive && registered && GetReachableCells(unit).TryGetValue(destination, out steps);
+        bool allowed = alive && registered && reachable && steps > 0;
+        if (!allowed || !unit.TrySpendEnergy(steps)) return false;
 
         occupants.Remove(unit.GridPosition);
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
-
-        // Detect the unit's terrain after it has moved to a new grid position.
         UpdateUnitTerrain(unit);
-
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         unit.MarkMoved();
@@ -122,7 +113,7 @@ public class Battlefield : MonoBehaviour
     // WEEK 3: Put an unconfirmed move back without charging energy or crossing occupied squares.
     public bool TryUndoMove(BattleUnit unit, Vector2Int originalPosition, int originalEnergy)
     {
-        if (unit == null || unit.IsDefeated || !IsInside(originalPosition) ||
+        if (unit == null || unit.IsDefeated || unit.IsDocked || unit.HasActed || !IsInside(originalPosition) ||
             GetUnit(unit.GridPosition) != unit) return false;
         BattleUnit occupant = GetUnit(originalPosition);
         if (occupant != null && occupant != unit) return false;
@@ -130,7 +121,6 @@ public class Battlefield : MonoBehaviour
         occupants[originalPosition] = unit;
         unit.SetGridPosition(originalPosition);
         unit.RestoreMove(originalEnergy);
-        // Detect the unit's terrain after it has been moved back to its original position.
         UpdateUnitTerrain(unit);
         return true;
     }
@@ -198,6 +188,10 @@ public class Battlefield : MonoBehaviour
             if (position != selectedUnit.GridPosition)
                 CreateHighlight(position, movableColor);
         }
+        // WEEK 4: MOTHERSHIP - Friendly ships reachable as docking destinations are also green.
+        foreach (BattleUnit ship in occupants.Values)
+            if (ship.TryGetComponent(out Mothership carrier) && carrier.CanDock(selectedUnit))
+                CreateHighlight(ship.GridPosition, movableColor);
         // WEEK 3: Also highlight enemies that an affordable weapon can reach.
         foreach (BattleUnit target in occupants.Values)
         {
@@ -232,10 +226,29 @@ public class Battlefield : MonoBehaviour
         return distances;
     }
 
+    // WEEK 4: MOTHERSHIP - The occupied ship tile is an endpoint, never a pass-through tile.
+    public bool TryGetDockSteps(BattleUnit passenger, BattleUnit ship, out int steps)
+    {
+        steps = int.MaxValue;
+        if (passenger == null || ship == null || passenger == ship || passenger.HasActed ||
+            passenger.IsDocked || passenger.IsDefeated || ship.IsDefeated || passenger.Team != ship.Team ||
+            passenger.GetComponent<Mothership>() != null || ship.GetComponent<Mothership>() == null ||
+            GetUnit(passenger.GridPosition) != passenger || GetUnit(ship.GridPosition) != ship) return false;
+        var reachable = GetReachableCells(passenger);
+        Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+        foreach (Vector2Int direction in directions)
+            if (reachable.TryGetValue(ship.GridPosition + direction, out int distance))
+                steps = Mathf.Min(steps, distance + 1);
+        return steps <= passenger.AvailableMovement;
+    }
+
     public SpriteRenderer ShowAttackTarget(Vector2Int position)
     {
         return CreateHighlight(position, blockedColor);
     }
+
+    // WEEK 4: MOTHERSHIP - Reuse grid highlights for boarding ships and empty deployment tiles.
+    public void ShowTransportCell(Vector2Int position) => CreateHighlight(position, movableColor);
 
     public void ClearHighlights()
     {

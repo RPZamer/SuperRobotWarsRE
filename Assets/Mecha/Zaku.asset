@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
-  m_Name: Great Mazinger
+  m_Name: Zaku
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
-  mechName: Great Mazinger
-  battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
-  health: 3200
-  energy: 120
-  movement: 6
-  mobility: 120
-  armor: 1000
+  mechName: Zaku
+  battleSprite: {fileID: -102200125386026521, guid: d36a698f9bda7da49994e5bfe022d5cf, type: 3}
+  health: 1500
+  energy: 100
+  movement: 5
+  mobility: 100
+  armor: 700
   size: 2
   terrainRatings:
     air: 3
@@ -26,7 +26,24 @@ MonoBehaviour:
     water: 3
     space: 3
   weapons:
-  - weaponName: Mazinger Blade
+  - weaponName: Machine Gun
+    damageType: 1
+    travelsToTargetTerrain: 0
+    weaponType: 0
+    classification: 0
+    minRange: 1
+    maxRange: 5
+    power: 1000
+    accuracyModifier: 10
+    criticalModifier: 10
+    energyCost: 0
+    maxAmmo: 10
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Heat Hawk
     damageType: 0
     travelsToTargetTerrain: 0
     weaponType: 2
@@ -34,63 +51,29 @@ MonoBehaviour:
     minRange: 1
     maxRange: 1
     power: 1000
-    accuracyModifier: 50
+    accuracyModifier: 10
     criticalModifier: 10
-    energyCost: 0
+    energyCost: 10
     maxAmmo: 0
     terrainRatings:
-      air: 3
-      ground: 3
-      water: 3
-      space: 3
-  - weaponName: Drill Pressure Punch
-    damageType: 0
-    travelsToTargetTerrain: 0
-    weaponType: 2
-    classification: 0
-    minRange: 2
-    maxRange: 3
-    power: 1700
-    accuracyModifier: 15
-    criticalModifier: 15
-    energyCost: 0
-    maxAmmo: 5
-    terrainRatings:
-      air: 3
+      air: 0
       ground: 3
       water: 2
       space: 3
-  - weaponName: Breast Burn
-    damageType: 0
-    travelsToTargetTerrain: 0
-    weaponType: 2
-    classification: 0
-    minRange: 1
-    maxRange: 3
-    power: 2500
-    accuracyModifier: 20
-    criticalModifier: 20
-    energyCost: 40
-    maxAmmo: 0
-    terrainRatings:
-      air: 3
-      ground: 3
-      water: 2
-      space: 3
-  - weaponName: Thunder Break
-    damageType: 0
+  - weaponName: Zaku Bazooka
+    damageType: 1
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
     minRange: 1
     maxRange: 5
-    power: 3000
-    accuracyModifier: 30
+    power: 1700
+    accuracyModifier: 10
     criticalModifier: 10
-    energyCost: 70
-    maxAmmo: 0
+    energyCost: 0
+    maxAmmo: 3
     terrainRatings:
       air: 3
       ground: 3
-      water: 1
+      water: 3
       space: 3

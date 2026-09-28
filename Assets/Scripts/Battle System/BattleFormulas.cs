@@ -1,6 +1,6 @@
 using UnityEngine;
 
-// WEEK 3: Calculate the basic battle results. Skills, tile bonuses and EXP are not included yet.
+// WEEK 4: PILOT SKILLS - Existing battle formulas plus Potential. Tile bonuses and EXP remain deferred.
 public static class BattleFormulas
 {
     // WEEK 3: Look up how the defending mech size changes the chance to hit it.
@@ -14,27 +14,41 @@ public static class BattleFormulas
     };
 
     // WEEK 3: Combine the pilot and mech ratings for the terrain the unit is on.
-    public static float UnitTerrainModifier(BattleUnit unit)
+    public static float UnitTerrainModifier(BattleUnit unit) => UnitTerrainModifier(unit, unit.Terrain);
+
+    // WEEK 3: Attacks that travel use the attacker's pilot and mech ratings for the target terrain.
+    public static float UnitTerrainModifier(BattleUnit unit, TerrainType terrain)
     {
-        return TerrainRatings.CombinedModifier(
-            unit.Pilot.TerrainRatings.Get(unit.Terrain),
-            unit.Mech.TerrainRatings.Get(unit.Terrain));
+        TerrainRating pilot = unit.Pilot.TerrainRatings.Get(terrain);
+        TerrainRating mech = unit.Mech.TerrainRatings.Get(terrain);
+        float modifier = TerrainRatings.CombinedModifier(pilot, mech);
+        return modifier;
     }
 
     // WEEK 3: Compare accuracy with dodge, then apply defender size and distance.
     public static int AccuracyRate(BattleUnit attacker, BattleUnit defender, Weapon weapon, int distance)
     {
-        float accuracy = (attacker.Pilot.Accuracy / 2f + 140f) * UnitTerrainModifier(attacker)
+        TerrainType attackTerrain = weapon.TravelsToTargetTerrain ? defender.Terrain : attacker.Terrain;
+        float accuracy = (attacker.Pilot.Accuracy / 2f + 140f) * UnitTerrainModifier(attacker, attackTerrain)
             + weapon.AccuracyModifier;
         float evade = (defender.Pilot.Evade / 2f + defender.Mech.Mobility) * UnitTerrainModifier(defender);
         // WEEK 3: Keep decimal values until this final result. The hit roll later limits it to 0-100.
-        return (int)((accuracy - evade) * SizeModifier(defender.Mech.Size) + (5 - distance) * 3f);
+        float size = SizeModifier(defender.Mech.Size);
+        float distanceBonus = (5 - distance) * 3f;
+        // WEEK 4: MOTHERSHIP - Commander gives hit/evasion percentage points while in range.
+        // WEEK 4: PILOT SKILLS - Add final percentage points after terrain/size; the caller clamps once to 0-100.
+        float raw = (accuracy - evade) * size + distanceBonus + attacker.CommanderBonus - defender.CommanderBonus
+            + PilotSkillEffects.HitDodgeBonus(attacker.PotentialStage)
+            - PilotSkillEffects.HitDodgeBonus(defender.PotentialStage);
+        return (int)raw;
     }
 
     // WEEK 3: Compare pilot Skill stats and add the weapon critical bonus.
     public static int CriticalRate(BattleUnit attacker, BattleUnit defender, Weapon weapon)
     {
-        return attacker.Pilot.Skill - defender.Pilot.Skill + weapon.CriticalModifier;
+        int rate = attacker.Pilot.Skill - defender.Pilot.Skill + weapon.CriticalModifier
+            + PilotSkillEffects.CriticalBonus(attacker.PotentialStage);
+        return rate;
     }
 
     // WEEK 3 DMG CHECK: Keep the numeric breakdown tied to the exact values used by the damage formula.
@@ -48,20 +62,21 @@ public static class BattleFormulas
         float weaponTerrain = TerrainRatings.Modifier(weaponRating);
         float armorTerrain = TerrainRatings.Modifier(armorRating);
 
-        // WEEK 4: Use the unit's live battle Morale so Spirit Commands
-        // such as Rally, Daunt, and Dread affect combat damage.
+        // WEEK 4 MORALE SYSTEM: Use each unit's live battle morale.
         float attackFactor = (attackStat + attacker.CurrentMorale) / 200f;
         float attackBeforeTerrain = attackFactor * weapon.Power;
         float attack = attackBeforeTerrain * weaponTerrain;
 
-        // WEEK 4: Defender calculations also use live battle Morale.
         float defenseFactor = (defensePilot.Defense + defender.CurrentMorale) / 200f;
         float defenseBeforeTerrain = defenseFactor * defender.Mech.Armor;
         float defense = defenseBeforeTerrain * armorTerrain;
 
         float difference = attack - defense;
         float criticalMultiplier = critical ? 1.25f : 1f;
+        // WEEK 4: PILOT SKILLS - Use defender HP BEFORE this hit. Apply reduction once, before final truncation.
+        int reduction = PilotSkillEffects.DamageReductionPercent(defender.PotentialStage);
         float raw = difference * criticalMultiplier;
+        if (reduction > 0) raw = raw * (100 - reduction) / 100f;
         int truncated = (int)raw;
         int damage = Mathf.Max(0, truncated);
 
@@ -80,9 +95,10 @@ public static class BattleFormulas
             $"DEFENSE = {defenseBeforeTerrain:R} * {armorTerrain:R} = {defense:R}\n" +
             $"Attack - Defense = {attack:R} - {defense:R} = {difference:R}\n" +
             "Defender terrain bonus: deferred (effective x1)\n" +
-            "Skill/relationship/Ace final damage modifiers: deferred (effective x1)\n" +
+            $"Potential damage reduction: {reduction}%\n" +
+            "Relationship/Ace final damage modifiers: deferred (effective x1)\n" +
             $"Critical={(critical ? 1 : 0)}, multiplier={criticalMultiplier:R}\n" +
-            $"Raw damage = {difference:R} * {criticalMultiplier:R} = {raw:R}\n" +
+            $"Raw damage = {difference:R} * {criticalMultiplier:R} * {100 - reduction}/100 = {raw:R}\n" +
             $"Truncate toward zero = {truncated}\n" +
             $"FINAL FORMULA DAMAGE = Max(0, {truncated}) = {damage}",
             attacker);

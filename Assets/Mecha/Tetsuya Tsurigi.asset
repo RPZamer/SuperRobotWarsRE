@@ -13,18 +13,21 @@ MonoBehaviour:
   m_Name: Tetsuya Tsurigi
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Tetsuya
-  melee: 100
+  melee: 120
   ranged: 100
-  defense: 100
-  evade: 100
-  accuracy: 100
-  skill: 100
+  defense: 110
+  evade: 110
+  accuracy: 110
+  skill: 110
   morale: 100
   terrainRatings:
     air: 3
     ground: 3
     water: 3
     space: 3
+  saveBLevel: 0
+  saveELevel: 1
+  potentialLevel: 6
   onSuccessLines:
   - Im the Great Hero, what did you expect?
   defaultPortrait: {fileID: -7944233913978615974, guid: 46f5cbc28ff020d439d7e5df46662bfc, type: 3}
