@@ -330,16 +330,15 @@ public class ActionsMenu : MonoBehaviour
         SetWeaponDetailsVisible(weapon != null);
         if (weapon == null) return;
 
-        Set(weaponNameText, $"Weapon: {weapon.WeaponName}");
-        Set(weaponTypeText, $"Type: {weapon.DamageType}");
-        Set(weaponClassificationText, $"Class: {weapon.Classification}");
-        Set(weaponPowerText, $"Power: {weapon.Power}");
-        Set(weaponRangeText, $"Range: {weapon.MinRange}-{weapon.MaxRange}");
+        Set(weaponNameText, weapon.WeaponName);
+        Set(weaponTypeText, weapon.DamageType.ToString());
+        Set(weaponClassificationText, weapon.Classification.ToString());
+        Set(weaponPowerText, weapon.Power.ToString());
+        Set(weaponRangeText, weapon.MinRange + "-" + weapon.MaxRange);
         // WEEK 4: MOTHERSHIP - Existing weapons with zero Max Ammo still only display energy cost.
-        Set(weaponEnergyCostText, $"EN Cost: {unit.GetWeaponEnergyCost(weapon)}" +
-            (weapon.MaxAmmo > 0 ? $" | Ammo: {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}" : string.Empty));
-        Set(weaponAccuracyText, $"Accuracy: {weapon.AccuracyModifier:+0;-0;0}");
-        Set(weaponCriticalText, $"Critical: {weapon.CriticalModifier:+0;-0;0}");
+        Set(weaponEnergyCostText, unit.GetWeaponEnergyCost(weapon).ToString() + (weapon.MaxAmmo > 0 ? $" Ammo | {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}"  : string.Empty));
+        Set(weaponAccuracyText, weapon.AccuracyModifier.ToString("+0;-0;0"));
+        Set(weaponCriticalText, weapon.CriticalModifier.ToString("+0;-0;0"));
         SetTerrainFields(weapon.TerrainRatings, weaponAirText, weaponGroundText, weaponWaterText, weaponSpaceText);
     }
 
