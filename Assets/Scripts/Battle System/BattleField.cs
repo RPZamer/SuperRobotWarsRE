@@ -45,12 +45,11 @@ public class Battlefield : MonoBehaviour
         if (unit == null || terrainDetector == null) return;
         TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
         unit.SetTerrain(detectedTerrain);
-        if (unit == null || terrainDetector == null) return;
-        TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
-        unit.SetTerrain(detectedTerrain);
+        
+       
 
         Debug.Log($"[Terrain Detector] {unit.name} at {unit.GridPosition} is on {detectedTerrain}", unit);
-        Debug.Log("[Terrain Detector] " + unit.name + " at " + unit.GridPosition + " is on " + detectedTerrain );
+        
 
         TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
         unit.SetTileType(tileType);
