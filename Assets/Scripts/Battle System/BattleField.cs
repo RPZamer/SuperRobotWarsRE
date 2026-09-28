@@ -26,12 +26,14 @@ public class Battlefield : MonoBehaviour
 
     // Preserve the team's tilemap-driven terrain updates.
     private TerrainDetector terrainDetector;
+    private CombatHUD combatHUD;
 
     public IEnumerable<BattleUnit> Units => occupants.Values;
 
     private void Awake()
     {
-        terrainDetector = GetComponent<TerrainDetector>();
+        terrainDetector = FindAnyObjectByType<TerrainDetector>();
+        combatHUD = FindAnyObjectByType<CombatHUD>();
         highlightSprite = CreateSquareSprite();
 
         if (showGridLines)
@@ -105,6 +107,10 @@ public class Battlefield : MonoBehaviour
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
         UpdateUnitTerrain(unit);
+        if (combatHUD != null) 
+        { 
+            combatHUD.ShowSelectedUnit(unit);
+        }
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         unit.MarkMoved();
         return true;
@@ -122,6 +128,11 @@ public class Battlefield : MonoBehaviour
         unit.SetGridPosition(originalPosition);
         unit.RestoreMove(originalEnergy);
         UpdateUnitTerrain(unit);
+        if (combatHUD != null)
+        {
+            combatHUD.ShowSelectedUnit(unit);
+        }
+
         return true;
     }
 

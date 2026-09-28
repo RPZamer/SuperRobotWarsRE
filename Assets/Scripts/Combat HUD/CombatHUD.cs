@@ -53,9 +53,7 @@ public class CombatHUD : MonoBehaviour
         ClearTargetedEnemy();
         selectedUnitNameText.text = unit.Mech.MechName;
         selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
-        ClearTargetedEnemy();
-        selectedUnitNameText.text = unit.Mech.MechName;
-        selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
+        
 
         if (tileInforText != null)
         {

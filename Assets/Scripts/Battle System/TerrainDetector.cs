@@ -38,11 +38,16 @@ public class TerrainDetector : MonoBehaviour
             
 
             CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
-
+            Debug.Log("[TERRAIN TEST] Battle Cell: " + position
+   + " | World: " + worldPosition
+   + " | Tilemap Cell: " + tilePosition
+   + " | Tile Found: " + (tile != null ? tile.Tile.ToString() : "NONE"));
             if (tile != null)
             {
                 return ConvertTileType(tile.Tile);
             }
+           
+
         }
 
         foreach (TerrainCell cell in terrainCells)
