@@ -10,7 +10,7 @@ public class CombatHUD : MonoBehaviour
 
     // Store the HUD text used to display information about the terrain.
     [SerializeField] private TMP_Text tileInforText;
-
+    
     // WEEK 3: Store the persistent HUD text used to display the final
     // Victory or Defeat result when the scenario ends.
     [Header("Scenario Result")]
@@ -116,5 +116,16 @@ public class CombatHUD : MonoBehaviour
             scenarioResultText.text = resultText;
             scenarioResultText.gameObject.SetActive(true);
         }
+    }
+    
+    // this is to hide the Hud in certain actions of the game
+    public void ShowHUD()
+    {
+        gameObject.SetActive(true);
+    }
+
+    public void HideHUD()
+    {
+        gameObject.SetActive(false);
     }
 }

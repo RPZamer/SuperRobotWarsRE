@@ -8,12 +8,17 @@ using UnityEngine.UI;
 public class WeaponRowView : MonoBehaviour
 {
     [SerializeField] private Button button;
+
     [SerializeField] private TMP_Text weaponNameText;
+
+    /*
     [SerializeField] private TMP_Text damageTypeText;
     [SerializeField] private TMP_Text powerText;
     [SerializeField] private TMP_Text rangeText;
     [SerializeField] private TMP_Text energyCostText;
     [SerializeField] private TMP_Text availabilityText;
+
+    */
     [SerializeField] private Image selectionGraphic;
 
     public Weapon Weapon { get; private set; }
@@ -23,11 +28,15 @@ public class WeaponRowView : MonoBehaviour
     {
         Weapon = weapon;
         weaponNameText.text = weapon.WeaponName;
+
+        /*
         damageTypeText.text = weapon.DamageType.ToString();
         powerText.text = weapon.Power.ToString();
         rangeText.text = $"{weapon.MinRange}-{weapon.MaxRange}";
         energyCostText.text = weapon.EnergyCost.ToString();
         availabilityText.text = affordable ? (canTarget ? string.Empty : "No target") : "Not enough EN";
+
+        */
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => clicked?.Invoke());
     }
@@ -53,11 +62,15 @@ public class WeaponRowView : MonoBehaviour
     {
         button = assignedButton;
         weaponNameText = assignedWeaponName;
+
+        /*
         damageTypeText = assignedDamageType;
         powerText = assignedPower;
         rangeText = assignedRange;
         energyCostText = assignedEnergyCost;
         availabilityText = assignedAvailability;
+
+        */
         selectionGraphic = assignedSelectionGraphic;
     }
 }
