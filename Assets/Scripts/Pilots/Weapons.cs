@@ -18,6 +18,8 @@ public class Weapon
     // WEEK 3: Set the weapon name, damage type, attack timing and target area.
     [SerializeField] private string weaponName;
     [SerializeField] private WeaponDamageType damageType;
+    // WEEK 3: Enable for attacks that travel to the enemy's terrain. Changes accuracy terrain only, not grid position.
+    [SerializeField] private bool travelsToTargetTerrain;
     // WEEK 3: PostMovement is kept for existing assets, but is no longer required to attack after moving.
     [SerializeField] private WeaponType weaponType;
     [SerializeField] private WeaponClassification classification;
@@ -29,11 +31,14 @@ public class Weapon
     [SerializeField] private int accuracyModifier;
     [SerializeField] private int criticalModifier;
     [Min(0)][SerializeField] private int energyCost;
+    // WEEK 4: MOTHERSHIP - Zero keeps existing weapons ammo-free; positive values limit shots.
+    [Min(0)][SerializeField] private int maxAmmo;
     [SerializeField] private TerrainRatings terrainRatings = new();
 
     // WEEK 3: Let battle code read the weapon settings.
     public string WeaponName => weaponName;
     public WeaponDamageType DamageType => damageType;
+    public bool TravelsToTargetTerrain => travelsToTargetTerrain;
     public WeaponType Type => weaponType;
     public WeaponClassification Classification => classification;
     public int MinRange => minRange;
@@ -42,6 +47,7 @@ public class Weapon
     public int AccuracyModifier => accuracyModifier;
     public int CriticalModifier => criticalModifier;
     public int EnergyCost => energyCost;
+    public int MaxAmmo => maxAmmo;
     public TerrainRatings TerrainRatings => terrainRatings;
 
     // WEEK 3: Check that a target is between the minimum and maximum range, including both ends.
