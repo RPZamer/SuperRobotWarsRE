@@ -106,7 +106,16 @@ public class Battlefield : MonoBehaviour
         UpdateUnitTerrain(unit);
 
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
+        // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         unit.MarkMoved();
+
+        // WEEK 4: Accel lasts until the unit successfully completes its next movement.
+        // Failed movement attempts do not consume the Spirit effect.
+        if (unit.AccelActive)
+        {
+            unit.ConsumeAccel();
+        }
+
         return true;
     }
 

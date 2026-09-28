@@ -38,6 +38,10 @@ public class BattleSystem : MonoBehaviour
     // combat, and UI systems can access the active unit without
     // directly modifying the BattleSystem's private selection state.
     public BattleUnit SelectedUnit => selectedUnit;
+
+    // WEEK 4: Allow the Spirit Command UI to pass the current
+    // battlefield to commands that affect multiple units.
+    public Battlefield Battlefield => battlefield;
     private bool isPlayerTurn;
     // WEEK 3: Track the current battle turn so the Combat HUD
     // can show the player which turn is currently being played.
@@ -60,9 +64,23 @@ public class BattleSystem : MonoBehaviour
         scenarioResult != ScenarioResult.InProgress;
 
     // WEEK 3: Remember the current menu step and selected weapon.
-    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby }
+    // WEEK 4: SpiritTargets allows targeted Spirit Commands to use
+    // battlefield clicks without interfering with weapon targeting.
+    private enum SelectionStep
+    {
+        Movement,
+        Actions,
+        Weapons,
+        Targets,
+        SpiritTargets,
+        Standby
+    }
     private SelectionStep selectionStep;
     private Weapon selectedWeapon;
+
+    // WEEK 4: Remember the Spirit Command while the player
+    // chooses the unit that will receive its effect.
+    private SpiritCommandBase selectedSpirit;
 
     // Battle messages remain readable briefly after their typewriter animation finishes.
     private const float MessageHoldSeconds = 0.75f;
@@ -179,6 +197,14 @@ public class BattleSystem : MonoBehaviour
         {
             // WEEK 3: Send enemy clicks through the target check before attacking.
             ChooseAttackTarget(occupant);
+            return;
+        }
+
+        // WEEK 4: A targeted Spirit Command uses the next unit
+        // clicked on the battlefield as its possible target.
+        if (selectionStep == SelectionStep.SpiritTargets)
+        {
+            ChooseSpiritTarget(occupant);
             return;
         }
 
@@ -674,6 +700,27 @@ public class BattleSystem : MonoBehaviour
             if (hitTarget != null && !hitTarget.IsDefeated)
                 yield return ResolveWeaponHit(attacker, hitTarget, weapon);
         }
+
+        // WEEK 4: Valor affects the entire next attack, including every target
+        // hit by a MAP or multi-target weapon, then expires after that attack.
+        if (attacker.ValorActive)
+        {
+            attacker.ConsumeValor();
+        }
+
+        // WEEK 4: Soul also affects the entire next attack, including every target
+        // hit by a MAP or multi-target weapon, then expires after that attack.
+        if (attacker.SoulActive)
+        {
+            attacker.ConsumeSoul();
+        }
+
+        // WEEK 4: Smash applies to the entire next attack and then expires.
+        // This allows Smash to stack with Valor or Soul.
+        if (attacker.SmashActive)
+        {
+            attacker.ConsumeSmash();
+        }
     }
 
     // WEEK 3: Roll hit and critical chance, apply formula damage, and show the battle result.
@@ -692,9 +739,30 @@ public class BattleSystem : MonoBehaviour
         }
 
         // WEEK 3: Roll for a critical hit and use the result when calculating damage.
-        int criticalRate = Mathf.Clamp(BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
-        bool critical = Random.Range(0, 100) < criticalRate;
-        int damage = target.TakeDamage(BattleFormulas.Damage(attacker, target, weapon, critical));
+        // WEEK 3: Roll for a critical hit and use the result when calculating damage.
+        int criticalRate = Mathf.Clamp(
+            BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
+
+        // WEEK 4: Smash guarantees a critical hit on the next attack.
+        // Otherwise, use the normal critical-hit roll.
+        bool critical = attacker.SmashActive ||
+                        Random.Range(0, 100) < criticalRate;
+        // WEEK 4: Calculate normal weapon damage first, then apply Valor.
+        // Valor doubles the damage of the unit's next attack.
+        int calculatedDamage = BattleFormulas.Damage(attacker, target, weapon, critical);
+
+        // WEEK 4: Soul takes priority over Valor because Soul deals 2.5X damage.
+        // This prevents both multipliers from accidentally multiplying together.
+        if (attacker.SoulActive)
+        {
+            calculatedDamage = Mathf.RoundToInt(calculatedDamage * 2.5f);
+        }
+        else if (attacker.ValorActive)
+        {
+            calculatedDamage *= 2;
+        }
+
+        int damage = target.TakeDamage(calculatedDamage);
         bool defeated = target.IsDefeated;
 
         // WEEK 3: Check the designated Victory and Defeat objectives
@@ -875,6 +943,84 @@ private void MoveEnemyCloser(BattleUnit enemy, BattleUnit target)
         {
             ShowActions();
         }
+    }
+
+    // WEEK 4: Begin choosing a battlefield target for a Spirit Command.
+    public void BeginSpiritTargeting(SpiritCommandBase spirit)
+    {
+        if (!isPlayerTurn ||
+            selectedUnit == null ||
+            selectedUnit.HasActed ||
+            spirit == null)
+        {
+            return;
+        }
+
+        selectedSpirit = spirit;
+        selectedWeapon = null;
+        selectionStep = SelectionStep.SpiritTargets;
+
+        actionsMenu.Hide();
+        battlefield.ClearHighlights();
+
+        Debug.Log(
+            $"Choose a target for Spirit Command: {selectedSpirit.CommandName}");
+    }
+
+    // WEEK 4: Validate the clicked unit based on whether the pending
+    // Spirit Command targets an ally or an enemy.
+    private void ChooseSpiritTarget(BattleUnit target)
+    {
+        if (selectedUnit == null ||
+            selectedSpirit == null ||
+            target == null ||
+            target.IsDefeated)
+        {
+            return;
+        }
+
+        bool requiresEnemy =
+            selectedSpirit.Effect == SpiritCommandEffect.Daunt ||
+            selectedSpirit.Effect == SpiritCommandEffect.Confuse;
+
+        bool requiresAlly =
+            selectedSpirit.Effect == SpiritCommandEffect.Trust ||
+            selectedSpirit.Effect == SpiritCommandEffect.Prospect;
+
+        if (requiresEnemy && target.Team == selectedUnit.Team)
+        {
+            Debug.LogWarning(
+                $"{selectedSpirit.CommandName} requires an enemy target.");
+            return;
+        }
+
+        if (requiresAlly && target.Team != selectedUnit.Team)
+        {
+            Debug.LogWarning(
+                $"{selectedSpirit.CommandName} requires an allied target.");
+            return;
+        }
+
+        bool used = SpiritSystem.UseSpirit(
+            selectedUnit,
+            selectedSpirit,
+            battlefield,
+            target);
+
+        if (!used)
+        {
+            return;
+        }
+
+        Debug.Log(
+            $"{selectedSpirit.CommandName} successfully used on " +
+            $"{target.Pilot?.PilotName}.");
+
+        selectedSpirit = null;
+
+        // WEEK 4: Using a Spirit Command does not consume the unit's
+        // normal movement or attack action.
+        ShowActions();
     }
 
     // WEEK 3: Check the clicked enemy and start the chosen weapon attack with one click.

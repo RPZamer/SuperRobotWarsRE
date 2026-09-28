@@ -8,8 +8,8 @@ public class DialogSystem : MonoBehaviour
 {
     [Header("Dialogue UI")]
     [SerializeField] private CanvasGroup dialogueCanvas;
-    [SerializeField] private TMP_Text speakerNameText;
-    [SerializeField] private TMP_Text dialogueText;
+    [SerializeField] private Text speakerNameText;
+    [SerializeField] private Text dialogueText;
     [SerializeField] private Image profileBox;
 
     [Header("Presentation")]

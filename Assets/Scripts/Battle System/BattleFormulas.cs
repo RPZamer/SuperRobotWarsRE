@@ -48,11 +48,14 @@ public static class BattleFormulas
         float weaponTerrain = TerrainRatings.Modifier(weaponRating);
         float armorTerrain = TerrainRatings.Modifier(armorRating);
 
-        float attackFactor = (attackStat + attackPilot.Morale) / 200f;
+        // WEEK 4: Use the unit's live battle Morale so Spirit Commands
+        // such as Rally, Daunt, and Dread affect combat damage.
+        float attackFactor = (attackStat + attacker.CurrentMorale) / 200f;
         float attackBeforeTerrain = attackFactor * weapon.Power;
         float attack = attackBeforeTerrain * weaponTerrain;
 
-        float defenseFactor = (defensePilot.Defense + defensePilot.Morale) / 200f;
+        // WEEK 4: Defender calculations also use live battle Morale.
+        float defenseFactor = (defensePilot.Defense + defender.CurrentMorale) / 200f;
         float defenseBeforeTerrain = defenseFactor * defender.Mech.Armor;
         float defense = defenseBeforeTerrain * armorTerrain;
 
@@ -65,14 +68,14 @@ public static class BattleFormulas
         // WEEK 3 DMG CHECK: Print substituted equations and unrounded float values in one Console entry per damage calculation.
         BattleDebug.Log(
             $"[DMG CHECK] {attacker.name} -> {defender.name} | Weapon: {weapon.WeaponName}\n" +
-            $"ATTACK INPUTS: {weapon.DamageType}={attackStat}, attacker Morale (Will)={attackPilot.Morale}, weapon Power={weapon.Power}\n" +
+            $"ATTACK INPUTS: {weapon.DamageType}={attackStat}, attacker Morale (Will)={attacker.CurrentMorale}, weapon Power={weapon.Power}\n" +
             $"WEAPON TERRAIN: defender terrain={defender.Terrain}, weapon rating={weaponRating}, multiplier={weaponTerrain:R}\n" +
-            $"Attack factor = ({attackStat} + {attackPilot.Morale}) / 200 = {attackFactor:R}\n" +
+            $"Attack factor = ({attackStat} + {attacker.CurrentMorale}) / 200 = {attackFactor:R}\n" +
             $"Attack before terrain = {attackFactor:R} * {weapon.Power} = {attackBeforeTerrain:R}\n" +
             $"ATTACK = {attackBeforeTerrain:R} * {weaponTerrain:R} = {attack:R}\n" +
-            $"DEFENSE INPUTS: pilot Defense={defensePilot.Defense}, defender Morale (Will)={defensePilot.Morale}, mech Armor={defender.Mech.Armor}\n" +
+            $"DEFENSE INPUTS: pilot Defense={defensePilot.Defense}, defender Morale (Will)={defender.CurrentMorale}, mech Armor={defender.Mech.Armor}\n" +
             $"ARMOR TERRAIN: defender terrain={defender.Terrain}, mech rating={armorRating}, multiplier={armorTerrain:R}\n" +
-            $"Defense factor = ({defensePilot.Defense} + {defensePilot.Morale}) / 200 = {defenseFactor:R}\n" +
+            $"Defense factor = ({defensePilot.Defense} + {defender.CurrentMorale}) / 200 = {defenseFactor:R}\n" +
             $"Defense before terrain = {defenseFactor:R} * {defender.Mech.Armor} = {defenseBeforeTerrain:R}\n" +
             $"DEFENSE = {defenseBeforeTerrain:R} * {armorTerrain:R} = {defense:R}\n" +
             $"Attack - Defense = {attack:R} - {defense:R} = {difference:R}\n" +
