@@ -19,28 +19,43 @@ public class PilotBase : ScriptableObject
 
     // WEEK 3: Keep all pilot stats here, together with the pilot name and dialogue.
     [Header("Pilot Stats")]
+
     // WEEK 3: Melee and Ranged increase damage for their matching weapon type.
     [Min(0)][SerializeField] private int melee = 100;
     [Min(0)][SerializeField] private int ranged = 100;
+
     // WEEK 3: Defense reduces damage; Evade helps the mech dodge.
     [Min(0)][SerializeField] private int defense = 100;
     [Min(0)][SerializeField] private int evade = 100;
+
     // WEEK 3: Accuracy helps attacks hit; Skill affects critical chance.
     [Min(0)][SerializeField] private int accuracy = 100;
     [Min(0)][SerializeField] private int skill = 100;
+
     // WEEK 3: Morale helps attack and defense. This is the renamed Will stat.
     [Min(0)][SerializeField] private int morale = 100;
+
+    // WEEK 4: Spirit Points are spent when the pilot uses Spirit Commands.
+    [Min(0)][SerializeField] private int maxSpiritPoints = 100;
+
     // WEEK 3: Store how well this pilot handles each terrain.
     [SerializeField] private TerrainRatings terrainRatings = new();
 
-    // WEEK 4: PILOT SKILLS - Zero disables a skill. Configure these on each pilot asset before battle.
+    // WEEK 4: PILOT SKILLS - Zero disables a skill.
+    // Configure these on each pilot asset before battle.
     [Header("Pilot Skills")]
     [Range(0, 2)][SerializeField] private int saveBLevel;
     [Range(0, 2)][SerializeField] private int saveELevel;
     [Range(0, 9)][SerializeField] private int potentialLevel;
-    public int SaveBLevel => Mathf.Clamp(saveBLevel, 0, 2);
-    public int SaveELevel => Mathf.Clamp(saveELevel, 0, 2);
-    public int PotentialLevel => Mathf.Clamp(potentialLevel, 0, 9);
+
+    // WEEK 4: Each pilot can have up to six Spirit Commands.
+    [Header("Spirit Commands")]
+    [SerializeField] private SpiritCommandBase spirit1;
+    [SerializeField] private SpiritCommandBase spirit2;
+    [SerializeField] private SpiritCommandBase spirit3;
+    [SerializeField] private SpiritCommandBase spirit4;
+    [SerializeField] private SpiritCommandBase spirit5;
+    [SerializeField] private SpiritCommandBase spirit6;
 
     [Header("Battle Dialogue")]
     [SerializeField] private List<string> onSuccessLines = new();
@@ -54,6 +69,7 @@ public class PilotBase : ScriptableObject
     [SerializeField] private Sprite defeatedPortrait;
 
     public string PilotName => pilotName;
+
     // WEEK 3: Let battle code read the pilot stats directly from PilotBase.
     public int Melee => melee;
     public int Ranged => ranged;
@@ -62,8 +78,57 @@ public class PilotBase : ScriptableObject
     public int Accuracy => accuracy;
     public int Skill => skill;
     public int Morale => morale;
+
+    // WEEK 4: Maximum SP available to this pilot.
+    public int MaxSpiritPoints => maxSpiritPoints;
+
     public TerrainRatings TerrainRatings => terrainRatings;
+
+    // WEEK 4: Pilot Skills.
+    public int SaveBLevel => Mathf.Clamp(saveBLevel, 0, 2);
+    public int SaveELevel => Mathf.Clamp(saveELevel, 0, 2);
+    public int PotentialLevel => Mathf.Clamp(potentialLevel, 0, 9);
+
+    // WEEK 4: Expose the pilot's six Spirit Command slots.
+    public SpiritCommandBase Spirit1 => spirit1;
+    public SpiritCommandBase Spirit2 => spirit2;
+    public SpiritCommandBase Spirit3 => spirit3;
+    public SpiritCommandBase Spirit4 => spirit4;
+    public SpiritCommandBase Spirit5 => spirit5;
+    public SpiritCommandBase Spirit6 => spirit6;
+
     public IReadOnlyList<string> OnSuccessLines => onSuccessLines;
+
+    // WEEK 4: Return all Spirit Commands assigned to this pilot.
+    public SpiritCommandBase[] GetSpiritCommands()
+    {
+        return new SpiritCommandBase[]
+        {
+            spirit1,
+            spirit2,
+            spirit3,
+            spirit4,
+            spirit5,
+            spirit6
+        };
+    }
+
+    // WEEK 4: Find a Spirit Command assigned to this pilot
+    // by its gameplay effect.
+    public SpiritCommandBase GetSpiritCommand(SpiritCommandEffect effect)
+    {
+        SpiritCommandBase[] spirits = GetSpiritCommands();
+
+        foreach (SpiritCommandBase spirit in spirits)
+        {
+            if (spirit != null && spirit.Effect == effect)
+            {
+                return spirit;
+            }
+        }
+
+        return null;
+    }
 
     public Sprite GetPortrait(PilotEmotion emotion)
     {

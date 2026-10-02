@@ -31,6 +31,18 @@ public class BattleUnit : MonoBehaviour
     private bool isSelected;
     private bool isActing;
 
+    // WEEK 4: Runtime Spirit Command state.
+    private bool valorActive;
+    private bool soulActive;
+    private bool smashActive;
+    private bool accelActive;
+
+    // WEEK 4: Allow the battle system to check active Spirit effects.
+    public bool ValorActive => valorActive;
+    public bool SoulActive => soulActive;
+    public bool SmashActive => smashActive;
+    public bool AccelActive => accelActive;
+
     // WEEK 4: MOTHERSHIP - Keep runtime state on this unit, never on shared mech assets.
     private readonly Dictionary<Weapon, int> ammunition = new();
     public Mothership DockedAt { get; private set; }
@@ -44,13 +56,21 @@ public class BattleUnit : MonoBehaviour
     // Preserve the team's terrain detector integration while keeping terrain runtime state per unit.
     public void SetTerrain(TerrainType newTerrain) => terrain = newTerrain;
     public int CurrentEnergy { get; private set; }
+
+    // WEEK 4: Current Spirit Points belong to this individual battle unit.
+    public int CurrentSpiritPoints { get; private set; }
     public bool HasMoved { get; private set; }
     // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
 
     // WEEK 3: Track whether this unit has completed its full action
     // during the current phase.
     public bool HasActed { get; private set; }
-    public int AvailableMovement => mech != null && !HasMoved && !IsDocked && !HasActed ? Mathf.Min(mech.Movement, CurrentEnergy) : 0;
+    
+    // WEEK 4: Accel adds 3 spaces to the unit's next movement.
+    public int AvailableMovement =>
+        mech != null && !HasMoved && !IsDocked && !HasActed
+            ? Mathf.Min(mech.Movement + (accelActive ? 3 : 0), CurrentEnergy)
+            : 0;
 
     // WEEK 3: Allow movement at the start of a turn, then remember when it has been used.
 
@@ -96,6 +116,9 @@ public class BattleUnit : MonoBehaviour
         // using the newer MechBase data used by the battle system.
         CurrentHealth = mech != null ? mech.Health : 1;
         CurrentEnergy = mech != null ? mech.Energy : 0;
+        
+        // WEEK 4: Start battle with the pilot's maximum Spirit Points.
+        CurrentSpiritPoints = pilot != null ? pilot.MaxSpiritPoints : 0;
         // WEEK 4 MORALE SYSTEM: Reset morale to its required battle starting value.
         CurrentMorale = Mathf.Clamp(StartingMorale, MinimumMorale, MaximumMorale);
         RestoreAmmo();
@@ -327,6 +350,120 @@ public class BattleUnit : MonoBehaviour
             $"crit +{PilotSkillEffects.CriticalBonus(stage)}, damage taken -{PilotSkillEffects.DamageReductionPercent(stage)}% (HP {CurrentHealth}/{mech.Health})");
     }
 
+    // WEEK 4: Spend Spirit Points only when the pilot can afford the command.
+    public bool TrySpendSpiritPoints(int amount)
+    {
+        if (amount < 0 || amount > CurrentSpiritPoints || IsDefeated)
+        {
+            return false;
+        }
+
+        CurrentSpiritPoints -= amount;
+        return true;
+    }
+
+    // WEEK 4: Restore Spirit Points without exceeding the pilot's maximum.
+    public void RestoreSpiritPoints(int amount)
+    {
+        if (amount <= 0 || pilot == null || IsDefeated)
+        {
+            return;
+        }
+
+        CurrentSpiritPoints =
+            Mathf.Clamp(CurrentSpiritPoints + amount, 0, pilot.MaxSpiritPoints);
+    }
+
+    // WEEK 4: Restore HP without exceeding the mech's maximum Health.
+    public void RestoreHealth(int amount)
+    {
+        if (amount <= 0 || mech == null || IsDefeated)
+        {
+            return;
+        }
+
+        int previousPotential = PotentialStage;
+
+        CurrentHealth =
+            Mathf.Clamp(CurrentHealth + amount, 0, mech.Health);
+
+        // WEEK 4: Keep the teammate's Potential system synchronized after healing.
+        LogPotentialChange(previousPotential);
+    }
+
+    // WEEK 4: Compatibility helpers for Spirit Commands.
+    // Morale remains controlled by the teammate's centralized ChangeMorale method.
+    public void AddMorale(int amount)
+    {
+        if (amount > 0 && !IsDefeated)
+        {
+            ChangeMorale(amount);
+        }
+    }
+
+    public void ReduceMorale(int amount)
+    {
+        if (amount > 0 && !IsDefeated)
+        {
+            ChangeMorale(-amount);
+        }
+    }
+
+    // WEEK 4: Reduce SP without allowing it to fall below zero.
+    public void ReduceSpiritPoints(int amount)
+    {
+        if (amount <= 0 || IsDefeated)
+        {
+            return;
+        }
+
+        CurrentSpiritPoints =
+            Mathf.Max(0, CurrentSpiritPoints - amount);
+    }
+
+    // WEEK 4: Valor makes the next attack deal 2X damage.
+    public void ActivateValor()
+    {
+        valorActive = true;
+    }
+
+    public void ConsumeValor()
+    {
+        valorActive = false;
+    }
+
+    // WEEK 4: Soul makes the next attack deal 2.5X damage.
+    public void ActivateSoul()
+    {
+        soulActive = true;
+    }
+
+    public void ConsumeSoul()
+    {
+        soulActive = false;
+    }
+
+    // WEEK 4: Smash guarantees a critical hit on the next attack.
+    public void ActivateSmash()
+    {
+        smashActive = true;
+    }
+
+    public void ConsumeSmash()
+    {
+        smashActive = false;
+    }
+
+    // WEEK 4: Accel adds 3 spaces to the unit's next movement.
+    public void ActivateAccel()
+    {
+        accelActive = true;
+    }
+
+    public void ConsumeAccel()
+    {
+        accelActive = false;
+    }
     public int TakeDamage(int damage)
     {
         int previousPotential = PotentialStage;

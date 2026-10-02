@@ -8,8 +8,11 @@ public class DialogSystem : MonoBehaviour
 {
     [Header("Dialogue UI")]
     [SerializeField] private CanvasGroup dialogueCanvas;
-    [SerializeField] private Text speakerNameText;
-    [SerializeField] private Text dialogueText;
+
+    // WEEK 4: Dialogue UI now uses TextMeshPro text components.
+    [SerializeField] private TMP_Text speakerNameText;
+    [SerializeField] private TMP_Text dialogueText;
+
     [SerializeField] private Image profileBox;
 
     [Header("Presentation")]
@@ -31,17 +34,36 @@ public class DialogSystem : MonoBehaviour
         }
     }
 
-    public void DisplayLine(PilotBase pilot, PilotEmotion emotion, string line, bool showPortrait = false)
+    public void DisplayLine(
+        PilotBase pilot,
+        PilotEmotion emotion,
+        string line,
+        bool showPortrait = false)
     {
         StopTyping();
 
         completeLine = line ?? string.Empty;
-        speakerNameText.text = pilot != null ? pilot.PilotName : string.Empty;
-        dialogueText.text = string.Empty;
+
+        // WEEK 4: Null checks prevent missing dialogue UI references
+        // from stopping the entire battle.
+        if (speakerNameText != null)
+        {
+            speakerNameText.text =
+                pilot != null ? pilot.PilotName : string.Empty;
+        }
+
+        if (dialogueText != null)
+        {
+            dialogueText.text = string.Empty;
+        }
 
         if (profileBox != null)
         {
-            profileBox.sprite = showPortrait && pilot != null ? pilot.GetPortrait(emotion) : null;
+            profileBox.sprite =
+                showPortrait && pilot != null
+                    ? pilot.GetPortrait(emotion)
+                    : null;
+
             profileBox.enabled = profileBox.sprite != null;
         }
 
@@ -56,7 +78,11 @@ public class DialogSystem : MonoBehaviour
         }
 
         StopTyping();
-        dialogueText.text = completeLine;
+
+        if (dialogueText != null)
+        {
+            dialogueText.text = completeLine;
+        }
     }
 
     public IEnumerator FadeIn()
@@ -85,16 +111,30 @@ public class DialogSystem : MonoBehaviour
     {
         IsTyping = true;
 
+        // WEEK 4: If dialogue text has not been assigned yet,
+        // safely finish instead of throwing a NullReferenceException.
+        if (dialogueText == null)
+        {
+            IsTyping = false;
+            typingCoroutine = null;
+            yield break;
+        }
+
         if (secondsPerCharacter <= 0f)
         {
             dialogueText.text = completeLine;
         }
         else
         {
-            for (int characterCount = 1; characterCount <= completeLine.Length; characterCount++)
+            for (int characterCount = 1;
+                 characterCount <= completeLine.Length;
+                 characterCount++)
             {
-                dialogueText.text = completeLine.Substring(0, characterCount);
-                yield return new WaitForSecondsRealtime(secondsPerCharacter);
+                dialogueText.text =
+                    completeLine.Substring(0, characterCount);
+
+                yield return new WaitForSecondsRealtime(
+                    secondsPerCharacter);
             }
         }
 
@@ -118,15 +158,22 @@ public class DialogSystem : MonoBehaviour
         else
         {
             float elapsed = 0f;
+
             while (elapsed < fadeDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                dialogueCanvas.alpha = Mathf.Lerp(startingAlpha, targetAlpha, elapsed / fadeDuration);
+
+                dialogueCanvas.alpha = Mathf.Lerp(
+                    startingAlpha,
+                    targetAlpha,
+                    elapsed / fadeDuration);
+
                 yield return null;
             }
         }
 
         bool visible = targetAlpha > 0f;
+
         dialogueCanvas.alpha = targetAlpha;
         dialogueCanvas.interactable = visible;
         dialogueCanvas.blocksRaycasts = visible;
