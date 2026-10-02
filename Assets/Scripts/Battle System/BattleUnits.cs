@@ -15,6 +15,7 @@ public class BattleUnit : MonoBehaviour
     [SerializeField] private MechBase mech;
     [SerializeField] private TerrainType terrain = TerrainType.Ground;
     [SerializeField] private BattleTeam team;
+    [SerializeField] private TileTypes tileType = TileTypes.Ground;
     [SerializeField] private Vector2Int startingPosition;
 
     // WEEK 4 MORALE SYSTEM: Every unit starts at 100 morale. Abilities and equipment
@@ -53,13 +54,25 @@ public class BattleUnit : MonoBehaviour
     // WEEK 3: Expose mech settings and keep energy and movement state on this individual unit.
     public MechBase Mech => mech;
     public TerrainType Terrain => terrain;
-    // Preserve the team's terrain detector integration while keeping terrain runtime state per unit.
-    public void SetTerrain(TerrainType newTerrain) => terrain = newTerrain;
+    
+    // Allow the terrain detector to update this unit's terrain type when it moves to a new grid cell.
+    public void SetTerrain(TerrainType newTerrain)
+    {
+        terrain = newTerrain;
+    }
+
+    public TileTypes TileType => tileType;
+    public void SetTileType(TileTypes newTileType)
+    {
+        tileType = newTileType;
+    }
+
     public int CurrentEnergy { get; private set; }
 
     // WEEK 4: Current Spirit Points belong to this individual battle unit.
     public int CurrentSpiritPoints { get; private set; }
     public bool HasMoved { get; private set; }
+    
     // WEEK 3: Each grid step costs one energy. Stop movement after this unit has already moved.
 
     // WEEK 3: Track whether this unit has completed its full action

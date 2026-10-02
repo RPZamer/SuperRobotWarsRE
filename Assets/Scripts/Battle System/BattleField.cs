@@ -26,12 +26,14 @@ public class Battlefield : MonoBehaviour
 
     // Preserve the team's tilemap-driven terrain updates.
     private TerrainDetector terrainDetector;
+    private CombatHUD combatHUD;
 
     public IEnumerable<BattleUnit> Units => occupants.Values;
 
     private void Awake()
     {
-        terrainDetector = GetComponent<TerrainDetector>();
+        terrainDetector = FindAnyObjectByType<TerrainDetector>();
+        combatHUD = FindAnyObjectByType<CombatHUD>();
         highlightSprite = CreateSquareSprite();
 
         if (showGridLines)
@@ -45,7 +47,16 @@ public class Battlefield : MonoBehaviour
         if (unit == null || terrainDetector == null) return;
         TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
         unit.SetTerrain(detectedTerrain);
+        
+       
+
         Debug.Log($"[Terrain Detector] {unit.name} at {unit.GridPosition} is on {detectedTerrain}", unit);
+        
+
+        TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
+        unit.SetTileType(tileType);
+        Debug.Log("[TILE TYPE] " + unit.name + " at " + unit.GridPosition + " | Battle Terrain: " + unit.Terrain
+            + " | Tile Type: " + tileType);
     }
 
     public void RegisterSceneUnits()
@@ -96,6 +107,10 @@ public class Battlefield : MonoBehaviour
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
         UpdateUnitTerrain(unit);
+        if (combatHUD != null) 
+        { 
+            combatHUD.ShowSelectedUnit(unit);
+        }
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
         unit.MarkMoved();
@@ -122,6 +137,11 @@ public class Battlefield : MonoBehaviour
         unit.SetGridPosition(originalPosition);
         unit.RestoreMove(originalEnergy);
         UpdateUnitTerrain(unit);
+        if (combatHUD != null)
+        {
+            combatHUD.ShowSelectedUnit(unit);
+        }
+
         return true;
     }
 
