@@ -19,6 +19,20 @@ public class ActionsMenu : MonoBehaviour
     // WEEK 4: MOTHERSHIP - Optional explicit reference; existing scenes resolve the button's label automatically.
     [SerializeField] private TMP_Text standbyLabel;
 
+    // WEEK 4: SPIRIT COMMANDS - UI used to display and activate
+    // the selected pilot's assigned Spirit Commands.
+    [Header("WEEK 4: SPIRIT COMMANDS")]
+    [SerializeField] private Button spiritButton;
+    [SerializeField] private CanvasGroup spiritPanel;
+    [SerializeField] private Button spiritBackButton;
+    [SerializeField] private TMP_Text spiritPointText;
+    [SerializeField] private SpiritCommandButton spiritButtonTemplate;
+    [SerializeField] private RectTransform spiritButtonContent;
+
+    // WEEK 4: Track generated Spirit Command buttons so they can
+    // be cleared and rebuilt whenever the menu opens.
+    private readonly List<SpiritCommandButton> spiritCommandButtons = new();
+
     [Header("Your Weapon UI")]
     [SerializeField] private CanvasGroup weaponsPanel;
     [SerializeField] private Button confirmButton;
@@ -133,30 +147,61 @@ public class ActionsMenu : MonoBehaviour
         SetVisible(weaponsPanel, false, true);
         SetVisible(hangarPanel, false, true);
         SetVisible(UnitInfoPanel, false, true);
+
+        // WEEK 4: SPIRIT COMMANDS - Start the Spirit panel hidden.
+        SetVisible(spiritPanel, false, true);
     }
 
     // WEEK 3: Require the controls and TMP fields you create before battle starts.
     public bool Bind(BattleSystem system)
     {
         battle = system;
+
         if (!IsConfigured())
         {
             Debug.LogError("ActionsMenu is missing assigned TMP fields or controls.", this);
             return false;
         }
 
+        // Existing battle controls.
         moveButton.onClick.AddListener(battle.OpenMovement);
         attackButton.onClick.AddListener(battle.OpenWeapons);
         standbyButton.onClick.AddListener(battle.Standby);
         confirmButton.onClick.AddListener(battle.ConfirmWeapon);
         if (StatusButton != null) StatusButton.onClick.AddListener(UnitScreen);
+
+        // WEEK 4: SPIRIT COMMANDS - Connect the Spirit menu controls.
+        if (spiritButton != null)
+            spiritButton.onClick.AddListener(OpenSpiritMenu);
+
+        if (spiritBackButton != null)
+            spiritBackButton.onClick.AddListener(CloseSpiritMenu);
+
+        // WEEK 4: The template itself stays hidden.
+        // Copies of it are created when the Spirit menu opens.
+        if (spiritButtonTemplate != null)
+            spiritButtonTemplate.gameObject.SetActive(false);
+
         // WEEK 4: MOTHERSHIP - Optional references keep existing scenes working until UI is assigned.
-        if (boardButton != null) boardButton.onClick.AddListener(battle.OpenBoarding);
-        if (hangarButton != null) hangarButton.onClick.AddListener(battle.OpenHangar);
-        if (closeHangarButton != null) closeHangarButton.onClick.AddListener(battle.Back);
-        if (passengerRowTemplate != null) passengerRowTemplate.gameObject.SetActive(false);
+        if (boardButton != null)
+            boardButton.onClick.AddListener(battle.OpenBoarding);
+
+        if (hangarButton != null)
+            hangarButton.onClick.AddListener(battle.OpenHangar);
+
+        if (closeHangarButton != null)
+            closeHangarButton.onClick.AddListener(battle.Back);
+
+        if (passengerRowTemplate != null)
+            passengerRowTemplate.gameObject.SetActive(false);
+
         if ((boardButton != null || hangarButton != null) && !HasHangarUI)
-            Debug.LogWarning("WEEK 4: MOTHERSHIP - Assign the hangar panel, content, title and configured passenger row template.", this);
+        {
+            Debug.LogWarning(
+                "WEEK 4: MOTHERSHIP - Assign the hangar panel, content, title and configured passenger row template.",
+                this);
+        }
+
         return true;
     }
 
@@ -182,6 +227,9 @@ public class ActionsMenu : MonoBehaviour
         FadePanel(weaponsPanel);
         FadePanel(hangarPanel);
         FadePanel(UnitInfoPanel);
+
+        // WEEK 4: SPIRIT COMMANDS - Update Spirit panel visibility too.
+        FadePanel(spiritPanel);
 
         if (weaponsPanel == null || weaponsPanel.alpha <= 0f) return;
         foreach (WeaponRowView row in rows)
@@ -367,6 +415,9 @@ public class ActionsMenu : MonoBehaviour
         SetVisible(weaponsPanel, false);
         SetVisible(hangarPanel, false);
         SetVisible(UnitInfoPanel, false);
+
+        // WEEK 4: SPIRIT COMMANDS - Hide Spirit with the other menus.
+        SetVisible(spiritPanel, false);
     }
 
     private void SetPilotAndMechFields(BattleUnit selectedUnit)
@@ -397,20 +448,33 @@ public class ActionsMenu : MonoBehaviour
         Set(space, $"Space: {ratings.Get(TerrainType.Space)}");
     }
 
+    // WEEK 4: Only require the core controls needed for the battle menu.
+    // Extra stat, terrain, weapon-detail, mothership, and Spirit UI fields
+    // are allowed to remain optional so incomplete UI does not disable battle controls.
     private bool IsConfigured() =>
-        actionsPanel != null && weaponsPanel != null &&
-        moveButton != null && attackButton != null && standbyButton != null && confirmButton != null &&
-        weaponContent != null && weaponRowTemplate != null &&
-        pilotNameText != null && mechNameText != null &&
-        healthText != null && energyText != null && moraleText != null &&
-        meleeText != null && rangedText != null && defenseText != null && evadeText != null &&
-        accuracyText != null && skillText != null &&
-        pilotAirText != null && pilotGroundText != null && pilotWaterText != null && pilotSpaceText != null &&
-        mechAirText != null && mechGroundText != null && mechWaterText != null && mechSpaceText != null &&
-        weaponNameText != null && weaponTypeText != null && weaponClassificationText != null &&
-        weaponPowerText != null && weaponRangeText != null && weaponEnergyCostText != null &&
-        weaponAccuracyText != null && weaponCriticalText != null &&
-        weaponAirText != null && weaponGroundText != null && weaponWaterText != null && weaponSpaceText != null;
+        actionsPanel != null &&
+        weaponsPanel != null &&
+        moveButton != null &&
+        attackButton != null &&
+        standbyButton != null &&
+        confirmButton != null &&
+        weaponContent != null &&
+        weaponRowTemplate != null &&
+        pilotNameText != null &&
+        mechNameText != null &&
+        healthText != null &&
+        energyText != null &&
+        moraleText != null &&
+        weaponNameText != null &&
+        weaponTypeText != null &&
+        weaponRangeText != null &&
+        weaponEnergyCostText != null &&
+        weaponAccuracyText != null &&
+        weaponCriticalText != null &&
+        weaponAirText != null &&
+        weaponGroundText != null &&
+        weaponWaterText != null &&
+        weaponSpaceText != null;
 
     // WEEK 3: Move the Action Panel beside the selected player's mech
     // by converting the unit's world position into Canvas UI coordinates.
@@ -456,12 +520,17 @@ public class ActionsMenu : MonoBehaviour
     // WEEK 4: UI FADE - Set the visibility target; normal transitions animate in Update.
     private void SetVisible(CanvasGroup panel, bool visible, bool immediately = false)
     {
-        if (panel == null) return;
-        // WEEK 4: UI FADE - Disable input immediately when closing, even while the panel fades away.
+        if (panel == null)
+        {
+            return;
+        }
+
+        // WEEK 4: Set panel visibility immediately.
+        // This prevents Spirit Commands from remaining invisible
+        // when the UI fade duration is greater than zero.
+        panel.alpha = visible ? 1f : 0f;
         panel.interactable = visible;
         panel.blocksRaycasts = visible;
-        if (immediately || panelFadeSeconds <= 0f || !isActiveAndEnabled)
-            panel.alpha = visible ? 1f : 0f;
     }
 
     // WEEK 4: UI FADE - Use unscaled time so fading also works when game time is paused.
@@ -485,5 +554,188 @@ public class ActionsMenu : MonoBehaviour
     private static void Set(TMP_Text text, string value)
     {
         if (text != null) text.text = value;
+    }
+
+    // WEEK 4: SPIRIT COMMANDS - Build the Spirit menu from the
+    // commands assigned to the currently selected pilot.
+    private void BuildSpiritButtons(BattleUnit selectedUnit)
+    {
+        // WEEK 4: Remove every previously generated Spirit Command button
+        // directly from the content container before rebuilding the menu.
+        if (spiritButtonContent != null)
+        {
+            for (int i = spiritButtonContent.childCount - 1; i >= 0; i--)
+            {
+                Transform child = spiritButtonContent.GetChild(i);
+
+                if (child != null)
+                {
+                    child.gameObject.SetActive(false);
+                    Destroy(child.gameObject);
+                }
+            }
+        }
+
+        // WEEK 4: Clear the saved button references after removing the UI objects.
+        spiritCommandButtons.Clear();
+
+        if (selectedUnit == null ||
+            selectedUnit.Pilot == null ||
+            spiritButtonTemplate == null ||
+            spiritButtonContent == null)
+        {
+            return;
+        }
+
+        // WEEK 4: Retrieve the pilot's assigned Spirit Commands.
+        SpiritCommandBase[] spirits =
+            selectedUnit.Pilot.GetSpiritCommands();
+
+        foreach (SpiritCommandBase spirit in spirits)
+        {
+            if (spirit == null)
+            {
+                continue;
+            }
+
+            // WEEK 4: Clone the recovered Spirit button template.
+            SpiritCommandButton newButton =
+                Instantiate(spiritButtonTemplate, spiritButtonContent);
+
+            newButton.gameObject.SetActive(true);
+
+            bool canAfford =
+    selectedUnit.CurrentSpiritPoints >= spirit.SpiritPointCost;
+
+            // WEEK 4: Do not allow the player to spend SP repeatedly
+            // on a self buff that is already waiting to be consumed.
+            bool alreadyActive =
+                (spirit.Effect == SpiritCommandEffect.Valor && selectedUnit.ValorActive) ||
+                (spirit.Effect == SpiritCommandEffect.Soul && selectedUnit.SoulActive) ||
+                (spirit.Effect == SpiritCommandEffect.Smash && selectedUnit.SmashActive) ||
+                (spirit.Effect == SpiritCommandEffect.Accel && selectedUnit.AccelActive);
+
+            bool canUse =
+                canAfford && !alreadyActive;
+
+            newButton.Setup(
+                spirit,
+                canUse,
+                UseSpiritCommand);
+        }
+    }
+
+
+    // WEEK 4: SPIRIT COMMANDS - Activate a selected Spirit Command.
+    // WEEK 4: SPIRIT COMMANDS - Activate a selected Spirit Command.
+    private void UseSpiritCommand(SpiritCommandBase spirit)
+    {
+        if (battle == null ||
+            battle.SelectedUnit == null ||
+            spirit == null)
+        {
+            return;
+        }
+
+        BattleUnit selectedUnit = battle.SelectedUnit;
+
+        // WEEK 4: SPIRIT COMMANDS - These commands require the player
+        // to choose a specific unit on the battlefield.
+        bool requiresTarget =
+            spirit.Effect == SpiritCommandEffect.Trust ||
+            spirit.Effect == SpiritCommandEffect.Prospect ||
+            spirit.Effect == SpiritCommandEffect.Daunt ||
+            spirit.Effect == SpiritCommandEffect.Confuse;
+
+        if (requiresTarget)
+        {
+            // WEEK 4: Tell BattleSystem which Spirit Command is waiting
+            // for a battlefield target.
+            battle.BeginSpiritTargeting(spirit);
+
+            // WEEK 4: Close the Spirit menu so the player can click
+            // the ally or enemy they want to target.
+            CloseSpiritMenu();
+
+            Debug.Log(
+                $"Choose a target for {spirit.CommandName}.");
+
+            return;
+        }
+
+        // WEEK 4: Pass the Battlefield so group Spirit Commands
+        // such as Bonds, Rally, and Dread can affect multiple units.
+        bool used = SpiritSystem.UseSpirit(
+            selectedUnit,
+            spirit,
+            selectedUnit.Battlefield);
+
+        if (!used)
+        {
+            return;
+        }
+
+        // WEEK 4: Refresh the pilot's remaining SP.
+        if (spiritPointText != null && selectedUnit.Pilot != null)
+        {
+            spiritPointText.text =
+                $"SP: {selectedUnit.CurrentSpiritPoints} / " +
+                $"{selectedUnit.Pilot.MaxSpiritPoints}";
+        }
+
+        // WEEK 4: Rebuild so commands the pilot can no longer
+        // afford become disabled.
+        BuildSpiritButtons(selectedUnit);
+
+        // WEEK 4: After successfully using a Spirit Command,
+        // return the player to the normal Action menu.
+        CloseSpiritMenu();
+    }
+
+
+    // WEEK 4: SPIRIT COMMANDS - Open the selected pilot's Spirit menu.
+    private void OpenSpiritMenu()
+    {
+        if (battle == null || battle.SelectedUnit == null)
+        {
+            Debug.LogWarning(
+                "Cannot open Spirit Commands because no unit is selected.");
+            return;
+        }
+
+        BattleUnit selectedUnit = battle.SelectedUnit;
+
+        if (selectedUnit.Pilot == null)
+        {
+            Debug.LogWarning(
+                "Selected unit does not have a pilot.");
+            return;
+        }
+
+        // WEEK 4: Build buttons from this pilot's assigned commands.
+        BuildSpiritButtons(selectedUnit);
+
+        // WEEK 4: Display current and maximum Spirit Points.
+        if (spiritPointText != null)
+        {
+            spiritPointText.text =
+                $"SP: {selectedUnit.CurrentSpiritPoints} / " +
+                $"{selectedUnit.Pilot.MaxSpiritPoints}";
+        }
+
+        SetVisible(actionsPanel, false);
+        SetVisible(spiritPanel, true);
+
+        Debug.Log(
+            $"Opening Spirit Commands for {selectedUnit.Pilot.PilotName}. " +
+            $"Current SP: {selectedUnit.CurrentSpiritPoints}");
+    }
+
+
+    // WEEK 4: SPIRIT COMMANDS - Return to the normal Action menu.
+    private void CloseSpiritMenu()
+    {
+        SetVisible(spiritPanel, false);
+        SetVisible(actionsPanel, true);
     }
 }

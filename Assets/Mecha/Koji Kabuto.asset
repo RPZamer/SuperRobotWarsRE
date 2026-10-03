@@ -20,6 +20,7 @@ MonoBehaviour:
   accuracy: 110
   skill: 110
   morale: 100
+  maxSpiritPoints: 100
   terrainRatings:
     air: 3
     ground: 3
@@ -28,6 +29,12 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 0
   potentialLevel: 7
+  spirit1: {fileID: 11400000, guid: 6a1ad8ca7fa03594da8e614cb357e7b2, type: 2}
+  spirit2: {fileID: 11400000, guid: f6739056b987aa14999a3a973aca35e9, type: 2}
+  spirit3: {fileID: 11400000, guid: abf5c77d662ecce44983a1510fd37f44, type: 2}
+  spirit4: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
+  spirit5: {fileID: 0}
+  spirit6: {fileID: 0}
   onSuccessLines:
   - Heh- Serves you right
   defaultPortrait: {fileID: -8615392254259920525, guid: 7a2cb69bf5b4f5c408994920e6959082, type: 3}

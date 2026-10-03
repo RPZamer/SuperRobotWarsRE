@@ -16,6 +16,10 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Connect the Combat HUD so the battle system can send selected unit and battle state information to the player.
     [SerializeField] private CombatHUD combatHUD;
 
+    // WEEK 4: SPIRIT COMMANDS - Stores a targeted Spirit Command
+    // while the player chooses an ally or enemy on the battlefield.
+    private SpiritCommandBase pendingSpiritCommand;
+
     // WEEK 3: Assign the specific objective units for this scenario.
     // Mazinger Z being defeated causes Defeat.
     // Great Mazinger Z being defeated causes Victory.
@@ -200,11 +204,62 @@ public class BattleSystem : MonoBehaviour
         return false;
     }
 
+    // WEEK 4: SPIRIT COMMANDS - Begins battlefield targeting for
+    // Spirit Commands that require a specific ally or enemy.
+    public void BeginSpiritTargeting(SpiritCommandBase spirit)
+    {
+        if (selectedUnit == null || spirit == null)
+        {
+            return;
+        }
+
+        pendingSpiritCommand = spirit;
+
+        Debug.Log(
+            $"{selectedUnit.Pilot?.PilotName} is choosing a target for {spirit.CommandName}.");
+    }
+
     // WEEK 3: Move first, then choose an action, a weapon, and a target.
     private void ConfirmCell(Vector2Int position)
     {
         if (!CanEndPlayerPhase || !battlefield.IsInside(position)) return;
+
         BattleUnit occupant = battlefield.GetUnit(position);
+
+        // WEEK 4: SPIRIT COMMANDS - If a targeted Spirit Command is
+        // waiting, this click belongs to Spirit targeting instead of
+        // movement, unit selection, or attacking.
+        if (pendingSpiritCommand != null)
+        {
+            if (occupant == null)
+            {
+                Debug.LogWarning(
+                    $"{pendingSpiritCommand.CommandName} requires a unit target.");
+
+                return;
+            }
+
+            SpiritCommandBase spiritToUse = pendingSpiritCommand;
+
+            bool used = SpiritSystem.UseSpirit(
+                selectedUnit,
+                spiritToUse,
+                battlefield,
+                occupant);
+
+            if (used)
+            {
+                pendingSpiritCommand = null;
+
+                // WEEK 4: Return to the normal action menu after the
+                // targeted Spirit Command successfully activates.
+                ShowActions();
+            }
+
+            return;
+        }
+
+        // WEEK 4: MOTHERSHIP - A second click on the previewed ship must not select it and cancel Dock.
 
         // WEEK 4: MOTHERSHIP - A second click on the previewed ship must not select it and cancel Dock.
         if (IsDockConfirmation && occupant == pendingDock.Unit)

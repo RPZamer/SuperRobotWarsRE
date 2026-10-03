@@ -20,6 +20,7 @@ MonoBehaviour:
   accuracy: 110
   skill: 110
   morale: 100
+  maxSpiritPoints: 100
   terrainRatings:
     air: 3
     ground: 3
@@ -28,6 +29,12 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 1
   potentialLevel: 6
+  spirit1: {fileID: 11400000, guid: faffeb4ec4156fa46956d8101d79c848, type: 2}
+  spirit2: {fileID: 11400000, guid: 714e10a53daee3340b318950173af4f1, type: 2}
+  spirit3: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
+  spirit4: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
+  spirit5: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
+  spirit6: {fileID: 11400000, guid: afccfcad019c55b46a22fe36d47e2421, type: 2}
   onSuccessLines:
   - Im the Great Hero, what did you expect?
   defaultPortrait: {fileID: -7944233913978615974, guid: 46f5cbc28ff020d439d7e5df46662bfc, type: 3}
