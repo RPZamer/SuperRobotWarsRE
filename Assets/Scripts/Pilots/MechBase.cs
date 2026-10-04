@@ -11,13 +11,19 @@ public class MechBase : ScriptableObject
     // WEEK 3: Give the mech a name and the sprite shown in battle.
     [SerializeField] private string mechName;
     [SerializeField] private Sprite battleSprite;
+
+    // WEEK 5: MUSIC SYSTEM - Store the theme that plays when this mech attacks.
+    [SerializeField] private AudioClip battleTheme;
+
     // WEEK 3: Set starting health and the energy available for moving and attacking.
     [Min(1)][SerializeField] private int health = 10;
     [Min(0)][SerializeField] private int energy = 100;
+
     // WEEK 3: Movement limits grid steps; Mobility helps dodge; Armor reduces damage.
     [Min(0)][SerializeField] private int movement = 3;
     [Min(0)][SerializeField] private int mobility = 100;
     [Min(0)][SerializeField] private int armor;
+
     // WEEK 3: Set the mech size, terrain ratings and its own list of weapons.
     [SerializeField] private MechSize size = MechSize.M;
     [SerializeField] private TerrainRatings terrainRatings = new();
@@ -26,6 +32,10 @@ public class MechBase : ScriptableObject
     // WEEK 3: Let other scripts read these settings without changing the asset.
     public string MechName => mechName;
     public Sprite BattleSprite => battleSprite;
+
+    // WEEK 5: MUSIC SYSTEM - Let the music system read this mech's assigned theme.
+    public AudioClip BattleTheme => battleTheme;
+
     public int Health => health;
     public int Energy => energy;
     public int Movement => movement;
