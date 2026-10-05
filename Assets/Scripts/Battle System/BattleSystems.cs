@@ -667,7 +667,15 @@ public class BattleSystem : MonoBehaviour
 
         // WEEK 3: Reset player movement at the start of the player turn.
         foreach (BattleUnit unit in battlefield.Units)
-            if (unit.Team == playerTeam) unit.BeginTurn();
+        { 
+            if (unit.Team == playerTeam)
+            {
+                unit.BeginTurn();
+
+                int EnergyRecharge = Mathf.RoundToInt(unit.Mech.Energy * 0.08f);
+                unit.RechargeEnergy();
+            }
+        }
 
         BattleUnit player = FindFirstUnit(playerTeam);
         if (player == null)

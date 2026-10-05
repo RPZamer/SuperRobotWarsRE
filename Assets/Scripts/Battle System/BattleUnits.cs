@@ -508,4 +508,10 @@ public class BattleUnit : MonoBehaviour
         moraleMaximumBonus = Mathf.Clamp(bonus, 0, AbsoluteMaximumMorale - BaseMaximumMorale);
         CurrentMorale = Mathf.Clamp(CurrentMorale, MinimumMorale, MaximumMorale);
     }
+
+    public void RechargeEnergy()
+    {
+        int energyRecharge = Mathf.RoundToInt(Mech.Energy * 0.08f);     // this recharges the energy by 8% of the mech's maximum energy each turn
+        CurrentEnergy = Mathf.Min(CurrentEnergy + energyRecharge, Mech.Energy);
+    }
 }
