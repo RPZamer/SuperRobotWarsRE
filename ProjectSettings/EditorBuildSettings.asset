@@ -5,9 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 0
+    path: Assets/Scenes/Mission-21(Moon).unity
+    guid: ed584e327c06636419d47c9488d56be7
+  - enabled: 1
+    path: Assets/Scenes/Intermission.unity
+    guid: d32e107672c533249baa5ab0017ca35e
   - enabled: 1
     path: Assets/Scenes/Title Screen.unity
     guid: aa9416a5f762365468a3f91c14174737

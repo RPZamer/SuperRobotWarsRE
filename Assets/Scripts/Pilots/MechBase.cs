@@ -12,8 +12,12 @@ public class MechBase : ScriptableObject
     [SerializeField] private string mechName;
     [SerializeField] private Sprite battleSprite;
 
+    [SerializeField] private Sprite menuSprite;
+
+
     // WEEK 5: MUSIC SYSTEM - Store the theme that plays when this mech attacks.
     [SerializeField] private AudioClip battleTheme;
+
 
     // WEEK 3: Set starting health and the energy available for moving and attacking.
     [Min(1)][SerializeField] private int health = 10;
@@ -33,8 +37,12 @@ public class MechBase : ScriptableObject
     public string MechName => mechName;
     public Sprite BattleSprite => battleSprite;
 
+    public Sprite MenuSprite => menuSprite;
+
+
     // WEEK 5: MUSIC SYSTEM - Let the music system read this mech's assigned theme.
     public AudioClip BattleTheme => battleTheme;
+
 
     public int Health => health;
     public int Energy => energy;
