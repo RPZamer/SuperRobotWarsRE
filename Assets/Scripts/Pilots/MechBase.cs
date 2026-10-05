@@ -11,6 +11,7 @@ public class MechBase : ScriptableObject
     // WEEK 3: Give the mech a name and the sprite shown in battle.
     [SerializeField] private string mechName;
     [SerializeField] private Sprite battleSprite;
+    [SerializeField] private Sprite menuSprite;
     // WEEK 3: Set starting health and the energy available for moving and attacking.
     [Min(1)][SerializeField] private int health = 10;
     [Min(0)][SerializeField] private int energy = 100;
@@ -26,6 +27,7 @@ public class MechBase : ScriptableObject
     // WEEK 3: Let other scripts read these settings without changing the asset.
     public string MechName => mechName;
     public Sprite BattleSprite => battleSprite;
+    public Sprite MenuSprite => menuSprite;
     public int Health => health;
     public int Energy => energy;
     public int Movement => movement;

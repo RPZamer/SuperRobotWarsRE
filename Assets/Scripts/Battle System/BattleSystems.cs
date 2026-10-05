@@ -8,6 +8,8 @@ using UnityEngine.UI;
 public class BattleSystem : MonoBehaviour
 {
     [Header("Scene")]
+    //Assign the SceneTransition object from the Hierarchy.
+    [SerializeField] private SceneTransition sceneTransition;
     [SerializeField] private Battlefield battlefield;
     [SerializeField] private Camera battleCamera;
     [SerializeField] private DialogSystem dialogSystem;
@@ -1199,9 +1201,12 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Great Mazinger Z is the designated enemy objective.
+        // WEEK 3: Great Mazinger Z is the designated enemy objective. >>>> Changed to all enemy units defeated.
         // Defeating it completes the scenario with Victory.
-        if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
+        //if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
+        BattleTeam enemyTeam = OpposingTeam(playerTeam);
+       
+        if(FindFirstUnit(enemyTeam) == null)
         {
             EndScenario(ScenarioResult.Victory);
             return;
@@ -1250,6 +1255,23 @@ public class BattleSystem : MonoBehaviour
         }
 
         Debug.Log($"[SCENARIO END] {scenarioResult}", this);
+
+        if (scenarioResult == ScenarioResult.Victory)
+        {
+            StartCoroutine(TransitionToIntermission());
+        }
+    }
+    private IEnumerator TransitionToIntermission()
+    {
+        yield return new WaitForSeconds(2f);
+        if (sceneTransition != null)
+        {
+            sceneTransition.FadeToScene("Intermission");
+        }
+        else
+        {
+            Debug.LogWarning("SceneTransition component is not assigned. Cannot transition to Intermission scene.", this);
+        }
     }
     private static BattleTeam OpposingTeam(BattleTeam team)
     {

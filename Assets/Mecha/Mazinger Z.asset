@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Mazinger Z
   battleSprite: {fileID: 2078375184, guid: d2205c473740b5849b5ee8ee5d953e69, type: 3}
+  menuSprite: {fileID: 4453000687208353868, guid: b56e244afb4d4dc4b8f9847e30b0ecf2, type: 3}
   health: 3000
   energy: 120
   movement: 5
