@@ -6513,6 +6513,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleMusic
   musicSource: {fileID: 811659430}
+  musicVolume: 0.15
   overworldMusic: {fileID: 8300000, guid: f9ec60b7ccdc5954f949a37089d661ec, type: 3}
   allyReinforcementMusic: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
   allyReinforcementMusicAlt: {fileID: 0}
