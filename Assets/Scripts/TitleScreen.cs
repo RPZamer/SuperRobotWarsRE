@@ -3,11 +3,15 @@ using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.InputSystem;
 using Unity.VisualScripting;
+using UnityEngine.UIElements;
+using UnityEngine.EventSystems;
 
 public class TitleScreen : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI PressAnyKeyText;
     [SerializeField] GameObject TitleButtons;
+    [SerializeField] AudioSource ButtonSFX;
+    
 
     [SerializeField] float FadeSpeed = 2f;
 
@@ -42,5 +46,10 @@ public class TitleScreen : MonoBehaviour
     public void ExitGame()
     {
         Application.Quit();
+    }
+
+    public void ButtonSelectSFX()
+    {
+        ButtonSFX.Play();
     }
 }

@@ -4,6 +4,7 @@ public class BattleMusic : MonoBehaviour
 {
     // WEEK 5: MUSIC SYSTEM - AudioSource used for all battlefield music.
     [SerializeField] private AudioSource musicSource;
+    [SerializeField][Range(0f, 1f)] float musicVolume = 0.5f;
 
     // WEEK 5: MUSIC SYSTEM - Default music that plays while units are on the overworld.
     [SerializeField] private AudioClip overworldMusic;
@@ -30,6 +31,7 @@ public class BattleMusic : MonoBehaviour
     private void Start()
     {
         // WEEK 5: MUSIC SYSTEM - Begin the battle with the passive overworld theme.
+
         PlayOverworldMusic();
     }
 
@@ -47,6 +49,7 @@ public class BattleMusic : MonoBehaviour
         }
 
         musicSource.clip = overworldMusic;
+        musicSource.volume = musicVolume;
         musicSource.loop = true;
         musicSource.Play();
     }
