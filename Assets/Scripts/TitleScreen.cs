@@ -40,7 +40,7 @@ public class TitleScreen : MonoBehaviour
  
     public void LoadGame()
     {
-        SceneManager.LoadScene("First Level");
+        SceneManager.LoadScene("Intermission");
     }
 
     public void ExitGame()
