@@ -18,6 +18,9 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Connect the Combat HUD so the battle system can send selected unit and battle state information to the player.
     [SerializeField] private CombatHUD combatHUD;
 
+    // WEEK 5: MUSIC SYSTEM - Controls overworld and mech battle themes.
+    [SerializeField] private BattleMusic battleMusic;
+
     // WEEK 4: SPIRIT COMMANDS - Stores a targeted Spirit Command
     // while the player chooses an ally or enemy on the battlefield.
     private SpiritCommandBase pendingSpiritCommand;
@@ -47,6 +50,10 @@ public class BattleSystem : MonoBehaviour
     // combat, and UI systems can access the active unit without
     // directly modifying the BattleSystem's private selection state.
     public BattleUnit SelectedUnit => selectedUnit;
+
+    // WEEK 4: SPIRIT COMMANDS - Allow the Spirit Command UI
+    // to access the current battlefield without modifying it.
+    public Battlefield Battlefield => battlefield;
     private bool isPlayerTurn;
     // WEEK 4: MOTHERSHIP - The phase button is available only while player commands are allowed.
     public bool CanEndPlayerPhase => isActiveAndEnabled && isPlayerTurn && !ScenarioEnded;
@@ -646,6 +653,13 @@ public class BattleSystem : MonoBehaviour
 
         isPlayerTurn = false;
 
+        // WEEK 5: MUSIC SYSTEM - Restore the stage's overworld music
+        // when a new Player Phase begins.
+        if (battleMusic != null)
+        {
+            battleMusic.PlayOverworldMusic();
+        }
+
         // WEEK 3: Update the Combat HUD when the player's phase begins
         // while keeping the current turn number visible.
         if (combatHUD != null)
@@ -725,6 +739,13 @@ public class BattleSystem : MonoBehaviour
 
         actionsMenu.Hide();
         battlefield.ClearHighlights();
+
+        // WEEK 5: MUSIC SYSTEM - Return to the stage's overworld music
+        // when the Player Phase ends.
+        if (battleMusic != null)
+        {
+            battleMusic.PlayOverworldMusic();
+        }
 
         StartCoroutine(RunEnemyTurn());
     }
@@ -886,6 +907,13 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null || !attacker.TrySpendWeapon(weapon))
         {
             yield break;
+        }
+
+        // WEEK 5: MUSIC SYSTEM - Play the attacking mech's assigned theme
+        // after the weapon has been successfully activated.
+        if (battleMusic != null && attacker.Mech != null)
+        {
+            battleMusic.PlayMechTheme(attacker.Mech.BattleTheme);
         }
 
         // WEEK 3: Save the target list before damage removes defeated units from the grid.
