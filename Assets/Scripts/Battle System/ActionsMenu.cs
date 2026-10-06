@@ -13,6 +13,15 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private Button moveButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button standbyButton;
+    // WEEK 5 CHANGES PLEASE READ: Some saved menu prefabs already contain mech buttons, but this script no longer reads those references.
+    // Restoring their field names lets the existing controls call the new shared ability rules without prefab edits.
+    // The references remain optional because older scenes can use the same commands through the battle keyboard shortcuts.
+    [SerializeField] private Button transformButton;
+    [SerializeField] private Button combineButton;
+    [SerializeField] private Button separateButton;
+    [SerializeField] private Button getterChangeButton;
+    [SerializeField] private Button repairButton;
+    [SerializeField] private Button resupplyButton;
     // Preserve the team's status panel and existing scene assignments.
     [SerializeField] private Button StatusButton;
     [SerializeField] private CanvasGroup UnitInfoPanel;
@@ -32,6 +41,10 @@ public class ActionsMenu : MonoBehaviour
     // WEEK 4: Track generated Spirit Command buttons so they can
     // be cleared and rebuilt whenever the menu opens.
     private readonly List<SpiritCommandButton> spiritCommandButtons = new();
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER can present eighteen crew commands, exceeding the saved Spirit panel's fixed list.
+    // A runtime scroll viewport keeps every command reachable and clips the taller pilot-labelled rows within the existing panel.
+    // This optional UI state is created only when a crew menu needs it, so no prefab hierarchy or ordinary initial menu layout needs editing.
+    private ScrollRect getterSpiritScroll;
 
     [Header("Your Weapon UI")]
     [SerializeField] private CanvasGroup weaponsPanel;
@@ -169,6 +182,15 @@ public class ActionsMenu : MonoBehaviour
         standbyButton.onClick.AddListener(battle.Standby);
         confirmButton.onClick.AddListener(battle.ConfirmWeapon);
         if (StatusButton != null) StatusButton.onClick.AddListener(UnitScreen);
+        // WEEK 5 CHANGES PLEASE READ: The restored button references need runtime listeners just like Move and Attack.
+        // These listeners call the guarded BattleSystem callbacks so UI clicks follow phase, targeting and undo rules.
+        // Optional null checks preserve menus that have no mech buttons assigned.
+        if (transformButton != null) transformButton.onClick.AddListener(battle.TransformSelected);
+        if (combineButton != null) combineButton.onClick.AddListener(battle.CombineSelected);
+        if (separateButton != null) separateButton.onClick.AddListener(battle.SeparateSelected);
+        if (getterChangeButton != null) getterChangeButton.onClick.AddListener(battle.GetterChangeSelected);
+        if (repairButton != null) repairButton.onClick.AddListener(battle.OpenRepair);
+        if (resupplyButton != null) resupplyButton.onClick.AddListener(battle.OpenResupply);
 
         // WEEK 4: SPIRIT COMMANDS - Connect the Spirit menu controls.
         if (spiritButton != null)
@@ -324,6 +346,43 @@ public class ActionsMenu : MonoBehaviour
         SetVisible(hangarPanel, true);
     }
 
+    // WEEK 5 CHANGES PLEASE READ: Mech buttons must not remain active for units without their matching ability.
+    // The menu now reads shared eligibility checks and disables commands whose action, recipe or adjacent target is unavailable.
+    // This updates existing controls in place while keeping Getter Change's explicit after-action exception.
+    public void ShowMechSkillActions(BattleUnit selectedUnit)
+    {
+        if (selectedUnit == null || selectedUnit.Mech == null) return;
+        MechBase mech = selectedUnit.Mech;
+        bool repair = false, resupply = false;
+        if (selectedUnit.Battlefield != null)
+            foreach (BattleUnit target in selectedUnit.Battlefield.Units)
+            {
+                repair |= MechSkillEffect.CanRepair(selectedUnit, target);
+                resupply |= MechSkillEffect.CanResupply(selectedUnit, target);
+            }
+        SetSkillButton(transformButton, mech.TransformInto != null, MechSkillEffect.CanTransform(selectedUnit));
+        SetSkillButton(combineButton, mech.CombineInto != null, MechSkillEffect.CanCombine(selectedUnit));
+        SetSkillButton(separateButton, selectedUnit.MechSkillState.Parts.Count > 0, MechSkillEffect.CanSeparate(selectedUnit));
+        SetSkillButton(getterChangeButton, mech.GetterForms.Count > 0, MechSkillEffect.NextGetterForm(selectedUnit) != null);
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER's optional button previously disappeared or disabled itself without explaining missing setup.
+        // Opening actions for a Getter now writes a direct warning if the button is unassigned or no form can be selected.
+        // Ordinary units and existing button eligibility remain unchanged, and the warning runs only when this action menu is shown.
+        if (mech.GetterForms.Count > 0 || GetterUnit.IsGetterForm(mech))
+        {
+            if (getterChangeButton == null)
+                Debug.LogWarning("[WEEK 5 GETTER] ActionsMenu is missing its Getter Change Button assignment; use W5 UI or assign that button in the Inspector.", this);
+            if (MechSkillEffect.NextGetterForm(selectedUnit) == null) selectedUnit.GetterState.ReportChangeFailure();
+        }
+        SetSkillButton(repairButton, mech.RepairDevice, repair);
+        SetSkillButton(resupplyButton, mech.ResupplyDevice, resupply);
+    }
+    private static void SetSkillButton(Button button, bool visible, bool available)
+    {
+        if (button == null) return;
+        button.gameObject.SetActive(visible);
+        button.interactable = available;
+    }
+
     // WEEK 3: Create a row from your template for every mech weapon.
     public void ShowWeapons(BattleUnit selectedUnit, Weapon highlighted)
     {
@@ -381,10 +440,13 @@ public class ActionsMenu : MonoBehaviour
         Set(weaponNameText, weapon.WeaponName);
         Set(weaponTypeText, weapon.DamageType.ToString());
         Set(weaponClassificationText, weapon.Classification.ToString());
-        Set(weaponPowerText, weapon.Power.ToString());
+        // WEEK 5 CHANGES PLEASE READ: Weapon details previously displayed base power even when GUND modifies actual damage.
+        // Reading effective power here makes the selected weapon's displayed value match the battle formula.
+        // This reuses the existing text field and requires no UI layout changes.
+        Set(weaponPowerText, unit.GetWeaponPower(weapon).ToString());
         Set(weaponRangeText, weapon.MinRange + "-" + weapon.MaxRange);
         // WEEK 4: MOTHERSHIP - Existing weapons with zero Max Ammo still only display energy cost.
-        Set(weaponEnergyCostText, unit.GetWeaponEnergyCost(weapon).ToString() + (weapon.MaxAmmo > 0 ? $" Ammo | {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}"  : string.Empty));
+        Set(weaponEnergyCostText, unit.GetWeaponEnergyCost(weapon).ToString() + (weapon.MaxAmmo > 0 ? $" Ammo | {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}" : string.Empty));
         Set(weaponAccuracyText, weapon.AccuracyModifier.ToString("+0;-0;0"));
         Set(weaponCriticalText, weapon.CriticalModifier.ToString("+0;-0;0"));
         SetTerrainFields(weapon.TerrainRatings, weaponAirText, weaponGroundText, weaponWaterText, weaponSpaceText);
@@ -430,12 +492,15 @@ public class ActionsMenu : MonoBehaviour
         Set(energyText, $"EN: {selectedUnit.CurrentEnergy}/{mech.Energy}");
         // WEEK 4 MORALE SYSTEM: Display the selected unit's changing battle morale.
         Set(moraleText, $"Morale: {selectedUnit.CurrentMorale}/{selectedUnit.MaximumMorale}");
-        Set(meleeText, $"Melee: {pilot.Melee}");
-        Set(rangedText, $"Ranged: {pilot.Ranged}");
-        Set(defenseText, $"Defense: {pilot.Defense}");
-        Set(evadeText, $"Evade: {pilot.Evade}");
-        Set(accuracyText, $"Accuracy: {pilot.Accuracy}");
-        Set(skillText, $"Skill: {pilot.Skill}");
+        // WEEK 5 CHANGES PLEASE READ: Status previously displayed raw pilot values even when a morale mode boosts combat stats.
+        // These six fields now read the same effective pilot values as the formulas so Hyper/Super can be checked on the sheet.
+        // The shared pilot asset remains unchanged, and the existing fields keep their current positions and labels.
+        Set(meleeText, $"Melee: {MechSkillEffect.PilotStat(selectedUnit, pilot.Melee)}");
+        Set(rangedText, $"Ranged: {MechSkillEffect.PilotStat(selectedUnit, pilot.Ranged)}");
+        Set(defenseText, $"Defense: {MechSkillEffect.PilotStat(selectedUnit, pilot.Defense)}");
+        Set(evadeText, $"Evade: {MechSkillEffect.PilotStat(selectedUnit, pilot.Evade)}");
+        Set(accuracyText, $"Accuracy: {MechSkillEffect.PilotStat(selectedUnit, pilot.Accuracy)}");
+        Set(skillText, $"Skill: {MechSkillEffect.PilotStat(selectedUnit, pilot.Skill)}");
         SetTerrainFields(pilot.TerrainRatings, pilotAirText, pilotGroundText, pilotWaterText, pilotSpaceText);
         SetTerrainFields(mech.TerrainRatings, mechAirText, mechGroundText, mechWaterText, mechSpaceText);
     }
@@ -556,6 +621,50 @@ public class ActionsMenu : MonoBehaviour
         if (text != null) text.text = value;
     }
 
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER's additional pilots require more command rows than the original fixed Spirit list can display.
+    // This creates a masked vertical scroll viewport sized to the panel, with the existing SP display and Back button placed outside it.
+    // The same assigned template and controls are reused, and the viewport persists for later menu openings without adding prefab edits.
+    private void PrepareGetterSpiritList(int crewCount)
+    {
+        if (getterSpiritScroll != null || crewCount < 2 || spiritPanel == null) return;
+        RectTransform content = spiritButtonContent as RectTransform;
+        if (content == null) return;
+        GameObject viewportObject = new("WEEK 5 GETTER Spirit Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+        RectTransform viewport = viewportObject.GetComponent<RectTransform>();
+        viewport.SetParent(spiritPanel.transform, false);
+        viewportObject.layer = spiritPanel.gameObject.layer;
+        viewport.anchorMin = viewport.anchorMax = new Vector2(0.5f, 0.5f);
+        viewport.anchoredPosition = content.anchoredPosition;
+        Canvas.ForceUpdateCanvases();
+        float panelHeight = ((RectTransform)spiritPanel.transform).rect.height;
+        viewport.sizeDelta = new Vector2(Mathf.Max(300f, content.rect.width) + 24f, Mathf.Clamp(panelHeight * 0.65f, 100f, 520f));
+        viewportObject.GetComponent<Image>().color = Color.clear;
+        content.SetParent(viewport, false);
+        content.anchorMin = new Vector2(0f, 1f); content.anchorMax = Vector2.one;
+        content.pivot = new Vector2(0.5f, 1f); content.anchoredPosition = Vector2.zero;
+        content.sizeDelta = Vector2.zero;
+        ContentSizeFitter fit = content.GetComponent<ContentSizeFitter>();
+        if (fit == null) fit = content.gameObject.AddComponent<ContentSizeFitter>();
+        fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        getterSpiritScroll = viewportObject.GetComponent<ScrollRect>();
+        getterSpiritScroll.viewport = viewport; getterSpiritScroll.content = content;
+        getterSpiritScroll.horizontal = false; getterSpiritScroll.vertical = true;
+        getterSpiritScroll.movementType = ScrollRect.MovementType.Clamped;
+        getterSpiritScroll.scrollSensitivity = 35f;
+        if (spiritBackButton != null)
+        {
+            RectTransform back = (RectTransform)spiritBackButton.transform;
+            back.anchorMin = back.anchorMax = viewport.anchorMin;
+            back.anchoredPosition = viewport.anchoredPosition + new Vector2(0f, -viewport.sizeDelta.y / 2f - back.rect.height / 2f - 12f);
+        }
+        if (spiritPointText != null)
+        {
+            RectTransform sp = spiritPointText.rectTransform;
+            sp.anchorMin = sp.anchorMax = viewport.anchorMin;
+            sp.anchoredPosition = viewport.anchoredPosition + new Vector2(0f, viewport.sizeDelta.y / 2f + sp.rect.height / 2f + 12f);
+        }
+    }
+
     // WEEK 4: SPIRIT COMMANDS - Build the Spirit menu from the
     // commands assigned to the currently selected pilot.
     private void BuildSpiritButtons(BattleUnit selectedUnit)
@@ -587,48 +696,58 @@ public class ActionsMenu : MonoBehaviour
             return;
         }
 
-        // WEEK 4: Retrieve the pilot's assigned Spirit Commands.
-        SpiritCommandBase[] spirits =
-            selectedUnit.Pilot.GetSpiritCommands();
-
-        foreach (SpiritCommandBase spirit in spirits)
-        {
-            if (spirit == null)
+        PrepareGetterSpiritList(selectedUnit.SpiritCrew.Count);
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER sub-pilots stay aboard and must retain access to their assigned Spirits.
+        // This list now builds commands for each crew member, with that pilot's own affordability and owner label.
+        // Each callback captures the command's pilot so using a sub-pilot Spirit never changes the main combat pilot.
+        foreach (PilotBase spiritPilot in selectedUnit.SpiritCrew)
+            foreach (SpiritCommandBase spirit in spiritPilot.GetSpiritCommands())
             {
-                continue;
+                if (spirit == null)
+                {
+                    continue;
+                }
+
+                // WEEK 4: Clone the recovered Spirit button template.
+                SpiritCommandButton newButton =
+                    Instantiate(spiritButtonTemplate, spiritButtonContent);
+
+                newButton.gameObject.SetActive(true);
+
+                bool canAfford =
+                    selectedUnit.GetSpiritPoints(spiritPilot) >= spirit.SpiritPointCost;
+
+                // WEEK 4: Do not allow the player to spend SP repeatedly
+                // on a self buff that is already waiting to be consumed.
+                bool alreadyActive =
+                    (spirit.Effect == SpiritCommandEffect.Valor && selectedUnit.ValorActive) ||
+                    (spirit.Effect == SpiritCommandEffect.Soul && selectedUnit.SoulActive) ||
+                    (spirit.Effect == SpiritCommandEffect.Smash && selectedUnit.SmashActive) ||
+                    (spirit.Effect == SpiritCommandEffect.Accel && selectedUnit.AccelActive);
+
+                bool canUse =
+                    canAfford && !alreadyActive;
+
+                newButton.Setup(
+                    spirit,
+                    canUse,
+                    command => UseSpiritCommand(command, spiritPilot),
+                    selectedUnit.SpiritCrew.Count > 1 ? $"{spiritPilot.PilotName} SP {selectedUnit.GetSpiritPoints(spiritPilot)}/{spiritPilot.MaxSpiritPoints}" : null);
             }
-
-            // WEEK 4: Clone the recovered Spirit button template.
-            SpiritCommandButton newButton =
-                Instantiate(spiritButtonTemplate, spiritButtonContent);
-
-            newButton.gameObject.SetActive(true);
-
-            bool canAfford =
-    selectedUnit.CurrentSpiritPoints >= spirit.SpiritPointCost;
-
-            // WEEK 4: Do not allow the player to spend SP repeatedly
-            // on a self buff that is already waiting to be consumed.
-            bool alreadyActive =
-                (spirit.Effect == SpiritCommandEffect.Valor && selectedUnit.ValorActive) ||
-                (spirit.Effect == SpiritCommandEffect.Soul && selectedUnit.SoulActive) ||
-                (spirit.Effect == SpiritCommandEffect.Smash && selectedUnit.SmashActive) ||
-                (spirit.Effect == SpiritCommandEffect.Accel && selectedUnit.AccelActive);
-
-            bool canUse =
-                canAfford && !alreadyActive;
-
-            newButton.Setup(
-                spirit,
-                canUse,
-                UseSpiritCommand);
+        if (getterSpiritScroll != null)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(getterSpiritScroll.content);
+            getterSpiritScroll.verticalNormalizedPosition = 1f;
         }
     }
 
 
     // WEEK 4: SPIRIT COMMANDS - Activate a selected Spirit Command.
     // WEEK 4: SPIRIT COMMANDS - Activate a selected Spirit Command.
-    private void UseSpiritCommand(SpiritCommandBase spirit)
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER needs the Spirit's owner preserved through both immediate and targeted execution.
+    // The optional pilot is passed to the existing SpiritSystem and targeting controller rather than temporarily replacing the combat pilot.
+    // Existing single-pilot commands still default to the main pilot and keep their current effects and menu flow.
+    private void UseSpiritCommand(SpiritCommandBase spirit, PilotBase spiritPilot = null)
     {
         if (battle == null ||
             battle.SelectedUnit == null ||
@@ -645,13 +764,17 @@ public class ActionsMenu : MonoBehaviour
             spirit.Effect == SpiritCommandEffect.Trust ||
             spirit.Effect == SpiritCommandEffect.Prospect ||
             spirit.Effect == SpiritCommandEffect.Daunt ||
-            spirit.Effect == SpiritCommandEffect.Confuse;
+            spirit.Effect == SpiritCommandEffect.Confuse ||
+            // WEEK 5 CHANGES PLEASE READ: The existing Spirit target list does not include a resupply effect.
+            // Resupply needs a chosen living ally so its EN/ammo/shield restoration applies to the intended unit.
+            // Adding this effect to the current list reuses the normal Spirit targeting flow and SP charging rules.
+            spirit.Effect == SpiritCommandEffect.Resupply;
 
         if (requiresTarget)
         {
             // WEEK 4: Tell BattleSystem which Spirit Command is waiting
             // for a battlefield target.
-            battle.BeginSpiritTargeting(spirit);
+            battle.BeginSpiritTargeting(spirit, spiritPilot);
 
             // WEEK 4: Close the Spirit menu so the player can click
             // the ally or enemy they want to target.
@@ -668,7 +791,8 @@ public class ActionsMenu : MonoBehaviour
         bool used = SpiritSystem.UseSpirit(
             selectedUnit,
             spirit,
-            selectedUnit.Battlefield);
+            selectedUnit.Battlefield,
+            spiritPilot: spiritPilot);
 
         if (!used)
         {

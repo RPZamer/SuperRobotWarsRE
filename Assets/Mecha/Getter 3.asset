@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
+  m_Name: Getter 3
+  m_EditorClassIdentifier: Assembly-CSharp::MechBase
+  mechName: 
+  battleSprite: {fileID: 0}
+  menuSprite: {fileID: 0}
+  battleTheme: {fileID: 0}
+  health: 10
+  energy: 100
+  movement: 3
+  mobility: 100
+  armor: 0
+  size: 2
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  weapons: []
+  shieldHealth: 0
+  barrier: 0
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 0
+  mazinPower: 0
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 0
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []

@@ -17,6 +17,12 @@ public class PilotBase : ScriptableObject
     [Header("Identity")]
     [SerializeField] private string pilotName;
 
+    // WEEK 5 CHANGES PLEASE READ: Repair requires the repairing pilot's level, but the current pilot script does not expose one.
+    // This restores a starting Level setting without adding an EXP or automatic leveling system.
+    // MechSkillEffect can now calculate level-based healing while existing pilots default to level one.
+    [Min(1)][SerializeField] private int level = 1;
+    public int Level => Mathf.Max(1, level);
+
     // WEEK 3: Keep all pilot stats here, together with the pilot name and dialogue.
     [Header("Pilot Stats")]
 

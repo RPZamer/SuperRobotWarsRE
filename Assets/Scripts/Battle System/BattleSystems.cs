@@ -24,6 +24,10 @@ public class BattleSystem : MonoBehaviour
     // WEEK 4: SPIRIT COMMANDS - Stores a targeted Spirit Command
     // while the player chooses an ally or enemy on the battlefield.
     private SpiritCommandBase pendingSpiritCommand;
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits may belong to a sub-pilot rather than the main pilot.
+    // This small companion field preserves that pilot while the player chooses a battlefield target.
+    // The successful execution and cancellation paths clear both values together without changing the selected combat pilot.
+    private PilotBase pendingSpiritPilot;
 
     // WEEK 3: Assign the specific objective units for this scenario.
     // Mazinger Z being defeated causes Defeat.
@@ -79,7 +83,12 @@ public class BattleSystem : MonoBehaviour
 
     // WEEK 3: Remember the current menu step and selected weapon.
     // WEEK 4: MOTHERSHIP - Boarding, hangar list and deployment reuse the selection flow.
-    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby, Boarding, Hangar, Deployment }
+    // WEEK 5 CHANGES PLEASE READ: Selection previously knew only movement, combat and transport targeting.
+    // Repair/Resupply need an explicit friendly-target step so their clicks cannot switch units or move behind a menu.
+    // This extra state reuses the existing grid click, highlight and cancel flow instead of adding another controller.
+    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby, Boarding, Hangar, Deployment, MechSupport }
+    private bool resupplyTargeting;
+    private readonly Dictionary<BattleUnit, (BattleUnit player, BattleUnit enemy)> combinationObjectives = new();
     private BattleUnit passengerToDeploy;
     // WEEK 4: MOTHERSHIP - Preview docking without overwriting the ship's grid occupancy.
     private Mothership pendingDock;
@@ -165,6 +174,18 @@ public class BattleSystem : MonoBehaviour
     {
         if (isPlayerTurn)
         {
+            // WEEK 5 CHANGES PLEASE READ: The current battle menus have no working bindings for the restored mech commands.
+            // Keyboard callbacks make those commands available even in scenes whose older UI prefab has no skill buttons.
+            // They share the same guarded command methods as optional saved buttons, so they cannot bypass targeting or phase restrictions.
+            if (Keyboard.current != null && CanIssueMechCommand)
+            {
+                if (Keyboard.current.fKey.wasPressedThisFrame) TransformSelected();
+                else if (Keyboard.current.gKey.wasPressedThisFrame) CombineSelected();
+                else if (Keyboard.current.hKey.wasPressedThisFrame) SeparateSelected();
+                else if (Keyboard.current.tKey.wasPressedThisFrame) GetterChangeSelected();
+                else if (Keyboard.current.rKey.wasPressedThisFrame) OpenRepair();
+                else if (Keyboard.current.uKey.wasPressedThisFrame) OpenResupply();
+            }
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 Back();
@@ -215,17 +236,23 @@ public class BattleSystem : MonoBehaviour
 
     // WEEK 4: SPIRIT COMMANDS - Begins battlefield targeting for
     // Spirit Commands that require a specific ally or enemy.
-    public void BeginSpiritTargeting(SpiritCommandBase spirit)
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER command buttons now identify which crew member owns the chosen Spirit.
+    // Capturing that pilot here makes later target clicks charge the correct independent SP pool.
+    // The optional argument retains existing main-pilot calls and rejects pilots outside the selected unit's crew.
+    public void BeginSpiritTargeting(SpiritCommandBase spirit, PilotBase spiritPilot = null)
     {
         if (selectedUnit == null || spirit == null)
         {
             return;
         }
 
+        spiritPilot ??= selectedUnit.Pilot;
+        if (!selectedUnit.HasSpiritPilot(spiritPilot)) return;
         pendingSpiritCommand = spirit;
+        pendingSpiritPilot = spiritPilot;
 
         Debug.Log(
-            $"{selectedUnit.Pilot?.PilotName} is choosing a target for {spirit.CommandName}.");
+            $"{spiritPilot.PilotName} is choosing a target for {spirit.CommandName}.");
     }
 
     // WEEK 3: Move first, then choose an action, a weapon, and a target.
@@ -234,6 +261,16 @@ public class BattleSystem : MonoBehaviour
         if (!CanEndPlayerPhase || !battlefield.IsInside(position)) return;
 
         BattleUnit occupant = battlefield.GetUnit(position);
+
+        // WEEK 5 CHANGES PLEASE READ: Friendly map clicks normally select another unit before any command can use it.
+        // Repair/Resupply must receive that click first so the chosen adjacent ally becomes the support target.
+        // A successful command commits movement and spends the user's action, while an invalid target leaves the selection pending.
+        if (selectionStep == SelectionStep.MechSupport)
+        {
+            bool used = resupplyTargeting ? MechSkillEffect.TryResupply(selectedUnit, occupant) : MechSkillEffect.TryRepair(selectedUnit, occupant);
+            if (used) FinishMechCommand();
+            return;
+        }
 
         // WEEK 4: SPIRIT COMMANDS - If a targeted Spirit Command is
         // waiting, this click belongs to Spirit targeting instead of
@@ -250,15 +287,20 @@ public class BattleSystem : MonoBehaviour
 
             SpiritCommandBase spiritToUse = pendingSpiritCommand;
 
+            // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER target selection previously executed every Spirit as the current main pilot.
+            // The saved command owner is now forwarded to SpiritSystem so only that pilot pays the cost.
+            // A successful target selection clears both pending values, while invalid targets preserve the original owner for another click.
             bool used = SpiritSystem.UseSpirit(
                 selectedUnit,
                 spiritToUse,
                 battlefield,
-                occupant);
+                occupant,
+                pendingSpiritPilot);
 
             if (used)
             {
                 pendingSpiritCommand = null;
+                pendingSpiritPilot = null;
 
                 // WEEK 4: Return to the normal action menu after the
                 // targeted Spirit Command successfully activates.
@@ -303,6 +345,10 @@ public class BattleSystem : MonoBehaviour
             Mothership ship = selectedUnit.GetComponent<Mothership>();
             if (ship != null && ship.TryDeploy(passengerToDeploy, position))
             {
+                // WEEK 5 FIXES: Originally, the ship's unconfirmed movement remained undoable after a passenger deployed.
+                // We clear that undo entry only after deployment succeeds so the ship cannot return and refund movement energy afterward.
+                // This lets passengers launch from the ship's new position while canceled or failed deployment leaves movement undo available.
+                unconfirmedMoves.Remove(selectedUnit);
                 passengerToDeploy = null;
                 OpenHangar();
             }
@@ -358,6 +404,10 @@ public class BattleSystem : MonoBehaviour
         actionsMenu.ShowActions(HasAnyTarget());
         // WEEK 4: MOTHERSHIP - Show transport choices alongside the existing actions.
         actionsMenu.ShowMothershipActions(selectedUnit, CanBoardSelected());
+        // WEEK 5 CHANGES PLEASE READ: Saved mech command buttons currently have no availability refresh in the action menu.
+        // They must follow the selected unit's actual recipe, resources and action state rather than staying visible for every mech.
+        // The menu now reads the shared skill rules here, keeping ordinary action and transport handling in place.
+        actionsMenu.ShowMechSkillActions(selectedUnit);
         // WEEK 4: MOTHERSHIP - One menu refresh always restores the correct Dock/Standby state.
         actionsMenu.SetDockConfirmation(pendingDock != null);
         if (pendingDock != null) battlefield.ClearHighlights();
@@ -387,6 +437,9 @@ public class BattleSystem : MonoBehaviour
         actionsMenu.SetDockConfirmation(false);
     }
 
+    // WEEK 5 FIXES: Originally, both gameplay scenes overrode the passenger-row template with null, disabling this hangar flow.
+    // Those overrides were removed so the scenes inherit the configured template already present in the W4 UI prefab.
+    // This allows the existing passenger list and deployment callbacks to work without creating another UI system.
     public void OpenHangar()
     {
         if (pendingDock != null) return;
@@ -415,6 +468,75 @@ public class BattleSystem : MonoBehaviour
         foreach (BattleUnit target in battlefield.Units)
             if (selectedUnit.GetUsableWeapon(target) != null) return true;
         return false;
+    }
+
+    // WEEK 5 CHANGES PLEASE READ: BattleSystem currently has no command entry points for mech transformations or support devices.
+    // These callbacks delegate ability rules to MechSkillEffect and retain this controller's selection, undo and objective bookkeeping.
+    // This makes saved buttons and keyboard commands work together without duplicating the ability implementations.
+    private bool CanIssueMechCommand => CanEndPlayerPhase && selectedUnit != null && !selectedUnit.IsDefeated &&
+        selectedUnit.Team == playerTeam && pendingDock == null && pendingSpiritCommand == null &&
+        (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Movement || selectionStep == SelectionStep.Standby);
+
+    private void FinishMechCommand()
+    {
+        unconfirmedMoves.Remove(selectedUnit);
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts) unconfirmedMoves.Remove(part.Unit);
+        if (combatHUD != null) combatHUD.ShowSelectedUnit(selectedUnit);
+        if (selectedUnit.HasActed) ReturnToPlayerSelection(selectedUnit);
+        else ShowActions();
+    }
+    public void TransformSelected()
+    {
+        if (CanIssueMechCommand && MechSkillEffect.TryTransform(selectedUnit)) FinishMechCommand();
+    }
+    public void GetterChangeSelected()
+    {
+        if (CanIssueMechCommand && MechSkillEffect.TryGetterChange(selectedUnit)) FinishMechCommand();
+    }
+    public void CombineSelected()
+    {
+        if (!CanIssueMechCommand) return;
+        var objectives = (playerObjectiveUnit, enemyObjectiveUnit);
+        if (!MechSkillEffect.TryCombine(selectedUnit)) return;
+        combinationObjectives[selectedUnit] = objectives;
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts)
+        {
+            if (playerObjectiveUnit == part.Unit) playerObjectiveUnit = selectedUnit;
+            if (enemyObjectiveUnit == part.Unit) enemyObjectiveUnit = selectedUnit;
+        }
+        FinishMechCommand();
+    }
+    public void SeparateSelected()
+    {
+        if (!CanIssueMechCommand || !MechSkillEffect.CanSeparate(selectedUnit)) return;
+        List<BattleUnit> parts = new();
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts) parts.Add(part.Unit);
+        if (!MechSkillEffect.TrySeparate(selectedUnit)) return;
+        if (combinationObjectives.TryGetValue(selectedUnit, out var objectives))
+        {
+            if (playerObjectiveUnit == selectedUnit) playerObjectiveUnit = objectives.player;
+            if (enemyObjectiveUnit == selectedUnit) enemyObjectiveUnit = objectives.enemy;
+            combinationObjectives.Remove(selectedUnit);
+        }
+        foreach (BattleUnit part in parts) unconfirmedMoves.Remove(part);
+        FinishMechCommand();
+    }
+    public void OpenRepair() => OpenMechSupport(false);
+    public void OpenResupply() => OpenMechSupport(true);
+    private void OpenMechSupport(bool resupply)
+    {
+        if (!CanIssueMechCommand || selectedUnit.HasActed) return;
+        bool available = false;
+        foreach (BattleUnit target in battlefield.Units)
+            if (resupply ? MechSkillEffect.CanResupply(selectedUnit, target) : MechSkillEffect.CanRepair(selectedUnit, target))
+                available = true;
+        if (!available) { MechSkillEffect.Log(selectedUnit, $"{(resupply ? "Resupply" : "Repair")} has no eligible adjacent target."); return; }
+        resupplyTargeting = resupply;
+        selectionStep = SelectionStep.MechSupport;
+        actionsMenu.Hide(); battlefield.ClearHighlights();
+        foreach (BattleUnit target in battlefield.Units)
+            if (resupply ? MechSkillEffect.CanResupply(selectedUnit, target) : MechSkillEffect.CanRepair(selectedUnit, target))
+                battlefield.ShowTransportCell(target.GridPosition);
     }
 
     // WEEK 3: Both the menu and target highlights check the same selected weapon.
@@ -497,6 +619,18 @@ public class BattleSystem : MonoBehaviour
     public void Back()
     {
         if (!isPlayerTurn || selectedUnit == null) return;
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits retain both a command and its owning pilot until selection completes.
+        // Back must clear that pair without applying an effect or spending either pilot's SP.
+        // Returning to the existing action menu prevents a cancelled sub-pilot command from executing on a later map click.
+        if (pendingSpiritCommand != null)
+        {
+            pendingSpiritCommand = null; pendingSpiritPilot = null;
+            ShowActions(); return;
+        }
+        // WEEK 5 CHANGES PLEASE READ: The existing Back handler cannot recognize a pending friendly support command.
+        // Repair/Resupply targeting needs to cancel without healing, resupplying or spending an action.
+        // Returning to ShowActions reuses the existing menu reset and clears its support highlights.
+        if (selectionStep == SelectionStep.MechSupport) { ShowActions(); return; }
         if (pendingDock != null)
         {
             CancelDockPreview();
@@ -669,13 +803,15 @@ public class BattleSystem : MonoBehaviour
 
         // WEEK 3: Reset player movement at the start of the player turn.
         foreach (BattleUnit unit in battlefield.Units)
-        { 
+        {
             if (unit.Team == playerTeam)
             {
                 unit.BeginTurn();
 
-                int EnergyRecharge = Mathf.RoundToInt(unit.Mech.Energy * 0.08f);
-                unit.RechargeEnergy();
+                // WEEK 5 CHANGES PLEASE READ: The player phase already adds a baseline 8% EN recovery to every unit.
+                // Adding S/M/L regeneration on top would turn the requested 10/20/30% into 18/28/38%.
+                // Units with EN Regen now use its phase hook alone, while ordinary units keep their existing baseline recovery.
+                if (unit.Mech.ENRegeneration == RegenerationLevel.None) unit.RechargeEnergy();
             }
         }
 
@@ -732,6 +868,10 @@ public class BattleSystem : MonoBehaviour
         CancelDockPreview();
         passengerToDeploy = null;
         unconfirmedMoves.Clear();
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits retain a pilot owner while waiting for a map click.
+        // Ending the phase must discard that unfinished command before the next phase selects another unit.
+        // Clearing both pending fields here prevents a previous crew member's command from charging a newly selected unit's SP.
+        pendingSpiritCommand = null; pendingSpiritPilot = null;
 
         isPlayerTurn = false;
 
@@ -892,7 +1032,11 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null) weapon = attacker.GetUsableWeapon(target);
         if (!attacker.CanUseWeapon(weapon, target)) yield break;
 
-        Weapon firstStrike = target.GetUsableWeapon(attacker, WeaponType.FirstStrike);
+        // WEEK 5 FIXES: Originally, a MAP attack could trigger the same defensive first-strike lookup as an ordinary attack.
+        // MAP attacks now skip that lookup because units in their area do not counter them.
+        // Ordinary attacks still request a defensive weapon explicitly so a moved defender can use FirstStrike without PostMovement.
+        Weapon firstStrike = weapon.Classification == WeaponClassification.Map ? null :
+            target.GetUsableWeapon(attacker, WeaponType.FirstStrike, true);
         // WEEK 3: If both weapons have FirstStrike, the unit that started the attack goes first.
         if ((weapon.Type & WeaponType.FirstStrike) == 0 && firstStrike != null)
         {
@@ -934,10 +1078,14 @@ public class BattleSystem : MonoBehaviour
         {
             foreach (BattleUnit candidate in battlefield.Units)
             {
-                // WEEK 3: MAP attacks hit every unit in weapon range, including allies.
-                if (candidate == null || candidate.IsDefeated || candidate.Pilot == null || candidate.Mech == null)
+                // WEEK 5 FIXES: Originally, every MAP attack collected units by distance and always included allies in that radius.
+                // We now use the selected weapon's shape and Hits Allies setting so each MAP weapon can define its own affected units.
+                // The attacker and docked units are excluded, while collecting targets before damage preserves one EN/ammo charge for the whole attack.
+                if (candidate == null || candidate == attacker || candidate.IsDefeated || candidate.IsDocked ||
+                    candidate.Pilot == null || candidate.Mech == null ||
+                    (!weapon.MapHitsAllies && candidate.Team == attacker.Team))
                     continue;
-                if (weapon.IsInRange(ManhattanDistance(attacker.GridPosition, candidate.GridPosition)))
+                if (weapon.IsInMapArea(attacker.GridPosition, target.GridPosition, candidate.GridPosition))
                     targets.Add(candidate);
             }
         }
@@ -982,6 +1130,16 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        // WEEK 5 CHANGES PLEASE READ: Normal accuracy previously led directly to damage with no special-evasion check.
+        // Double Image, Open Get and Offshoot must roll only after that attack would otherwise hit.
+        // This hook cancels the hit before barrier costs or shield damage and logs the ability's roll for verification.
+        if (MechSkillEffect.TrySpecialEvade(target))
+        {
+            target.ChangeMorale(1);
+            yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{targetName} used special evasion.");
+            yield break;
+        }
+
         // WEEK 4 MORALE SYSTEM: Landing an attack and being hit each grant 1 morale.
         attacker.ChangeMorale(1);
         target.ChangeMorale(1);
@@ -989,7 +1147,10 @@ public class BattleSystem : MonoBehaviour
         // WEEK 3: Roll for a critical hit and use the result when calculating damage.
         int criticalRate = Mathf.Clamp(BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
         bool critical = Random.Range(0, 100) < criticalRate;
-        int damage = target.TakeDamage(BattleFormulas.Damage(attacker, target, weapon, critical));
+        // WEEK 5 CHANGES PLEASE READ: Weapon damage previously went straight to mech HP through TakeDamage.
+        // Direct hits must now apply the equipped barrier and separate shield HP before the remaining damage reaches the mech.
+        // The shared direct-hit entry point connects those skills while leaving TakeDamage available for poison and other bypass effects.
+        int damage = MechSkillEffect.TakeWeaponDamage(target, BattleFormulas.Damage(attacker, target, weapon, critical), weapon);
         bool defeated = target.IsDefeated;
 
         // WEEK 3: Check the designated Victory and Defeat objectives
@@ -1142,6 +1303,11 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER Spirit ownership belongs to the unit that opened the command menu.
+        // Selecting another unit through controller callbacks must cancel any unfinished command and its saved pilot.
+        // This keeps a stale sub-pilot selection from executing against the next unit while leaving every crew member's SP unchanged.
+        pendingSpiritCommand = null; pendingSpiritPilot = null;
+
         // WEEK 3: Deselect the previous unit first. Its visual state will
         // automatically return to grey if it already acted, or its original
         // color if it is still available this phase.
@@ -1175,7 +1341,10 @@ public class BattleSystem : MonoBehaviour
         if (selectedUnit.HasActed)
         {
             // WEEK 4: MOTHERSHIP - An acted ship may still inspect/deploy passengers, but cannot act twice.
-            if (selectedUnit.GetComponent<Mothership>() != null && actionsMenu.HasHangarUI)
+            // WEEK 5 CHANGES PLEASE READ: Selecting an acted unit normally closes its action menu completely.
+            // Getter Change is explicitly allowed after acting, so a valid Getter must retain access to that command.
+            // Ordinary movement/attack buttons remain disabled by HasActed, preventing this exception from granting another turn.
+            if ((selectedUnit.GetComponent<Mothership>() != null && actionsMenu.HasHangarUI) || MechSkillEffect.NextGetterForm(selectedUnit) != null)
             {
                 ShowActions();
                 return;
@@ -1241,8 +1410,8 @@ public class BattleSystem : MonoBehaviour
         // Defeating it completes the scenario with Victory.
         //if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
-       
-        if(FindFirstUnit(enemyTeam) == null)
+
+        if (FindFirstUnit(enemyTeam) == null)
         {
             EndScenario(ScenarioResult.Victory);
             return;

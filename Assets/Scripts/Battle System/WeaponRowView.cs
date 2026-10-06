@@ -37,6 +37,20 @@ public class WeaponRowView : MonoBehaviour
     {
         // WEEK 4: PILOT SKILLS - Replace the base cost with the same effective cost used when firing.
         energyCostText.text = unit.GetWeaponEnergyCost(weapon).ToString();
+        // WEEK 5 CHANGES PLEASE READ: Each weapon row previously showed only base power and resource availability.
+        // GUND changes effective weapon power, and Hyper/Super-only moves need a clear locked-mode explanation.
+        // Updating the existing fields keeps the list consistent with combat without adding controls or changing its layout.
+        powerText.text = unit.GetWeaponPower(weapon).ToString();
+        if (!MechSkillEffect.IsWeaponUnlocked(unit, weapon)) availabilityText.text = $"Requires {weapon.RequiredMode} Mode";
+        // WEEK 5 CHANGES PLEASE READ: A weapon blocked by morale would otherwise be labelled as lacking EN in this row.
+        // Showing its configured minimum explains why the attack is unavailable even when the unit has enough resources.
+        // This uses the existing availability text so the weapon menu needs no new controls or layout changes.
+        if (unit.CurrentMorale < weapon.RequiredMorale) availabilityText.text = $"Requires {weapon.RequiredMorale} morale";
+        // WEEK 5 FIXES: Originally, weapon rows reported targets and resources without explaining a movement restriction.
+        // Restoring the PostMovement requirement means an affordable weapon can now be unavailable simply because its unit moved.
+        // This message explains that case in the existing row while retaining the separate EN and ammo messages.
+        if (unit.CanAffordWeapon(weapon) && unit.HasMoved && !weapon.CanUseAfterMoving)
+            availabilityText.text = "Cannot use after moving";
         if (weapon.MaxAmmo > 0)
         {
             energyCostText.text += $" | Ammo {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}";

@@ -43,11 +43,14 @@ public class Mothership : MonoBehaviour
         return true;
     }
 
+    // WEEK 5 FIXES: Originally, HasActed blocked deployment even though boarding itself spends the passenger's action.
+    // We removed that deployment restriction so a living passenger can leave through an empty adjacent cell during the same phase.
+    // Leaving still preserves its spent action, allowing transport without granting another move or attack.
     public bool CanDeploy(BattleUnit passenger)
     {
         return isActiveAndEnabled && !Unit.IsDefeated && !Unit.IsDocked &&
             passenger != null && passenger.DockedAt == this && passengers.Contains(passenger) &&
-            !passenger.IsDefeated && !passenger.HasActed && GetDeploymentCells().Count > 0;
+            !passenger.IsDefeated && GetDeploymentCells().Count > 0;
     }
 
     // WEEK 4: MOTHERSHIP - Deploy to an empty adjacent cell without resetting action state.

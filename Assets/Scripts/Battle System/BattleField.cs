@@ -47,11 +47,11 @@ public class Battlefield : MonoBehaviour
         if (unit == null || terrainDetector == null) return;
         TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
         unit.SetTerrain(detectedTerrain);
-        
-       
+
+
 
         Debug.Log($"[Terrain Detector] {unit.name} at {unit.GridPosition} is on {detectedTerrain}", unit);
-        
+
 
         TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
         unit.SetTileType(tileType);
@@ -107,8 +107,8 @@ public class Battlefield : MonoBehaviour
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
         UpdateUnitTerrain(unit);
-        if (combatHUD != null) 
-        { 
+        if (combatHUD != null)
+        {
             combatHUD.ShowSelectedUnit(unit);
         }
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
@@ -155,8 +155,10 @@ public class Battlefield : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Vector2Int position = new(x, y);
-                int distance = Mathf.Abs(x - unit.GridPosition.x) + Mathf.Abs(y - unit.GridPosition.y);
-                if (!weapon.IsInRange(distance)) continue;
+                // WEEK 5 FIXES: Originally, the range overlay checked only distance and therefore always showed the burst-style reach.
+                // It now uses the weapon's target-area check so column and cone aim cells follow the same geometry as combat.
+                // The overlay shows possible aim cells in all four directions, and the clicked enemy determines the final attack direction.
+                if (!weapon.IsInTargetRange(unit.GridPosition, position)) continue;
                 bool target = unit.CanUseWeapon(weapon, GetUnit(position));
                 CreateHighlight(position, target ? blockedColor : new Color(0.25f, 0.7f, 1f, 0.25f));
             }

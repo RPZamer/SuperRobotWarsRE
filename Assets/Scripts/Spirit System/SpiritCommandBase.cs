@@ -28,13 +28,13 @@ public enum SpiritCommandEffect
     // WEEK 4: Accel adds 3 spaces to the pilot's next movement.
     Accel,
 
-        // WEEK 4: Bonds restores 50% HP to all allied units.
+    // WEEK 4: Bonds restores 50% HP to all allied units.
     Bonds,
 
     // WEEK 4: Rally gives +5 Morale to all allied units.
     Rally,
 
-        // WEEK 4: Daunt reduces one enemy's Morale by 10.
+    // WEEK 4: Daunt reduces one enemy's Morale by 10.
     Daunt,
 
     // WEEK 4: Dread reduces every enemy's Morale by 5.
@@ -47,7 +47,12 @@ public enum SpiritCommandEffect
     Trust,
 
     // WEEK 4: Prospect restores 30 SP to one allied unit.
-    Prospect
+    Prospect,
+
+    // WEEK 5 CHANGES PLEASE READ: Shields must be restorable by a resupply Spirit, but the effect enum has no resupply entry.
+    // This new entry is appended so the numeric values of all existing saved Spirit effects remain unchanged.
+    // A configured Spirit asset can now select Resupply and use the existing target and SP system.
+    Resupply
 
 }
 

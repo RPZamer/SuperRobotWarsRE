@@ -33,6 +33,55 @@ public class MechBase : ScriptableObject
     [SerializeField] private TerrainRatings terrainRatings = new();
     [SerializeField] private List<Weapon> weapons = new();
 
+    // WEEK 5 CHANGES PLEASE READ: The current mech asset exposes no ability settings, so the effect script has nothing to read.
+    // These fields restore the saved ability names and add an optional component recipe for compatible combinations.
+    // Defaults leave ordinary mechs unchanged, while the actual rules and runtime state stay in MechSkillEffect.
+    [Header("WEEK 5 Mech Skills")]
+    [Min(0)][SerializeField] private int shieldHealth;
+    [SerializeField] private MechBarrier barrier;
+    [SerializeField] private SpecialEvasionAbility specialEvasionAbility;
+    [HideInInspector][Range(0, 100)][SerializeField] private int specialEvasionChance;
+    [HideInInspector][Min(0)][SerializeField] private int specialEvasionMorale = 130;
+    [SerializeField] private RegenerationLevel hpRegeneration;
+    [SerializeField] private RegenerationLevel enRegeneration;
+    [SerializeField] private bool mazinPower;
+    [SerializeField] private MechMode mode;
+    [SerializeField] private bool gundFormat;
+    [Min(0)][SerializeField] private int sight = 140;
+    [SerializeField] private bool repairDevice;
+    [SerializeField] private bool resupplyDevice;
+    [Header("Forms and combination")]
+    [SerializeField] private MechBase transformInto;
+    [SerializeField] private MechBase combineInto;
+    [SerializeField] private List<MechBase> requiredComponents = new();
+    [SerializeField] private string getterCompatibilityId;
+    [Min(1)][SerializeField] private int requiredGetterPilots = 3;
+    [SerializeField] private List<MechBase> getterForms = new();
+    [SerializeField] private PilotBase mainGetterPilot;
+    [SerializeField] private List<PilotBase> requiredGetterCrew = new();
+
+    public int ShieldHealth => Mathf.Max(0, shieldHealth);
+    public MechBarrier Barrier => barrier;
+    public SpecialEvasionAbility SpecialEvasionAbility => specialEvasionAbility;
+    internal int LegacyEvasionChance => specialEvasionChance;
+    internal int LegacyEvasionMorale => specialEvasionMorale;
+    public RegenerationLevel HPRegeneration => hpRegeneration;
+    public RegenerationLevel ENRegeneration => enRegeneration;
+    public bool MazinPower => mazinPower;
+    public MechMode Mode => mode;
+    public bool GUNDFormat => gundFormat;
+    public int Sight => sight;
+    public bool RepairDevice => repairDevice;
+    public bool ResupplyDevice => resupplyDevice;
+    public MechBase TransformInto => transformInto;
+    public MechBase CombineInto => combineInto;
+    public IReadOnlyList<MechBase> RequiredComponents => requiredComponents;
+    public string GetterCompatibilityId => getterCompatibilityId;
+    public int RequiredGetterPilots => Mathf.Max(1, requiredGetterPilots);
+    public IReadOnlyList<MechBase> GetterForms => getterForms;
+    public PilotBase MainGetterPilot => mainGetterPilot;
+    public IReadOnlyList<PilotBase> RequiredGetterCrew => requiredGetterCrew;
+
     // WEEK 3: Let other scripts read these settings without changing the asset.
     public string MechName => mechName;
     public Sprite BattleSprite => battleSprite;

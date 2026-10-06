@@ -14,7 +14,8 @@ public class SpiritCommandButton : MonoBehaviour
     public void Setup(
         SpiritCommandBase spirit,
         bool canAfford,
-        Action<SpiritCommandBase> onClicked)
+        Action<SpiritCommandBase> onClicked,
+        string pilotLabel = null)
     {
         if (spirit == null)
         {
@@ -24,8 +25,20 @@ public class SpiritCommandButton : MonoBehaviour
         // WEEK 4: Display both the command name and its SP cost.
         if (commandText != null)
         {
+            // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER presents Spirits from three pilots in the existing command list.
+            // An optional label identifies the command owner and their remaining SP, and labelled rows grow enough to fit that extra text.
+            // Ordinary units omit the label and retain their original button text and size while Getter's crew list can scroll.
             commandText.text =
-                $"{spirit.CommandName} ({spirit.SpiritPointCost} SP)";
+                (string.IsNullOrEmpty(pilotLabel) ? "" : pilotLabel + "\n") + $"{spirit.CommandName} ({spirit.SpiritPointCost} SP)";
+            if (!string.IsNullOrEmpty(pilotLabel) && button != null)
+            {
+                RectTransform row = button.transform as RectTransform;
+                row.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, Mathf.Max(row.rect.width, 280f));
+                commandText.textWrappingMode = TextWrappingModes.Normal;
+                float width = Mathf.Max(1f, row.rect.width - commandText.margin.x - commandText.margin.z);
+                float height = commandText.GetPreferredValues(commandText.text, width, 0f).y + 8f;
+                row.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, Mathf.Max(row.rect.height, height));
+            }
         }
 
         if (button != null)
