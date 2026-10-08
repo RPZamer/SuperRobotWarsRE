@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Great Mazinger
   battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
+  menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 7fc1f00c757d4864790cd453e888bedd, type: 3}
   health: 3200
   energy: 120
@@ -32,6 +33,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 1
     power: 1000
@@ -49,6 +57,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 2
     maxRange: 3
     power: 1700
@@ -66,6 +81,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 3
     power: 2500
@@ -83,6 +105,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 5
     power: 3000
@@ -95,3 +124,24 @@ MonoBehaviour:
       ground: 3
       water: 1
       space: 3
+  shieldHealth: 0
+  barrier: 0
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 1
+  mazinPower: 1
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 0
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []

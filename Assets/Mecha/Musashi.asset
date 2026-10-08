@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
   m_Name: Musashi
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: 
+  pilotName: Musashi Tomoe
   level: 1
-  melee: 100
-  ranged: 100
-  defense: 100
-  evade: 100
-  accuracy: 100
-  skill: 100
+  melee: 120
+  ranged: 80
+  defense: 120
+  evade: 80
+  accuracy: 90
+  skill: 90
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -29,8 +29,8 @@ MonoBehaviour:
     space: 3
   saveBLevel: 0
   saveELevel: 0
-  potentialLevel: 0
-  spirit1: {fileID: 0}
+  potentialLevel: 7
+  spirit1: {fileID: 11400000, guid: 6a1ad8ca7fa03594da8e614cb357e7b2, type: 2}
   spirit2: {fileID: 0}
   spirit3: {fileID: 0}
   spirit4: {fileID: 0}

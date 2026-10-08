@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: 
   level: 1
-  melee: 100
+  melee: 130
   ranged: 100
-  defense: 100
-  evade: 100
-  accuracy: 100
+  defense: 90
+  evade: 110
+  accuracy: 110
   skill: 100
   morale: 100
   maxSpiritPoints: 100
@@ -29,9 +29,9 @@ MonoBehaviour:
     space: 3
   saveBLevel: 0
   saveELevel: 0
-  potentialLevel: 0
-  spirit1: {fileID: 0}
-  spirit2: {fileID: 0}
+  potentialLevel: 7
+  spirit1: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
+  spirit2: {fileID: 11400000, guid: 714e10a53daee3340b318950173af4f1, type: 2}
   spirit3: {fileID: 0}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}

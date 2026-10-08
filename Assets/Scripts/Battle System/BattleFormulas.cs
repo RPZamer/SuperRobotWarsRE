@@ -1,8 +1,28 @@
 using UnityEngine;
 
+// WEEK 6 CHANGES PLEASE READ: Incoming attacks previously had no player-selected reaction value.
+// This enum describes the three ordinary defensive commands without adding Spirit effects or saved unit settings.
+// The battle controller keeps the selected value only for the current exchange.
+public enum BattleReaction { Counter, Evade, Defend }
+
 // WEEK 4: PILOT SKILLS - Existing battle formulas plus Potential. Tile bonuses and EXP remain deferred.
 public static class BattleFormulas
 {
+    // WEEK 6 CHANGES PLEASE READ: Combat and the reaction preview need the same final hit percentage.
+    // This helper preserves the existing 0-100 clamp and halves that chance only when Evade is chosen.
+    // Odd percentages round down, and ordinary attacks retain their existing chance through the default Counter value.
+    public static int ReactionHitRate(int accuracyRate, BattleReaction reaction = BattleReaction.Counter)
+    {
+        int chance = Mathf.Clamp(accuracyRate, 0, 100);
+        return reaction == BattleReaction.Evade ? chance / 2 : chance;
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Defend reduces an incoming hit without changing armor or shared assets.
+    // The battle controller applies this helper to calculated damage before the existing barriers and shield HP.
+    // Damage is halved and rounded down only for Defend, while Counter and Evade keep normal damage on a hit.
+    public static int ReactionDamage(int damage, BattleReaction reaction = BattleReaction.Counter) =>
+        reaction == BattleReaction.Defend ? Mathf.Max(0, damage) / 2 : Mathf.Max(0, damage);
+
     // WEEK 3: Look up how the defending mech size changes the chance to hit it.
     public static float SizeModifier(MechSize size) => size switch
     {

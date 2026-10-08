@@ -40,6 +40,10 @@ public class Mothership : MonoBehaviour
         passenger.SetGridPosition(Unit.GridPosition);
         passenger.MarkMoved();
         passengers.Add(passenger);
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: Docking previously gave no record of the stored passenger's action state.
+        // This diagnostic runs only after docking succeeds and identifies the ship, passenger and stored-unit count.
+        // It confirms that boarding spent the current action without changing any docking or turn rules.
+        Debug.Log($"[WEEK 6 DOCK DEBUG] Docked: ship={Unit.name}, passenger={passenger.name}, dockedHere={passenger.DockedAt == this}, moved={passenger.HasMoved}, acted={passenger.HasActed}, passengers={passengers.Count}.", this);
         return true;
     }
 
@@ -53,13 +57,65 @@ public class Mothership : MonoBehaviour
             !passenger.IsDefeated && GetDeploymentCells().Count > 0;
     }
 
-    // WEEK 4: MOTHERSHIP - Deploy to an empty adjacent cell without resetting action state.
+    // WEEK 6 CHANGES PLEASE READ: A fresh passenger previously exited to an adjacent cell before using its movement separately.
+    // Deployment now uses its movement range from the carrier and pays EN for the actual path, consuming movement and Accel on success.
+    // Already-spent passengers retain adjacent retrieval without receiving another action, and failed placement restores the stored state.
     public bool TryDeploy(BattleUnit passenger, Vector2Int position)
     {
-        if (!CanDeploy(passenger) || !GetDeploymentCells().Contains(position)) return false;
-        if (!Unit.Battlefield.TryPlace(passenger, position)) return false;
-        passengers.Remove(passenger);
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: A rejected deployment previously returned without showing which exit was requested.
+        // This diagnostic records the passenger's ownership, action state and eligibility alongside the requested exit cell.
+        // It now reports movement reachability so a valid destination farther from the carrier is not mistaken for a blocked exit.
+        var destinations = GetDeploymentMovementCells(passenger);
+        Debug.Log($"[WEEK 6 DOCK DEBUG] Deploy attempt: ship={Unit.name}, passenger={passenger?.name ?? "none"}, dockedHere={passenger != null && passenger.DockedAt == this}, stored={passenger != null && passengers.Contains(passenger)}, acted={passenger?.HasActed}, canDeploy={CanDeploy(passenger)}, cell={position}, validExit={destinations.ContainsKey(position)}.", this);
+        if (!destinations.TryGetValue(position, out int steps)) return false;
+        int energy = passenger.CurrentEnergy;
+        bool hadMoved = passenger.HasMoved;
         passenger.LeaveDock();
+        if (!passenger.TrySpendEnergy(steps) || !Unit.Battlefield.TryPlace(passenger, position))
+        {
+            passenger.RestoreMove(energy);
+            passenger.HasMoved = hadMoved;
+            passenger.ReturnDeploymentToDock(this);
+            return false;
+        }
+        passengers.Remove(passenger);
+        if (steps > 0)
+        {
+            passenger.MarkMoved();
+            if (passenger.AccelActive) passenger.ConsumeAccel();
+        }
+        return true;
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Move from the hovering preview should use the passenger's range rather than stop at adjacent exits.
+    // Fresh passengers search from the carrier using mech movement, Accel and available EN, with occupied cells blocking the route.
+    // Spent passengers only receive the existing adjacent retrieval cells at zero extra cost, and the carrier itself is never a destination.
+    public Dictionary<Vector2Int, int> GetDeploymentMovementCells(BattleUnit passenger)
+    {
+        Dictionary<Vector2Int, int> cells = new();
+        if (!CanDeploy(passenger)) return cells;
+        if (passenger.HasMoved || passenger.HasActed)
+        {
+            foreach (Vector2Int cell in GetDeploymentCells()) cells[cell] = 0;
+            return cells;
+        }
+        if (passenger.Mech == null || passenger.IsCombinedComponent) return cells;
+        int movement = Mathf.Min(MechSkillEffect.Movement(passenger) + (passenger.AccelActive ? 3 : 0), passenger.CurrentEnergy);
+        cells = Unit.Battlefield.GetReachableCells(Unit.GridPosition, movement);
+        cells.Remove(Unit.GridPosition);
+        return cells;
+    }
+
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A previewed launch may need to be cancelled after the passenger chose an exit.
+    // This returns that living passenger to the same ship only when its temporary map occupancy is still valid.
+    // It restores the Hangar entry without running normal boarding costs, ammo recovery or action spending again.
+    internal bool RestoreDeploymentPassenger(BattleUnit passenger)
+    {
+        if (!isActiveAndEnabled || Unit.IsDefeated || Unit.IsDocked || Unit.Battlefield == null || passenger == null || passenger.IsDefeated ||
+            passenger.IsDocked || passenger.Battlefield != Unit.Battlefield || passenger.Team != Unit.Team ||
+            Unit.Battlefield.GetUnit(Unit.GridPosition) != Unit || Unit.Battlefield.GetUnit(passenger.GridPosition) != passenger) return false;
+        passenger.ReturnDeploymentToDock(this);
+        if (!passengers.Contains(passenger)) passengers.Add(passenger);
         return true;
     }
 
@@ -80,11 +136,21 @@ public class Mothership : MonoBehaviour
     // WEEK 4: MOTHERSHIP - Called once from the carrier's normal BeginTurn, including off-grid passengers.
     public void BeginPassengerTurn()
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: Docked units receive their new turn through this carrier callback rather than the map list.
+        // This diagnostic records when the callback is reached and how many passengers are awaiting their reset.
+        // A missing entry after the next Player Phase helps locate a failure before passenger action restoration begins.
+        Debug.Log($"[WEEK 6 DOCK DEBUG] Passenger phase reset reached: ship={Unit.name}, team={Unit.Team}, defeated={Unit.IsDefeated}, passengers={passengers.Count}, frame={Time.frameCount}.", this);
         if (Unit.IsDefeated) return;
         passengers.RemoveAll(passenger => passenger == null || passenger.IsDefeated);
         foreach (BattleUnit passenger in passengers)
         {
+            // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: The passenger's before-and-after action flags were previously unavailable in the Console.
+            // These snapshots allow the diagnostic to report whether BeginTurn actually restored movement and action availability.
+            // The snapshots and log are observational and leave passenger recovery and turn processing unchanged.
+            bool movedBeforeReset = passenger.HasMoved;
+            bool actedBeforeReset = passenger.HasActed;
             passenger.BeginTurn();
+            Debug.Log($"[WEEK 6 DOCK DEBUG] Passenger reset result: ship={Unit.name}, passenger={passenger.name}, moved={movedBeforeReset}->{passenger.HasMoved}, acted={actedBeforeReset}->{passenger.HasActed}, dockedHere={passenger.DockedAt == this}, combinedComponent={passenger.IsCombinedComponent}.", passenger);
             passenger.RestoreHealthAndEnergy(
                 Mathf.CeilToInt(passenger.Mech.Health * healthRecoveryPercent / 100f),
                 Mathf.CeilToInt(passenger.Mech.Energy * energyRecoveryPercent / 100f));

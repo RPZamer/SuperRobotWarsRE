@@ -33,7 +33,10 @@ public class WeaponRowView : MonoBehaviour
     }
 
     // WEEK 4: MOTHERSHIP - Show per-unit ammo and distinguish empty magazines from insufficient EN.
-    public void ShowAmmo(BattleUnit unit, Weapon weapon)
+    // WEEK 6 CHANGES PLEASE READ: Counter weapons ignore previous movement, but the row previously showed the normal movement warning.
+    // This optional flag suppresses that warning only for the defensive picker and identifies weapons that cannot counter.
+    // Normal callers retain the existing ammo, EN, morale and mode messages through the default false value.
+    public void ShowAmmo(BattleUnit unit, Weapon weapon, bool counterattack = false)
     {
         // WEEK 4: PILOT SKILLS - Replace the base cost with the same effective cost used when firing.
         energyCostText.text = unit.GetWeaponEnergyCost(weapon).ToString();
@@ -49,14 +52,21 @@ public class WeaponRowView : MonoBehaviour
         // WEEK 5 FIXES: Originally, weapon rows reported targets and resources without explaining a movement restriction.
         // Restoring the PostMovement requirement means an affordable weapon can now be unavailable simply because its unit moved.
         // This message explains that case in the existing row while retaining the separate EN and ammo messages.
-        if (unit.CanAffordWeapon(weapon) && unit.HasMoved && !weapon.CanUseAfterMoving)
+        if (!counterattack && unit.CanAffordWeapon(weapon) && unit.HasMoved && !weapon.CanUseAfterMoving)
             availabilityText.text = "Cannot use after moving";
+        if (counterattack && weapon.Classification != WeaponClassification.SingleTarget)
+            availabilityText.text = "Cannot counter";
         if (weapon.MaxAmmo > 0)
         {
             energyCostText.text += $" | Ammo {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}";
             if (unit.GetAmmo(weapon) <= 0) availabilityText.text = "No ammo";
         }
     }
+
+    // WEEK 6 CHANGES PLEASE READ: Unusable counter rows must not allow selection through their existing click listener.
+    // The menu passes the same exact-target eligibility check that combat uses for the pending retaliation.
+    // This method changes only defensive rows, preserving the ordinary weapon list's current selection behavior.
+    public void SetCounterAvailability(bool available) => button.interactable = available;
 
     // WEEK 3: Change only the assigned selection graphic when this weapon is highlighted.
     public void SetSelected(bool isSelected, Color normalColor, Color selectedColor, float blinkSeconds)

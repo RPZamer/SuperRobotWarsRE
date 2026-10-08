@@ -12,25 +12,97 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
   m_Name: Getter 3
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
-  mechName: 
-  battleSprite: {fileID: 0}
+  mechName: Getter 3
+  battleSprite: {fileID: 7738742473998928503, guid: 2f77ebf28657f0d418789a40ffb9d18b, type: 3}
   menuSprite: {fileID: 0}
-  battleTheme: {fileID: 0}
-  health: 10
-  energy: 100
-  movement: 3
-  mobility: 100
-  armor: 0
+  battleTheme: {fileID: 8300000, guid: 10d1fddabc045054cb280c2550751b77, type: 3}
+  health: 2500
+  energy: 150
+  movement: 5
+  mobility: 80
+  armor: 1500
   size: 2
   terrainRatings:
-    air: 3
+    air: 0
     ground: 3
-    water: 3
-    space: 3
-  weapons: []
+    water: 4
+    space: 2
+  weapons:
+  - weaponName: Getter Punch
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 1
+    power: 1200
+    accuracyModifier: 110
+    criticalModifier: 10
+    energyCost: 10
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  - weaponName: Getter Punch
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 0
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 6
+    power: 1500
+    accuracyModifier: 110
+    criticalModifier: 10
+    energyCost: 0
+    maxAmmo: 6
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 4
+      space: 3
+  - weaponName: Daisetsuzan Oroshi
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 120
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 110
+    criticalModifier: 10
+    energyCost: 50
+    maxAmmo: 0
+    terrainRatings:
+      air: 1
+      ground: 3
+      water: 4
+      space: 0
   shieldHealth: 0
   barrier: 0
-  specialEvasionAbility: 0
+  specialEvasionAbility: 2
   specialEvasionChance: 0
   specialEvasionMorale: 130
   hpRegeneration: 0
@@ -41,11 +113,16 @@ MonoBehaviour:
   sight: 140
   repairDevice: 0
   resupplyDevice: 0
-  transformInto: {fileID: 0}
+  transformInto: {fileID: 11400000, guid: 3cbe4ab588c4abc44b4aff2b63c2a0a0, type: 2}
   combineInto: {fileID: 0}
   requiredComponents: []
-  getterCompatibilityId: 
+  getterCompatibilityId: A
   requiredGetterPilots: 3
-  getterForms: []
-  mainGetterPilot: {fileID: 0}
-  requiredGetterCrew: []
+  getterForms:
+  - {fileID: 11400000, guid: 3cbe4ab588c4abc44b4aff2b63c2a0a0, type: 2}
+  - {fileID: 11400000, guid: 6ccf3d30f5c28c643b58c288dd61d405, type: 2}
+  mainGetterPilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
+  requiredGetterCrew:
+  - {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
+  - {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
+  - {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}

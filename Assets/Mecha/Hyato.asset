@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
   m_Name: Hyato
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: 
+  pilotName: Hyato Jin
   level: 1
-  melee: 100
-  ranged: 100
-  defense: 100
-  evade: 100
-  accuracy: 100
-  skill: 100
+  melee: 110
+  ranged: 110
+  defense: 90
+  evade: 110
+  accuracy: 110
+  skill: 120
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -29,10 +29,10 @@ MonoBehaviour:
     space: 3
   saveBLevel: 0
   saveELevel: 0
-  potentialLevel: 0
-  spirit1: {fileID: 0}
-  spirit2: {fileID: 0}
-  spirit3: {fileID: 0}
+  potentialLevel: 6
+  spirit1: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
+  spirit2: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
+  spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}

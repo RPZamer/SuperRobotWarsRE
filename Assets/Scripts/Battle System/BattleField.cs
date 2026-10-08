@@ -226,17 +226,28 @@ public class Battlefield : MonoBehaviour
     // WEEK 3: Stay inside the grid, avoid occupied squares, and stop at the movement limit.
     public Dictionary<Vector2Int, int> GetReachableCells(BattleUnit unit)
     {
+        // WEEK 6 CHANGES PLEASE READ: Hangar launches need the same path search as ordinary movement from an occupied carrier tile.
+        // The existing unit validation stays here while the search accepts a starting tile and movement allowance separately.
+        // Normal movement therefore keeps its original limits, occupied-tile blocking and shortest-path EN costs.
+        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return new();
+        return GetReachableCells(unit.GridPosition, unit.AvailableMovement);
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: A stored passenger cannot use the registered-unit movement entry point before it launches.
+    // This shared search starts from the carrier without removing or replacing its map occupancy.
+    // Both launch and ordinary movement now follow the same empty-cell paths and stop at their supplied movement limit.
+    internal Dictionary<Vector2Int, int> GetReachableCells(Vector2Int origin, int movement)
+    {
         Dictionary<Vector2Int, int> distances = new();
-        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return distances;
         Queue<Vector2Int> pending = new();
-        distances[unit.GridPosition] = 0;
-        pending.Enqueue(unit.GridPosition);
+        distances[origin] = 0;
+        pending.Enqueue(origin);
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         while (pending.Count > 0)
         {
             Vector2Int position = pending.Dequeue();
             int steps = distances[position];
-            if (steps >= unit.AvailableMovement) continue;
+            if (steps >= movement) continue;
             foreach (Vector2Int direction in directions)
             {
                 Vector2Int next = position + direction;

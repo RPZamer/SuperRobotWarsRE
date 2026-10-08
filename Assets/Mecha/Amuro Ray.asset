@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Amuro Ray
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Amuro Ray
+  level: 1
   melee: 100
   ranged: 120
   defense: 90
@@ -36,7 +37,7 @@ MonoBehaviour:
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
   onSuccessLines: []
-  defaultPortrait: {fileID: 0}
+  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

@@ -66,6 +66,11 @@ public class BattleUnit : MonoBehaviour
     private readonly Dictionary<Weapon, int> ammunition = new();
     public Mothership DockedAt { get; private set; }
     public bool IsDocked => DockedAt != null;
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A Hangar selection needs to display its passenger before that passenger leaves the ship.
+    // These fields remember only the sprite's temporary preview sorting state so it can appear above the carrier.
+    // Movement, actions and dock ownership remain unchanged until the existing deployment routine places the unit.
+    private bool showingDockedPreview;
+    private int dockedPreviewSortingOrder;
     public Battlefield Battlefield => battlefield;
 
     public PilotBase Pilot { get => pilot; internal set => pilot = value; }
@@ -401,6 +406,42 @@ public class BattleUnit : MonoBehaviour
         DockedAt = null;
         spriteRenderer.enabled = true;
         RefreshVisualState();
+    }
+
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Hangar deployment previously hid the passenger until an exit cell was clicked.
+    // This visual preview shows the stored unit slightly above its carrier and restores its original sprite order when the preview ends.
+    // It never occupies the carrier's grid cell or resets the passenger's spent movement and action flags.
+    internal void ShowDockedPreview(bool visible)
+    {
+        if (spriteRenderer == null) return;
+        if (visible && IsDocked)
+        {
+            if (!showingDockedPreview) dockedPreviewSortingOrder = spriteRenderer.sortingOrder;
+            showingDockedPreview = true;
+            spriteRenderer.enabled = true;
+            SpriteRenderer carrierSprite = DockedAt.Unit.AbilitySprite;
+            spriteRenderer.sortingOrder = carrierSprite != null ? Mathf.Max(dockedPreviewSortingOrder, carrierSprite.sortingOrder + 1) : dockedPreviewSortingOrder;
+            transform.position = DockedAt.Unit.transform.position + Vector3.up * 0.25f;
+        }
+        else
+        {
+            if (showingDockedPreview) spriteRenderer.sortingOrder = dockedPreviewSortingOrder;
+            showingDockedPreview = false;
+            spriteRenderer.enabled = !IsDocked;
+            if (battlefield != null) transform.position = battlefield.GridToWorld(GridPosition);
+        }
+    }
+
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Cancelling an unconfirmed launch must return the unit aboard without treating it as new boarding.
+    // This restores dock ownership and hides the sprite after removing only this passenger's temporary map occupancy.
+    // It deliberately avoids MarkActed and ammo restoration so cancellation does not spend an action or refill ammunition.
+    internal void ReturnDeploymentToDock(Mothership ship)
+    {
+        battlefield.Remove(this);
+        DockedAt = ship;
+        SetGridPosition(ship.Unit.GridPosition);
+        SetSelected(false);
+        ShowDockedPreview(false);
     }
 
     // WEEK 4: MOTHERSHIP - Use the strongest friendly aura without modifying shared pilot data.

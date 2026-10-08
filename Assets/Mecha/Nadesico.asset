@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Nadesico
   battleSprite: {fileID: 5651881652614053937, guid: 8982d9816e0032b478a56426c20c270a, type: 3}
+  menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 51c584ba5e34a034aac14f3abdc96f3e, type: 3}
   health: 7000
   energy: 200
@@ -32,6 +33,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 5
     power: 1500
@@ -49,6 +57,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 2
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 1
+    mapLength: 7
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 7
     power: 2000
@@ -66,6 +81,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 7
     power: 2500
@@ -78,3 +100,24 @@ MonoBehaviour:
       ground: 3
       water: 2
       space: 4
+  shieldHealth: 0
+  barrier: 0
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 1
+  mazinPower: 0
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 0
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []
