@@ -24,6 +24,10 @@ public class BattleSystem : MonoBehaviour
     // WEEK 4: SPIRIT COMMANDS - Stores a targeted Spirit Command
     // while the player chooses an ally or enemy on the battlefield.
     private SpiritCommandBase pendingSpiritCommand;
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits may belong to a sub-pilot rather than the main pilot.
+    // This small companion field preserves that pilot while the player chooses a battlefield target.
+    // The successful execution and cancellation paths clear both values together without changing the selected combat pilot.
+    private PilotBase pendingSpiritPilot;
 
     // WEEK 3: Assign the specific objective units for this scenario.
     // Mazinger Z being defeated causes Defeat.
@@ -79,8 +83,20 @@ public class BattleSystem : MonoBehaviour
 
     // WEEK 3: Remember the current menu step and selected weapon.
     // WEEK 4: MOTHERSHIP - Boarding, hangar list and deployment reuse the selection flow.
-    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby, Boarding, Hangar, Deployment }
+    // WEEK 5 CHANGES PLEASE READ: Selection previously knew only movement, combat and transport targeting.
+    // Repair/Resupply need an explicit friendly-target step so their clicks cannot switch units or move behind a menu.
+    // This extra state reuses the existing grid click, highlight and cancel flow instead of adding another controller.
+    private enum SelectionStep { Movement, Actions, Weapons, Targets, Standby, Boarding, Hangar, Deployment, MechSupport }
+    private bool resupplyTargeting;
+    private readonly Dictionary<BattleUnit, (BattleUnit player, BattleUnit enemy)> combinationObjectives = new();
     private BattleUnit passengerToDeploy;
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Selecting a Hangar passenger now opens a cancellable action preview above its ship.
+    // This tracks the source carrier, original action flags and launch movement costs until the passenger confirms an action.
+    // Keeping this state separate from normal docking lets cancellation refund launch EN and Accel without changing carrier occupancy.
+    private Mothership deploymentShip;
+    private bool deploymentHadMoved, deploymentHadActed;
+    private int deploymentEnergy;
+    private bool deploymentHadAccel, deploymentUsedMovement;
     // WEEK 4: MOTHERSHIP - Preview docking without overwriting the ship's grid occupancy.
     private Mothership pendingDock;
     // WEEK 4: MOTHERSHIP - The menu reads the same docking state used by its confirmation callback.
@@ -93,6 +109,15 @@ public class BattleSystem : MonoBehaviour
         (battlefield.GetUnit(move.position) == null || battlefield.GetUnit(move.position) == selectedUnit);
     private SelectionStep selectionStep;
     private Weapon selectedWeapon;
+
+    // WEEK 6 CHANGES PLEASE READ: Enemy attacks previously resolved without waiting for a defensive choice.
+    // These fields hold the attacker, defender, weapons and chosen response for one exchange only.
+    // Separate pending and weapon-selection flags allow reaction controls during Enemy Phase without enabling normal player commands.
+    private BattleUnit reactionAttacker, reactionDefender;
+    private Weapon reactionIncomingWeapon, reactionCounterWeapon;
+    private BattleReaction selectedReaction;
+    private bool reactionPending, choosingCounterWeapon, reactionConfirmed;
+    public bool IsChoosingCounterWeapon => reactionPending && choosingCounterWeapon;
 
     // Battle messages remain readable briefly after their typewriter animation finishes.
     private const float MessageHoldSeconds = 0.75f;
@@ -163,8 +188,42 @@ public class BattleSystem : MonoBehaviour
 
     private void Update()
     {
+        // WEEK 6 CHANGES PLEASE READ: Enemy Phase input was previously ignored while its coroutine ran.
+        // A pending reaction now accepts C, E, D, Enter and Back through the same guarded callbacks as the buttons.
+        // Returning here keeps movement, unit selection and ordinary action shortcuts locked while the enemy waits.
+        if (reactionPending)
+        {
+            if (Keyboard.current != null)
+            {
+                if (Keyboard.current.escapeKey.wasPressedThisFrame) Back();
+                else if (Keyboard.current.enterKey.wasPressedThisFrame)
+                {
+                    if (choosingCounterWeapon) ConfirmWeapon(); else BeginReactionCombat();
+                }
+                else if (!choosingCounterWeapon)
+                {
+                    if (Keyboard.current.cKey.wasPressedThisFrame) ChooseCounter();
+                    else if (Keyboard.current.eKey.wasPressedThisFrame) ChooseEvade();
+                    else if (Keyboard.current.dKey.wasPressedThisFrame) ChooseDefend();
+                }
+            }
+            if (Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame) Back();
+            return;
+        }
         if (isPlayerTurn)
         {
+            // WEEK 5 CHANGES PLEASE READ: The current battle menus have no working bindings for the restored mech commands.
+            // Keyboard callbacks make those commands available even in scenes whose older UI prefab has no skill buttons.
+            // They share the same guarded command methods as optional saved buttons, so they cannot bypass targeting or phase restrictions.
+            if (Keyboard.current != null && CanIssueMechCommand)
+            {
+                if (Keyboard.current.fKey.wasPressedThisFrame) TransformSelected();
+                else if (Keyboard.current.gKey.wasPressedThisFrame) CombineSelected();
+                else if (Keyboard.current.hKey.wasPressedThisFrame) SeparateSelected();
+                else if (Keyboard.current.tKey.wasPressedThisFrame) GetterChangeSelected();
+                else if (Keyboard.current.rKey.wasPressedThisFrame) OpenRepair();
+                else if (Keyboard.current.uKey.wasPressedThisFrame) OpenResupply();
+            }
             if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 Back();
@@ -215,17 +274,23 @@ public class BattleSystem : MonoBehaviour
 
     // WEEK 4: SPIRIT COMMANDS - Begins battlefield targeting for
     // Spirit Commands that require a specific ally or enemy.
-    public void BeginSpiritTargeting(SpiritCommandBase spirit)
+    // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER command buttons now identify which crew member owns the chosen Spirit.
+    // Capturing that pilot here makes later target clicks charge the correct independent SP pool.
+    // The optional argument retains existing main-pilot calls and rejects pilots outside the selected unit's crew.
+    public void BeginSpiritTargeting(SpiritCommandBase spirit, PilotBase spiritPilot = null)
     {
         if (selectedUnit == null || spirit == null)
         {
             return;
         }
 
+        spiritPilot ??= selectedUnit.Pilot;
+        if (!selectedUnit.HasSpiritPilot(spiritPilot)) return;
         pendingSpiritCommand = spirit;
+        pendingSpiritPilot = spiritPilot;
 
         Debug.Log(
-            $"{selectedUnit.Pilot?.PilotName} is choosing a target for {spirit.CommandName}.");
+            $"{spiritPilot.PilotName} is choosing a target for {spirit.CommandName}.");
     }
 
     // WEEK 3: Move first, then choose an action, a weapon, and a target.
@@ -234,6 +299,16 @@ public class BattleSystem : MonoBehaviour
         if (!CanEndPlayerPhase || !battlefield.IsInside(position)) return;
 
         BattleUnit occupant = battlefield.GetUnit(position);
+
+        // WEEK 5 CHANGES PLEASE READ: Friendly map clicks normally select another unit before any command can use it.
+        // Repair/Resupply must receive that click first so the chosen adjacent ally becomes the support target.
+        // A successful command commits movement and spends the user's action, while an invalid target leaves the selection pending.
+        if (selectionStep == SelectionStep.MechSupport)
+        {
+            bool used = resupplyTargeting ? MechSkillEffect.TryResupply(selectedUnit, occupant) : MechSkillEffect.TryRepair(selectedUnit, occupant);
+            if (used) FinishMechCommand();
+            return;
+        }
 
         // WEEK 4: SPIRIT COMMANDS - If a targeted Spirit Command is
         // waiting, this click belongs to Spirit targeting instead of
@@ -250,15 +325,20 @@ public class BattleSystem : MonoBehaviour
 
             SpiritCommandBase spiritToUse = pendingSpiritCommand;
 
+            // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER target selection previously executed every Spirit as the current main pilot.
+            // The saved command owner is now forwarded to SpiritSystem so only that pilot pays the cost.
+            // A successful target selection clears both pending values, while invalid targets preserve the original owner for another click.
             bool used = SpiritSystem.UseSpirit(
                 selectedUnit,
                 spiritToUse,
                 battlefield,
-                occupant);
+                occupant,
+                pendingSpiritPilot);
 
             if (used)
             {
                 pendingSpiritCommand = null;
+                pendingSpiritPilot = null;
 
                 // WEEK 4: Return to the normal action menu after the
                 // targeted Spirit Command successfully activates.
@@ -300,11 +380,22 @@ public class BattleSystem : MonoBehaviour
             selectionStep == SelectionStep.Hangar || selectionStep == SelectionStep.Boarding) return;
         if (selectionStep == SelectionStep.Deployment)
         {
-            Mothership ship = selectedUnit.GetComponent<Mothership>();
+            // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Exit selection previously kept the carrier selected and immediately reopened its Hangar.
+            // The selected passenger now uses its movement from the carrier and receives its own action menu at the destination.
+            // Launch EN and Accel are saved for cancellation, while an already-spent passenger only receives its existing adjacent exit.
+            Mothership ship = deploymentShip;
+            int launchEnergy = selectedUnit.CurrentEnergy;
+            bool launchAccel = selectedUnit.AccelActive;
+            bool usesMovement = !selectedUnit.HasMoved && !selectedUnit.HasActed;
             if (ship != null && ship.TryDeploy(passengerToDeploy, position))
             {
-                passengerToDeploy = null;
-                OpenHangar();
+                deploymentEnergy = launchEnergy;
+                deploymentHadAccel = launchAccel;
+                deploymentUsedMovement = usesMovement;
+                selectedUnit.ShowDockedPreview(false);
+                if (selectedUnit.HasActed) CommitDeployment();
+                if (combatHUD != null) combatHUD.ShowSelectedUnit(selectedUnit);
+                ShowActions();
             }
             return;
         }
@@ -358,8 +449,17 @@ public class BattleSystem : MonoBehaviour
         actionsMenu.ShowActions(HasAnyTarget());
         // WEEK 4: MOTHERSHIP - Show transport choices alongside the existing actions.
         actionsMenu.ShowMothershipActions(selectedUnit, CanBoardSelected());
+        // WEEK 5 CHANGES PLEASE READ: Saved mech command buttons currently have no availability refresh in the action menu.
+        // They must follow the selected unit's actual recipe, resources and action state rather than staying visible for every mech.
+        // The menu now reads the shared skill rules here, keeping ordinary action and transport handling in place.
+        actionsMenu.ShowMechSkillActions(selectedUnit);
         // WEEK 4: MOTHERSHIP - One menu refresh always restores the correct Dock/Standby state.
         actionsMenu.SetDockConfirmation(pendingDock != null);
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A passenger hovering above the occupied carrier tile cannot finish an action on that tile.
+        // Its preview menu therefore offers Move to choose an adjacent exit while Attack and Standby wait until it is placed outside.
+        // This reuses the normal menu and keeps existing docked-unit combat restrictions intact.
+        if (deploymentShip != null && selectedUnit == passengerToDeploy && selectedUnit.IsDocked)
+            actionsMenu.ShowDeploymentPreviewActions();
         if (pendingDock != null) battlefield.ClearHighlights();
 
         // WEEK 3: Position the Action HUD beside the currently selected unit
@@ -387,8 +487,15 @@ public class BattleSystem : MonoBehaviour
         actionsMenu.SetDockConfirmation(false);
     }
 
+    // WEEK 5 FIXES: Originally, both gameplay scenes overrode the passenger-row template with null, disabling this hangar flow.
+    // Those overrides were removed so the scenes inherit the configured template already present in the W4 UI prefab.
+    // This allows the existing passenger list and deployment callbacks to work without creating another UI system.
     public void OpenHangar()
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: Hangar requests previously returned silently when their existing guards rejected them.
+        // This diagnostic records callback arrival, player-phase state, selected ship, pending docking and required UI availability.
+        // It distinguishes a button that never sends a click from a request blocked by battle state without changing those guards.
+        Debug.Log($"[WEEK 6 DOCK DEBUG] OpenHangar requested: selected={selectedUnit?.name ?? "none"}, playerPhase={isPlayerTurn}, step={selectionStep}, pendingDock={pendingDock != null}, defeated={selectedUnit?.IsDefeated}, isShip={selectedUnit != null && selectedUnit.GetComponent<Mothership>() != null}, hangarUI={actionsMenu != null && actionsMenu.HasHangarUI}, frame={Time.frameCount}.", this);
         if (pendingDock != null) return;
         if (!isPlayerTurn || selectedUnit == null || selectedUnit.IsDefeated ||
             !selectedUnit.TryGetComponent(out Mothership ship) || !actionsMenu.HasHangarUI) return;
@@ -400,13 +507,67 @@ public class BattleSystem : MonoBehaviour
 
     public void ChoosePassenger(BattleUnit passenger)
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: Passenger-row clicks previously gave no indication that the deployment callback was reached.
+        // This diagnostic records the clicked passenger, current menu step and player-phase state before the existing checks run.
+        // It helps locate a stalled transition between the Hangar list and exit-tile selection without altering selection behavior.
+        Debug.Log($"[WEEK 6 DOCK DEBUG] Passenger clicked: selected={selectedUnit?.name ?? "none"}, passenger={passenger?.name ?? "none"}, playerPhase={isPlayerTurn}, step={selectionStep}, dockedAt={(passenger != null && passenger.DockedAt != null ? passenger.DockedAt.name : "none")}, moved={passenger?.HasMoved}, acted={passenger?.HasActed}.", this);
         if (!isPlayerTurn || selectionStep != SelectionStep.Hangar || selectedUnit == null ||
             !selectedUnit.TryGetComponent(out Mothership ship) || !ship.CanDeploy(passenger)) return;
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Clicking Deploy previously skipped the passenger's menu and went directly to exit selection.
+        // It now selects the stored passenger, displays its sprite above the carrier and opens its actions without removing it from the Hangar.
+        // The original action flags are retained so cancellation or same-phase deployment cannot grant another turn.
+        selectedUnit.SetSelected(false);
+        deploymentShip = ship;
         passengerToDeploy = passenger;
-        actionsMenu.Hide();
-        selectionStep = SelectionStep.Deployment;
-        battlefield.ClearHighlights();
-        foreach (Vector2Int cell in ship.GetDeploymentCells()) battlefield.ShowTransportCell(cell);
+        deploymentHadMoved = passenger.HasMoved;
+        deploymentHadActed = passenger.HasActed;
+        deploymentUsedMovement = false;
+        selectedUnit = passenger;
+        passenger.SetGridPosition(ship.Unit.GridPosition);
+        passenger.SetSelected(true);
+        passenger.ShowDockedPreview(true);
+        if (combatHUD != null) combatHUD.ShowSelectedUnit(passenger);
+        ShowActions();
+    }
+
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A pending launch must not strand an off-grid preview or leave a cancelled passenger outside.
+    // Cancellation returns temporary placement aboard, refunds launch movement EN and Accel, and restores the original action flags.
+    // The preview sprite and selection bookkeeping are then cleared while the carrier keeps its original grid occupancy.
+    private void CancelDeployment()
+    {
+        if (deploymentShip == null || passengerToDeploy == null) return;
+        BattleUnit passenger = passengerToDeploy;
+        if (!passenger.IsDocked && !deploymentShip.RestoreDeploymentPassenger(passenger))
+        {
+            Debug.LogWarning("[WEEK 6 SETUP WARNING] Could not return the pending passenger to its ship; keeping its existing map placement.", passenger);
+            CommitDeployment();
+            return;
+        }
+        if (deploymentUsedMovement)
+        {
+            passenger.RestoreMove(deploymentEnergy);
+            if (deploymentHadAccel) passenger.ActivateAccel();
+        }
+        else if (unconfirmedMoves.TryGetValue(passenger, out var move)) passenger.RestoreMove(move.energy);
+        unconfirmedMoves.Remove(passenger);
+        passenger.HasMoved = deploymentHadMoved;
+        passenger.HasActed = deploymentHadActed;
+        passenger.SetSelected(false);
+        passenger.ShowDockedPreview(false);
+        deploymentShip = null;
+        passengerToDeploy = null;
+    }
+
+    // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Confirming a launched passenger's action makes its transport placement permanent.
+    // This releases the preview state and commits the carrier's previous transport move only after the passenger has left the ship.
+    // It does not reset the passenger's action flags or change normal combat and Standby costs.
+    private void CommitDeployment(bool completedBoarding = false)
+    {
+        if (deploymentShip == null || passengerToDeploy == null || (passengerToDeploy.IsDocked && !completedBoarding)) return;
+        unconfirmedMoves.Remove(deploymentShip.Unit);
+        passengerToDeploy.ShowDockedPreview(false);
+        deploymentShip = null;
+        passengerToDeploy = null;
     }
 
     private bool HasAnyTarget()
@@ -417,9 +578,103 @@ public class BattleSystem : MonoBehaviour
         return false;
     }
 
+    // WEEK 5 CHANGES PLEASE READ: BattleSystem currently has no command entry points for mech transformations or support devices.
+    // These callbacks delegate ability rules to MechSkillEffect and retain this controller's selection, undo and objective bookkeeping.
+    // This makes saved buttons and keyboard commands work together without duplicating the ability implementations.
+    private bool CanIssueMechCommand => CanEndPlayerPhase && selectedUnit != null && !selectedUnit.IsDefeated &&
+        selectedUnit.Team == playerTeam && pendingDock == null && pendingSpiritCommand == null &&
+        (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Movement || selectionStep == SelectionStep.Standby);
+
+    private void FinishMechCommand()
+    {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Successful mech commands already commit a selected unit's movement.
+        // They must also finish any pending launch before normal command bookkeeping continues.
+        // This prevents a completed command from later being undone by returning its passenger to the Hangar.
+        CommitDeployment();
+        unconfirmedMoves.Remove(selectedUnit);
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts) unconfirmedMoves.Remove(part.Unit);
+        if (combatHUD != null) combatHUD.ShowSelectedUnit(selectedUnit);
+        if (selectedUnit.HasActed) ReturnToPlayerSelection(selectedUnit);
+        else ShowActions();
+    }
+    public void TransformSelected()
+    {
+        if (CanIssueMechCommand && MechSkillEffect.TryTransform(selectedUnit)) FinishMechCommand();
+    }
+    public void GetterChangeSelected()
+    {
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER's button could stop silently at the controller's existing command guard.
+        // An attempted button command now logs whether selection, phase or another pending command is blocking it.
+        // The same guard still decides permission, so this adds an explanation without changing when a unit can transform.
+        if (!CanIssueMechCommand)
+        {
+            string reason = !isActiveAndEnabled ? "BattleSystem is disabled or inactive." :
+                ScenarioEnded ? "The scenario has ended." :
+                !isPlayerTurn ? "It is not the player phase." :
+                selectedUnit == null ? "No unit is selected." :
+                selectedUnit.IsDefeated ? "The selected unit is defeated." :
+                selectedUnit.Team != playerTeam ? "The selected unit is not on the player team." :
+                pendingDock != null ? "Finish or cancel the docking preview first." :
+                pendingSpiritCommand != null ? "Finish or cancel Spirit targeting first." :
+                "Return to unit actions before changing form (current menu: " + selectionStep + ").";
+            Debug.LogWarning("[WEEK 5 GETTER] Getter Change blocked: " + reason, this);
+            return;
+        }
+        if (MechSkillEffect.TryGetterChange(selectedUnit)) FinishMechCommand();
+    }
+    public void CombineSelected()
+    {
+        if (!CanIssueMechCommand) return;
+        var objectives = (playerObjectiveUnit, enemyObjectiveUnit);
+        if (!MechSkillEffect.TryCombine(selectedUnit)) return;
+        combinationObjectives[selectedUnit] = objectives;
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts)
+        {
+            if (playerObjectiveUnit == part.Unit) playerObjectiveUnit = selectedUnit;
+            if (enemyObjectiveUnit == part.Unit) enemyObjectiveUnit = selectedUnit;
+        }
+        FinishMechCommand();
+    }
+    public void SeparateSelected()
+    {
+        if (!CanIssueMechCommand || !MechSkillEffect.CanSeparate(selectedUnit)) return;
+        List<BattleUnit> parts = new();
+        foreach (MechSkillEffect.Part part in selectedUnit.MechSkillState.Parts) parts.Add(part.Unit);
+        if (!MechSkillEffect.TrySeparate(selectedUnit)) return;
+        if (combinationObjectives.TryGetValue(selectedUnit, out var objectives))
+        {
+            if (playerObjectiveUnit == selectedUnit) playerObjectiveUnit = objectives.player;
+            if (enemyObjectiveUnit == selectedUnit) enemyObjectiveUnit = objectives.enemy;
+            combinationObjectives.Remove(selectedUnit);
+        }
+        foreach (BattleUnit part in parts) unconfirmedMoves.Remove(part);
+        FinishMechCommand();
+    }
+    public void OpenRepair() => OpenMechSupport(false);
+    public void OpenResupply() => OpenMechSupport(true);
+    private void OpenMechSupport(bool resupply)
+    {
+        if (!CanIssueMechCommand || selectedUnit.HasActed) return;
+        bool available = false;
+        foreach (BattleUnit target in battlefield.Units)
+            if (resupply ? MechSkillEffect.CanResupply(selectedUnit, target) : MechSkillEffect.CanRepair(selectedUnit, target))
+                available = true;
+        if (!available) { MechSkillEffect.Log(selectedUnit, $"{(resupply ? "Resupply" : "Repair")} has no eligible adjacent target."); return; }
+        resupplyTargeting = resupply;
+        selectionStep = SelectionStep.MechSupport;
+        actionsMenu.Hide(); battlefield.ClearHighlights();
+        foreach (BattleUnit target in battlefield.Units)
+            if (resupply ? MechSkillEffect.CanResupply(selectedUnit, target) : MechSkillEffect.CanRepair(selectedUnit, target))
+                battlefield.ShowTransportCell(target.GridPosition);
+    }
+
     // WEEK 3: Both the menu and target highlights check the same selected weapon.
     public bool HasTarget(Weapon weapon)
     {
+        // WEEK 6 CHANGES PLEASE READ: Weapon rows previously searched every enemy using player-phase selection.
+        // During counter selection the incoming attacker is the only valid target and defensive movement rules apply.
+        // Ordinary weapon menus continue through the original checks below.
+        if (IsChoosingCounterWeapon) return CanCounterWith(weapon);
         if (selectedUnit == null || weapon == null) return false;
         foreach (BattleUnit target in battlefield.Units)
             if (selectedUnit.CanUseWeapon(weapon, target)) return true;
@@ -429,6 +684,17 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Close the action choices and return to the selected unit's movement range.
     public void OpenMovement()
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Move on the hovering preview now shows the passenger's movement range from the carrier.
+        // The highlighted cells use the same paths and EN limit as normal movement, while spent passengers retain adjacent retrieval.
+        // The passenger stays aboard until a valid destination is clicked, and a fresh launch consumes its one movement for this turn.
+        if (isPlayerTurn && deploymentShip != null && selectedUnit == passengerToDeploy && selectedUnit.IsDocked && selectionStep == SelectionStep.Actions)
+        {
+            actionsMenu.Hide();
+            selectionStep = SelectionStep.Deployment;
+            battlefield.ClearHighlights();
+            foreach (Vector2Int cell in deploymentShip.GetDeploymentMovementCells(selectedUnit).Keys) battlefield.ShowTransportCell(cell);
+            return;
+        }
         // WEEK 3: Report whether the Move button can return to movement selection.
         if (!isPlayerTurn || selectedUnit == null || selectionStep != SelectionStep.Actions || selectedUnit.HasActed)
         {
@@ -463,6 +729,14 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Clicking a weapon previews its range immediately, before confirming it.
     public void PreviewWeapon(Weapon weapon)
     {
+        // WEEK 6 CHANGES PLEASE READ: Counter weapon previews must work while normal player commands are locked.
+        // A usable row now updates only the pending exchange's counter weapon and existing weapon details.
+        // It never switches the initiating weapon, changes battlefield targets or spends resources.
+        if (IsChoosingCounterWeapon)
+        {
+            if (CanCounterWith(weapon)) { reactionCounterWeapon = weapon; actionsMenu.SetWeapon(weapon); }
+            return;
+        }
         if (!isPlayerTurn || selectionStep != SelectionStep.Weapons) return;
         selectedWeapon = weapon;
         actionsMenu.SetWeapon(weapon);
@@ -472,6 +746,16 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Confirm or double-click closes the list and allows this weapon's targets.
     public void ConfirmWeapon()
     {
+        // WEEK 6 CHANGES PLEASE READ: Confirming a counter weapon should return to the combat preview.
+        // The defensive branch validates that weapon against the incoming attacker and closes only the weapon picker.
+        // Begin Combat remains a separate confirmation, and ordinary attack confirmation keeps its original flow.
+        if (IsChoosingCounterWeapon)
+        {
+            if (!CanCounterWith(reactionCounterWeapon)) return;
+            choosingCounterWeapon = false;
+            ShowReactionMenu();
+            return;
+        }
         // WEEK 3: Report whether the selected weapon has at least one valid enemy target.
         bool hasTarget = HasTarget(selectedWeapon);
         Debug.Log($"[Attack Debug] Confirm weapon: {selectedWeapon?.WeaponName ?? "none"}; target available: {hasTarget}.", this);
@@ -496,7 +780,40 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3: Right-click returns to the previous menu step.
     public void Back()
     {
+        // WEEK 6 CHANGES PLEASE READ: Back previously required Player Phase and could not leave a counter weapon list.
+        // A pending reaction now returns to its preview without cancelling the enemy's committed attack.
+        // This branch runs before the ordinary phase guard and does not undo movement or alter the selected player unit.
+        if (reactionPending)
+        {
+            choosingCounterWeapon = false;
+            ShowReactionMenu();
+            return;
+        }
         if (!isPlayerTurn || selectedUnit == null) return;
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits retain both a command and its owning pilot until selection completes.
+        // Back must clear that pair without applying an effect or spending either pilot's SP.
+        // Returning to the existing action menu prevents a cancelled sub-pilot command from executing on a later map click.
+        if (pendingSpiritCommand != null)
+        {
+            pendingSpiritCommand = null; pendingSpiritPilot = null;
+            ShowActions(); return;
+        }
+        // WEEK 5 CHANGES PLEASE READ: The existing Back handler cannot recognize a pending friendly support command.
+        // Repair/Resupply targeting needs to cancel without healing, resupplying or spending an action.
+        // Returning to ShowActions reuses the existing menu reset and clears its support highlights.
+        if (selectionStep == SelectionStep.MechSupport) { ShowActions(); return; }
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Back from a pending launch must leave the passenger inside its original carrier.
+        // Cancelling exit targeting first returns to the hovering menu, while cancelling that menu or subsequent movement returns to the Hangar.
+        // Weapon and Spirit submenus retain their existing Back behavior so no cancelled attack or command is executed.
+        if (deploymentShip != null && selectionStep == SelectionStep.Deployment) { ShowActions(); return; }
+        if (deploymentShip != null && (selectionStep == SelectionStep.Actions || selectionStep == SelectionStep.Movement))
+        {
+            Mothership carrier = deploymentShip;
+            CancelDeployment();
+            SelectUnit(carrier.Unit);
+            OpenHangar();
+            return;
+        }
         if (pendingDock != null)
         {
             CancelDockPreview();
@@ -559,6 +876,10 @@ public class BattleSystem : MonoBehaviour
     // current Player Phase and visually marks the unit as finished.
     public void Standby()
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A hovering passenger cannot use Standby to occupy the carrier's tile.
+        // Standby remains available after choosing an exit, where it confirms the pending launch through the existing action-ending flow.
+        // This guard prevents keyboard or direct callbacks from bypassing the preview menu's disabled Standby button.
+        if (deploymentShip != null && selectedUnit != null && selectedUnit.IsDocked) return;
         if (!isPlayerTurn || selectedUnit == null ||
             selectionStep != SelectionStep.Actions || selectedUnit.HasActed)
         {
@@ -575,6 +896,10 @@ public class BattleSystem : MonoBehaviour
                 ShowActions();
                 return;
             }
+            // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: An exited passenger can choose normal boarding before it finishes its pending launch.
+            // Successful boarding confirms that launch before selection changes, including when it boards its original carrier again.
+            // The action spent by TryDock is therefore preserved instead of being restored by preview cancellation.
+            CommitDeployment(true);
             pendingDock = null;
             unconfirmedMoves.Remove(selectedUnit);
             SelectUnit(carrier.Unit);
@@ -582,6 +907,10 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Standby confirms an exited passenger's pending launch before ending its action.
+        // The source ship can no longer undo its transport move once that action is committed.
+        // Ordinary Standby still follows the same existing movement and action bookkeeping below.
+        CommitDeployment();
         actionsMenu.Hide();
         selectedWeapon = null;
         battlefield.ClearHighlights();
@@ -669,13 +998,15 @@ public class BattleSystem : MonoBehaviour
 
         // WEEK 3: Reset player movement at the start of the player turn.
         foreach (BattleUnit unit in battlefield.Units)
-        { 
+        {
             if (unit.Team == playerTeam)
             {
                 unit.BeginTurn();
 
-                int EnergyRecharge = Mathf.RoundToInt(unit.Mech.Energy * 0.08f);
-                unit.RechargeEnergy();
+                // WEEK 5 CHANGES PLEASE READ: The player phase already adds a baseline 8% EN recovery to every unit.
+                // Adding S/M/L regeneration on top would turn the requested 10/20/30% into 18/28/38%.
+                // Units with EN Regen now use its phase hook alone, while ordinary units keep their existing baseline recovery.
+                if (unit.Mech.ENRegeneration == RegenerationLevel.None) unit.RechargeEnergy();
             }
         }
 
@@ -728,10 +1059,18 @@ public class BattleSystem : MonoBehaviour
         {
             return;
         }
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Ending the phase cancels any passenger launch that has not confirmed an action.
+        // The unit returns aboard before enemy targeting or the next passenger turn reset can run.
+        // Completed deployments and the normal end-phase sequence remain unchanged.
+        CancelDeployment();
         // WEEK 4: MOTHERSHIP - Unconfirmed docking is canceled before enemies can act.
         CancelDockPreview();
         passengerToDeploy = null;
         unconfirmedMoves.Clear();
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER targeted Spirits retain a pilot owner while waiting for a map click.
+        // Ending the phase must discard that unfinished command before the next phase selects another unit.
+        // Clearing both pending fields here prevents a previous crew member's command from charging a newly selected unit's SP.
+        pendingSpiritCommand = null; pendingSpiritPilot = null;
 
         isPlayerTurn = false;
 
@@ -892,7 +1231,21 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null) weapon = attacker.GetUsableWeapon(target);
         if (!attacker.CanUseWeapon(weapon, target)) yield break;
 
-        Weapon firstStrike = target.GetUsableWeapon(attacker, WeaponType.FirstStrike);
+        // WEEK 6 CHANGES PLEASE READ: Incoming non-MAP attacks need a player response before either unit fires.
+        // The dedicated exchange waits for confirmation and then reuses PerformAttack for costs, hits and results.
+        // Player-initiated attacks and MAP attacks continue through their existing resolution below.
+        if (attacker.Team != playerTeam && target.Team == playerTeam &&
+            weapon.Classification != WeaponClassification.Map && actionsMenu != null)
+        {
+            yield return ResolveReactionAttack(attacker, target, weapon);
+            yield break;
+        }
+
+        // WEEK 5 FIXES: Originally, a MAP attack could trigger the same defensive first-strike lookup as an ordinary attack.
+        // MAP attacks now skip that lookup because units in their area do not counter them.
+        // Ordinary attacks still request a defensive weapon explicitly so a moved defender can use FirstStrike without PostMovement.
+        Weapon firstStrike = weapon.Classification == WeaponClassification.Map ? null :
+            target.GetUsableWeapon(attacker, WeaponType.FirstStrike, true);
         // WEEK 3: If both weapons have FirstStrike, the unit that started the attack goes first.
         if ((weapon.Type & WeaponType.FirstStrike) == 0 && firstStrike != null)
         {
@@ -902,6 +1255,110 @@ public class BattleSystem : MonoBehaviour
         }
         yield return PerformAttack(attacker, target, weapon);
     }
+
+    // WEEK 6 CHANGES PLEASE READ: The existing first-strike-only exchange could not perform a selected ordinary counter.
+    // This coroutine pauses before resource spending, performs at most one chosen counter and rechecks survival and affordability.
+    // FirstStrike keeps its existing weapon-tag priority, and finally clears every reaction field even when combat ends early.
+    private IEnumerator ResolveReactionAttack(BattleUnit attacker, BattleUnit defender, Weapon incoming)
+    {
+        if (!actionsMenu.HasReactionUI)
+        {
+            Debug.LogError("WEEK 6: Assign the reaction controls on ActionsMenu before resolving an enemy attack.", actionsMenu);
+            yield break;
+        }
+        reactionAttacker = attacker;
+        reactionDefender = defender;
+        reactionIncomingWeapon = incoming;
+        reactionCounterWeapon = defender.GetUsableWeapon(attacker, WeaponType.None, true);
+        selectedReaction = reactionCounterWeapon != null ? BattleReaction.Counter : BattleReaction.Defend;
+        reactionConfirmed = false;
+        choosingCounterWeapon = false;
+        reactionPending = true;
+        try
+        {
+            ShowReactionMenu();
+            while (!reactionConfirmed && !ScenarioEnded && attacker != null && !attacker.IsDefeated &&
+                defender != null && !defender.IsDefeated) yield return null;
+            reactionPending = false;
+            actionsMenu.Hide();
+            if (!reactionConfirmed || ScenarioEnded || !attacker.CanUseWeapon(incoming, defender)) yield break;
+
+            bool counter = selectedReaction == BattleReaction.Counter && CanCounterWith(reactionCounterWeapon);
+            bool first = counter && (reactionCounterWeapon.Type & WeaponType.FirstStrike) != 0 &&
+                (incoming.Type & WeaponType.FirstStrike) == 0;
+            if (first) yield return PerformAttack(defender, attacker, reactionCounterWeapon);
+            if (ScenarioEnded || attacker == null || attacker.IsDefeated || defender == null || defender.IsDefeated) yield break;
+            yield return PerformAttack(attacker, defender, incoming);
+            if (!first && counter && !ScenarioEnded && CanCounterWith(reactionCounterWeapon))
+                yield return PerformAttack(defender, attacker, reactionCounterWeapon);
+        }
+        finally
+        {
+            reactionPending = choosingCounterWeapon = reactionConfirmed = false;
+            reactionAttacker = reactionDefender = null;
+            reactionIncomingWeapon = reactionCounterWeapon = null;
+            selectedReaction = BattleReaction.Counter;
+            if (actionsMenu != null) actionsMenu.Hide();
+        }
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Counter availability must use the incoming enemy rather than any target on the map.
+    // Existing weapon validation already checks ownership, range, resources and single-target defensive eligibility.
+    // Sharing it between UI confirmation and retaliation prevents moved or acted defenders from being incorrectly blocked.
+    private bool CanCounterWith(Weapon weapon) => reactionDefender != null && reactionAttacker != null &&
+        reactionDefender.CanUseWeapon(weapon, reactionAttacker, true);
+
+    // WEEK 6 CHANGES PLEASE READ: The reaction preview needs its own participants while player selection remains untouched.
+    // This method supplies live hit chances and the selected counter weapon to the new panel.
+    // Previewing only reads battle state, so EN, ammo, morale and barriers are not consumed.
+    private void ShowReactionMenu()
+    {
+        if (!reactionPending || reactionAttacker == null || reactionDefender == null) return;
+        actionsMenu.ShowReaction(reactionAttacker, reactionDefender, reactionIncomingWeapon,
+            selectedReaction, reactionCounterWeapon, CanCounterWith(reactionCounterWeapon));
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Counter now opens the existing weapon picker instead of firing immediately.
+    // Its rows validate single-target weapons against this attacker using counterattack rules.
+    // Confirm or Back returns to the reaction preview, leaving Begin Combat as the final commitment.
+    public void ChooseCounter()
+    {
+        if (!reactionPending || choosingCounterWeapon || !CanCounterWith(reactionCounterWeapon)) return;
+        selectedReaction = BattleReaction.Counter;
+        choosingCounterWeapon = true;
+        actionsMenu.ShowWeapons(reactionDefender, reactionCounterWeapon);
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Evade and Defend select a response without starting the enemy attack.
+    // Their shared callback refreshes the preview and leaves the enemy coroutine waiting for Begin Combat.
+    // Neither choice spends SP, changes stats or consumes the defender's normal action.
+    public void ChooseEvade() => ChooseReaction(BattleReaction.Evade);
+    public void ChooseDefend() => ChooseReaction(BattleReaction.Defend);
+    private void ChooseReaction(BattleReaction reaction)
+    {
+        if (!reactionPending || choosingCounterWeapon) return;
+        selectedReaction = reaction;
+        ShowReactionMenu();
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: Begin Combat commits the preview once and resumes the waiting enemy coroutine.
+    // Counter is checked again here so an unavailable weapon cannot be confirmed through a stale button or shortcut.
+    // Closing pending input immediately prevents a second click from changing the exchange after commitment.
+    public void BeginReactionCombat()
+    {
+        if (!reactionPending || choosingCounterWeapon || reactionConfirmed || ScenarioEnded ||
+            (selectedReaction == BattleReaction.Counter && !CanCounterWith(reactionCounterWeapon))) return;
+        reactionConfirmed = true;
+        reactionPending = false;
+        actionsMenu.Hide();
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: A defensive modifier must belong to one incoming weapon and defender only.
+    // Matching all three references excludes retaliation, secondary adjacent targets and unrelated attacks.
+    // Those other hits use Counter's neutral modifiers, preserving their existing calculations.
+    private BattleReaction ReactionForHit(BattleUnit attacker, BattleUnit defender, Weapon weapon) =>
+        attacker == reactionAttacker && defender == reactionDefender && weapon == reactionIncomingWeapon
+            ? selectedReaction : BattleReaction.Counter;
 
     // WEEK 3: Pay for one weapon use and collect the units its attack will hit.
     private IEnumerator PerformAttack(BattleUnit attacker, BattleUnit target, Weapon weapon)
@@ -934,10 +1391,14 @@ public class BattleSystem : MonoBehaviour
         {
             foreach (BattleUnit candidate in battlefield.Units)
             {
-                // WEEK 3: MAP attacks hit every unit in weapon range, including allies.
-                if (candidate == null || candidate.IsDefeated || candidate.Pilot == null || candidate.Mech == null)
+                // WEEK 5 FIXES: Originally, every MAP attack collected units by distance and always included allies in that radius.
+                // We now use the selected weapon's shape and Hits Allies setting so each MAP weapon can define its own affected units.
+                // The attacker and docked units are excluded, while collecting targets before damage preserves one EN/ammo charge for the whole attack.
+                if (candidate == null || candidate == attacker || candidate.IsDefeated || candidate.IsDocked ||
+                    candidate.Pilot == null || candidate.Mech == null ||
+                    (!weapon.MapHitsAllies && candidate.Team == attacker.Team))
                     continue;
-                if (weapon.IsInRange(ManhattanDistance(attacker.GridPosition, candidate.GridPosition)))
+                if (weapon.IsInMapArea(attacker.GridPosition, target.GridPosition, candidate.GridPosition))
                     targets.Add(candidate);
             }
         }
@@ -973,12 +1434,26 @@ public class BattleSystem : MonoBehaviour
         string targetName = GetPilotName(target);
         int distance = ManhattanDistance(attacker.GridPosition, target.GridPosition);
         // WEEK 3: Limit the hit chance to 0-100 and stop this hit if the attack misses.
-        int hitRate = Mathf.Clamp(BattleFormulas.AccuracyRate(attacker, target, weapon, distance), 0, 100);
+        // WEEK 6 CHANGES PLEASE READ: The incoming hit roll previously had no Evade command modifier.
+        // Resolve the response for this exact hit and use the same helper as the reaction preview.
+        // Special evasion still runs afterward only when this normal roll would hit.
+        BattleReaction reaction = ReactionForHit(attacker, target, weapon);
+        int hitRate = BattleFormulas.ReactionHitRate(BattleFormulas.AccuracyRate(attacker, target, weapon, distance), reaction);
         if (Random.Range(0, 100) >= hitRate)
         {
             // WEEK 4 MORALE SYSTEM: Successfully evading an attack grants 1 morale.
             target.ChangeMorale(1);
             yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{GetPilotName(attacker)} missed.");
+            yield break;
+        }
+
+        // WEEK 5 CHANGES PLEASE READ: Normal accuracy previously led directly to damage with no special-evasion check.
+        // Double Image, Open Get and Offshoot must roll only after that attack would otherwise hit.
+        // This hook cancels the hit before barrier costs or shield damage and logs the ability's roll for verification.
+        if (MechSkillEffect.TrySpecialEvade(target))
+        {
+            target.ChangeMorale(1);
+            yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{targetName} used special evasion.");
             yield break;
         }
 
@@ -989,7 +1464,15 @@ public class BattleSystem : MonoBehaviour
         // WEEK 3: Roll for a critical hit and use the result when calculating damage.
         int criticalRate = Mathf.Clamp(BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
         bool critical = Random.Range(0, 100) < criticalRate;
-        int damage = target.TakeDamage(BattleFormulas.Damage(attacker, target, weapon, critical));
+        // WEEK 5 CHANGES PLEASE READ: Weapon damage previously went straight to mech HP through TakeDamage.
+        // Direct hits must now apply the equipped barrier and separate shield HP before the remaining damage reaches the mech.
+        // The shared direct-hit entry point connects those skills while leaving TakeDamage available for poison and other bypass effects.
+
+        // WEEK 6 CHANGES PLEASE READ: Defend must halve formula damage before existing barriers and shield absorption.
+        // Apply the selected response once without changing the original damage formula or equipment rules.
+        // Misses and special evasion return earlier, so they still spend no barrier EN or shield HP.
+        int incomingDamage = BattleFormulas.ReactionDamage(BattleFormulas.Damage(attacker, target, weapon, critical), reaction);
+        int damage = MechSkillEffect.TakeWeaponDamage(target, incomingDamage, weapon);
         bool defeated = target.IsDefeated;
 
         // WEEK 3: Check the designated Victory and Defeat objectives
@@ -1142,6 +1625,16 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Switching map selection must not abandon an unconfirmed passenger preview.
+        // Clicking that same temporary passenger keeps its menu open, while selecting another unit cancels the launch and returns it aboard.
+        // This leaves normal unit selection and Spirit ownership cleanup on their existing paths below.
+        if (deploymentShip != null && unit == passengerToDeploy) { ShowActions(); return; }
+        CancelDeployment();
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER Spirit ownership belongs to the unit that opened the command menu.
+        // Selecting another unit through controller callbacks must cancel any unfinished command and its saved pilot.
+        // This keeps a stale sub-pilot selection from executing against the next unit while leaving every crew member's SP unchanged.
+        pendingSpiritCommand = null; pendingSpiritPilot = null;
+
         // WEEK 3: Deselect the previous unit first. Its visual state will
         // automatically return to grey if it already acted, or its original
         // color if it is still available this phase.
@@ -1175,7 +1668,10 @@ public class BattleSystem : MonoBehaviour
         if (selectedUnit.HasActed)
         {
             // WEEK 4: MOTHERSHIP - An acted ship may still inspect/deploy passengers, but cannot act twice.
-            if (selectedUnit.GetComponent<Mothership>() != null && actionsMenu.HasHangarUI)
+            // WEEK 5 CHANGES PLEASE READ: Selecting an acted unit normally closes its action menu completely.
+            // Getter Change is explicitly allowed after acting, so a valid Getter must retain access to that command.
+            // Ordinary movement/attack buttons remain disabled by HasActed, preventing this exception from granting another turn.
+            if ((selectedUnit.GetComponent<Mothership>() != null && actionsMenu.HasHangarUI) || MechSkillEffect.NextGetterForm(selectedUnit) != null)
             {
                 ShowActions();
                 return;
@@ -1190,7 +1686,11 @@ public class BattleSystem : MonoBehaviour
         battlefield.ShowMovement(selectedUnit);
 
         // WEEK 4: MOTHERSHIP - Transport actions must also be accessible when no enemy is nearby.
-        if (selectedUnit.HasMoved || HasAnyTarget() || CanBoardSelected() || selectedUnit.GetComponent<Mothership>() != null)
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER previously left fresh units in the movement view when no enemy or ship was nearby.
+        // A Getter with an available form change must also open its action menu so the new W5 button is reachable immediately on selection.
+        // Adding this eligibility case preserves ordinary unit selection and does not reset movement or grant another action.
+        if (selectedUnit.HasMoved || HasAnyTarget() || CanBoardSelected() || selectedUnit.GetComponent<Mothership>() != null ||
+            MechSkillEffect.NextGetterForm(selectedUnit) != null)
         {
             ShowActions();
         }
@@ -1220,6 +1720,10 @@ public class BattleSystem : MonoBehaviour
 
     private void PrepareForTurnChange()
     {
+        // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: Selecting a valid attack target confirms the exited passenger's pending launch.
+        // The preview is released before the existing combat coroutine starts spending weapon resources.
+        // Cancelling weapon or target selection earlier still returns through the normal Back flow without committing deployment.
+        CommitDeployment();
         // WEEK 4: MOTHERSHIP - Confirming an attack commits its movement, even if the attack misses.
         if (selectedUnit != null) unconfirmedMoves.Remove(selectedUnit);
         isPlayerTurn = false;
@@ -1241,8 +1745,8 @@ public class BattleSystem : MonoBehaviour
         // Defeating it completes the scenario with Victory.
         //if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
-       
-        if(FindFirstUnit(enemyTeam) == null)
+
+        if (FindFirstUnit(enemyTeam) == null)
         {
             EndScenario(ScenarioResult.Victory);
             return;

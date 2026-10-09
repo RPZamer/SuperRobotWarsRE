@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
-  m_Name: Amuro Ray
+  m_Name: Hyato
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: Amuro Ray
+  pilotName: Hyato Jin
   level: 1
-  melee: 100
-  ranged: 120
+  melee: 110
+  ranged: 110
   defense: 90
   evade: 110
-  accuracy: 120
+  accuracy: 110
   skill: 120
   morale: 100
   maxSpiritPoints: 100
@@ -27,17 +27,17 @@ MonoBehaviour:
     ground: 3
     water: 3
     space: 3
-  saveBLevel: 1
+  saveBLevel: 0
   saveELevel: 0
-  potentialLevel: 4
-  spirit1: {fileID: 0}
-  spirit2: {fileID: 0}
-  spirit3: {fileID: 0}
+  potentialLevel: 6
+  spirit1: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
+  spirit2: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
+  spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
   onSuccessLines: []
-  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
+  defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

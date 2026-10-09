@@ -34,6 +34,19 @@ public class CombatHUD : MonoBehaviour
     private void Start()
     {
         battleHud = FindFirstObjectByType<BattleSystem>();
+        // WEEK 6 CHANGES PLEASE READ: End Turn previously remained silent when this HUD could not connect its button to a battle controller.
+        // Startup warnings now identify missing references and multiple active controllers that could select the wrong battle on another setup.
+        // The existing listener is still attached exactly as before, and these diagnostics do not assign references or change turn availability.
+        string setupContext = $"[WEEK 6 SETUP WARNING] scene='{gameObject.scene.path}', HUD='{name}': ";
+        if (EndPhaseButton == null)
+            Debug.LogWarning(setupContext + "CombatHUD's EndPhaseButton field is unassigned. Assign the End Turn Button so this HUD can connect its click to EndPlayerPhase.", this);
+        if (battleHud == null)
+            Debug.LogWarning(setupContext + "No active BattleSystem was found. This HUD cannot connect End Turn; check that the intended battle controller exists and is active in this scene.", this);
+        int activeBattles = 0;
+        foreach (BattleSystem system in FindObjectsByType<BattleSystem>())
+            if (system.isActiveAndEnabled) activeBattles++;
+        if (activeBattles > 1)
+            Debug.LogWarning(setupContext + $"Found {activeBattles} active BattleSystems. The existing automatic lookup selected '{battleHud?.name}'; check for duplicate controllers or scenes because End Turn may target a different battle.", this);
         if (EndPhaseButton != null && battleHud != null)
             EndPhaseButton.onClick.AddListener(battleHud.EndPlayerPhase);
     }
@@ -53,7 +66,7 @@ public class CombatHUD : MonoBehaviour
         ClearTargetedEnemy();
         selectedUnitNameText.text = unit.Mech.MechName;
         selectedUnitHPText.text = $"HP: {unit.CurrentHealth} / {unit.Mech.Health}";
-        
+
 
         if (tileInforText != null)
         {

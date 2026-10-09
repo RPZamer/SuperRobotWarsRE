@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
-  m_Name: Amuro Ray
+  m_Name: Musashi
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: Amuro Ray
+  pilotName: Musashi Tomoe
   level: 1
-  melee: 100
-  ranged: 120
-  defense: 90
-  evade: 110
-  accuracy: 120
-  skill: 120
+  melee: 120
+  ranged: 80
+  defense: 120
+  evade: 80
+  accuracy: 90
+  skill: 90
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -27,17 +27,17 @@ MonoBehaviour:
     ground: 3
     water: 3
     space: 3
-  saveBLevel: 1
+  saveBLevel: 0
   saveELevel: 0
-  potentialLevel: 4
-  spirit1: {fileID: 0}
+  potentialLevel: 7
+  spirit1: {fileID: 11400000, guid: 6a1ad8ca7fa03594da8e614cb357e7b2, type: 2}
   spirit2: {fileID: 0}
   spirit3: {fileID: 0}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
   onSuccessLines: []
-  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
+  defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

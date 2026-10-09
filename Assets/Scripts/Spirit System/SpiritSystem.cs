@@ -9,7 +9,8 @@ public static class SpiritSystem
     BattleUnit caster,
     SpiritCommandBase spirit,
     Battlefield battlefield = null,
-    BattleUnit target = null)
+    BattleUnit target = null,
+    PilotBase spiritPilot = null)
     {
         // WEEK 4: A defeated or missing unit cannot use a Spirit Command.
         if (caster == null || caster.IsDefeated || spirit == null)
@@ -17,12 +18,19 @@ public static class SpiritSystem
             return false;
         }
 
+        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER sub-pilots can cast Spirits while a different pilot controls combat.
+        // The optional caster pilot defaults to the main pilot and must belong to this unit's crew; sub-pilots may only use their own assigned commands.
+        // Affordability and successful SP charging now use that pilot's independent pool without changing the mech's main pilot or existing Spirit effects.
+        spiritPilot ??= caster.Pilot;
+        if (!caster.HasSpiritPilot(spiritPilot)) return false;
+        if (spiritPilot != caster.Pilot && System.Array.IndexOf(spiritPilot.GetSpiritCommands(), spirit) < 0) return false;
+
         // WEEK 4: Do not allow the Spirit to activate when the pilot
         // cannot afford its configured Spirit Point cost.
-        if (spirit.SpiritPointCost > caster.CurrentSpiritPoints)
+        if (spirit.SpiritPointCost > caster.GetSpiritPoints(spiritPilot))
         {
             Debug.Log(
-                $"{caster.Pilot?.PilotName} does not have enough SP to use {spirit.CommandName}.");
+                $"{spiritPilot.PilotName} does not have enough SP to use {spirit.CommandName}.");
 
             return false;
         }
@@ -181,6 +189,16 @@ public static class SpiritSystem
                 activated = true;
                 break;
 
+            // WEEK 5 CHANGES PLEASE READ: Spirit execution previously had no effect that restored EN/ammo/shield together.
+            // Resupply now delegates that restoration to MechSkillEffect after validating a living allied target.
+            // SP is still charged by the existing successful-activation path, and the device's action/morale penalty is not applied to this Spirit.
+            case SpiritCommandEffect.Resupply:
+                if (target == null || target.IsDefeated || target.Team != caster.Team || target.Mech == null || target.IsCombinedComponent)
+                    break;
+                MechSkillEffect.RestoreSupplies(target);
+                activated = true;
+                break;
+
             default:
                 Debug.LogWarning(
                     $"Spirit Command '{spirit.CommandName}' does not have an implemented effect yet.");
@@ -194,14 +212,14 @@ public static class SpiritSystem
 
         // WEEK 4: Spend the Spirit Command's configured cost only
         // after the effect has successfully activated.
-        if (!caster.TrySpendSpiritPoints(spirit.SpiritPointCost))
+        if (!caster.TrySpendSpiritPoints(spirit.SpiritPointCost, spiritPilot))
         {
             return false;
         }
 
         Debug.Log(
-            $"{caster.Pilot?.PilotName} used {spirit.CommandName}. " +
-            $"SP remaining: {caster.CurrentSpiritPoints}");
+            $"{spiritPilot.PilotName} used {spirit.CommandName}. " +
+            $"SP remaining: {caster.GetSpiritPoints(spiritPilot)}");
 
         return true;
     }

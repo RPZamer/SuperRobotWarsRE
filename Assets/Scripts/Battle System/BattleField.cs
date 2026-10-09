@@ -47,11 +47,11 @@ public class Battlefield : MonoBehaviour
         if (unit == null || terrainDetector == null) return;
         TerrainType detectedTerrain = terrainDetector.GetTerrain(unit.GridPosition);
         unit.SetTerrain(detectedTerrain);
-        
-       
+
+
 
         Debug.Log($"[Terrain Detector] {unit.name} at {unit.GridPosition} is on {detectedTerrain}", unit);
-        
+
 
         TileTypes tileType = terrainDetector.GetTileType(unit.GridPosition);
         unit.SetTileType(tileType);
@@ -107,8 +107,8 @@ public class Battlefield : MonoBehaviour
         occupants[destination] = unit;
         unit.SetGridPosition(destination);
         UpdateUnitTerrain(unit);
-        if (combatHUD != null) 
-        { 
+        if (combatHUD != null)
+        {
             combatHUD.ShowSelectedUnit(unit);
         }
         // WEEK 3: Prevent a second move this turn. Attacking after moving is still allowed.
@@ -155,8 +155,10 @@ public class Battlefield : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Vector2Int position = new(x, y);
-                int distance = Mathf.Abs(x - unit.GridPosition.x) + Mathf.Abs(y - unit.GridPosition.y);
-                if (!weapon.IsInRange(distance)) continue;
+                // WEEK 5 FIXES: Originally, the range overlay checked only distance and therefore always showed the burst-style reach.
+                // It now uses the weapon's target-area check so column and cone aim cells follow the same geometry as combat.
+                // The overlay shows possible aim cells in all four directions, and the clicked enemy determines the final attack direction.
+                if (!weapon.IsInTargetRange(unit.GridPosition, position)) continue;
                 bool target = unit.CanUseWeapon(weapon, GetUnit(position));
                 CreateHighlight(position, target ? blockedColor : new Color(0.25f, 0.7f, 1f, 0.25f));
             }
@@ -224,17 +226,28 @@ public class Battlefield : MonoBehaviour
     // WEEK 3: Stay inside the grid, avoid occupied squares, and stop at the movement limit.
     public Dictionary<Vector2Int, int> GetReachableCells(BattleUnit unit)
     {
+        // WEEK 6 CHANGES PLEASE READ: Hangar launches need the same path search as ordinary movement from an occupied carrier tile.
+        // The existing unit validation stays here while the search accepts a starting tile and movement allowance separately.
+        // Normal movement therefore keeps its original limits, occupied-tile blocking and shortest-path EN costs.
+        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return new();
+        return GetReachableCells(unit.GridPosition, unit.AvailableMovement);
+    }
+
+    // WEEK 6 CHANGES PLEASE READ: A stored passenger cannot use the registered-unit movement entry point before it launches.
+    // This shared search starts from the carrier without removing or replacing its map occupancy.
+    // Both launch and ordinary movement now follow the same empty-cell paths and stop at their supplied movement limit.
+    internal Dictionary<Vector2Int, int> GetReachableCells(Vector2Int origin, int movement)
+    {
         Dictionary<Vector2Int, int> distances = new();
-        if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return distances;
         Queue<Vector2Int> pending = new();
-        distances[unit.GridPosition] = 0;
-        pending.Enqueue(unit.GridPosition);
+        distances[origin] = 0;
+        pending.Enqueue(origin);
         Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
         while (pending.Count > 0)
         {
             Vector2Int position = pending.Dequeue();
             int steps = distances[position];
-            if (steps >= unit.AvailableMovement) continue;
+            if (steps >= movement) continue;
             foreach (Vector2Int direction in directions)
             {
                 Vector2Int next = position + direction;

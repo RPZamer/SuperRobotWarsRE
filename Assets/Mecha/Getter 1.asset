@@ -10,40 +10,40 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
-  m_Name: Great Mazinger
+  m_Name: Getter 1
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
-  mechName: Great Mazinger
-  battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
+  mechName: Getter 1
+  battleSprite: {fileID: 3586813837105404330, guid: bedcd69e8f6a6c542bff5252a289be52, type: 3}
   menuSprite: {fileID: 0}
-  battleTheme: {fileID: 8300000, guid: 7fc1f00c757d4864790cd453e888bedd, type: 3}
-  health: 3200
-  energy: 120
+  battleTheme: {fileID: 8300000, guid: 10d1fddabc045054cb280c2550751b77, type: 3}
+  health: 2500
+  energy: 150
   movement: 6
-  mobility: 120
+  mobility: 100
   armor: 1000
   size: 2
   terrainRatings:
     air: 3
     ground: 3
-    water: 3
+    water: 2
     space: 3
   weapons:
-  - weaponName: Mazinger Blade
+  - weaponName: Getter Razer
     damageType: 0
     travelsToTargetTerrain: 0
-    weaponType: 2
+    weaponType: -1
     classification: 0
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
     mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
     minRange: 1
     maxRange: 1
     power: 1000
-    accuracyModifier: 50
+    accuracyModifier: 150
     criticalModifier: 10
     energyCost: 0
     maxAmmo: 0
@@ -52,55 +52,7 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
-  - weaponName: Drill Pressure Punch
-    damageType: 0
-    travelsToTargetTerrain: 0
-    weaponType: 2
-    classification: 0
-    attributes: 0
-    requiredMode: 0
-    requiredMorale: 0
-    mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
-    minRange: 2
-    maxRange: 3
-    power: 1700
-    accuracyModifier: 15
-    criticalModifier: 15
-    energyCost: 0
-    maxAmmo: 5
-    terrainRatings:
-      air: 3
-      ground: 3
-      water: 2
-      space: 3
-  - weaponName: Breast Burn
-    damageType: 0
-    travelsToTargetTerrain: 0
-    weaponType: 2
-    classification: 0
-    attributes: 0
-    requiredMode: 0
-    requiredMorale: 0
-    mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
-    minRange: 1
-    maxRange: 3
-    power: 2500
-    accuracyModifier: 20
-    criticalModifier: 20
-    energyCost: 40
-    maxAmmo: 0
-    terrainRatings:
-      air: 3
-      ground: 3
-      water: 2
-      space: 3
-  - weaponName: Thunder Break
+  - weaponName: Tomahawk Boomerang
     damageType: 0
     travelsToTargetTerrain: 0
     weaponType: 0
@@ -109,39 +61,92 @@ MonoBehaviour:
     requiredMode: 0
     requiredMorale: 0
     mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
-    minRange: 1
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 3
     maxRange: 5
-    power: 3000
-    accuracyModifier: 30
+    power: 1500
+    accuracyModifier: 80
     criticalModifier: 10
-    energyCost: 70
+    energyCost: 0
+    maxAmmo: 4
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 1
+  - weaponName: Getter Tomahawk
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 1
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 2
+    power: 1500
+    accuracyModifier: 120
+    criticalModifier: 10
+    energyCost: 10
     maxAmmo: 0
     terrainRatings:
       air: 3
       ground: 3
-      water: 1
+      water: 2
+      space: 3
+  - weaponName: Getter Beem
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 1
+    requiredMode: 0
+    requiredMorale: 120
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 120
+    criticalModifier: 20
+    energyCost: 50
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
       space: 3
   shieldHealth: 0
   barrier: 0
-  specialEvasionAbility: 0
+  specialEvasionAbility: 2
   specialEvasionChance: 0
   specialEvasionMorale: 130
   hpRegeneration: 0
-  enRegeneration: 1
-  mazinPower: 1
+  enRegeneration: 0
+  mazinPower: 0
   mode: 0
   gundFormat: 0
   sight: 140
   repairDevice: 0
   resupplyDevice: 0
-  transformInto: {fileID: 0}
+  transformInto: {fileID: 11400000, guid: 6ccf3d30f5c28c643b58c288dd61d405, type: 2}
   combineInto: {fileID: 0}
   requiredComponents: []
-  getterCompatibilityId: 
+  getterCompatibilityId: A
   requiredGetterPilots: 3
-  getterForms: []
-  mainGetterPilot: {fileID: 0}
-  requiredGetterCrew: []
+  getterForms:
+  - {fileID: 11400000, guid: 6ccf3d30f5c28c643b58c288dd61d405, type: 2}
+  - {fileID: 11400000, guid: 2b424dd75e35fd14eafa51004e9d9ea3, type: 2}
+  mainGetterPilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+  requiredGetterCrew:
+  - {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+  - {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
+  - {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
