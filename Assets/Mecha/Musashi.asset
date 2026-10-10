@@ -31,7 +31,7 @@ MonoBehaviour:
   saveELevel: 0
   potentialLevel: 7
   spirit1: {fileID: 11400000, guid: 6a1ad8ca7fa03594da8e614cb357e7b2, type: 2}
-  spirit2: {fileID: 0}
+  spirit2: {fileID: 11400000, guid: f2a8c327fd739974684c23baa01b085a, type: 2}
   spirit3: {fileID: 0}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}

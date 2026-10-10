@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Yurika
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Yurika
+  level: 1
   melee: 100
   ranged: 120
   defense: 100
@@ -20,6 +21,7 @@ MonoBehaviour:
   accuracy: 110
   skill: 100
   morale: 100
+  maxSpiritPoints: 100
   terrainRatings:
     air: 3
     ground: 3
@@ -28,6 +30,12 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 0
   potentialLevel: 5
+  spirit1: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit2: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
+  spirit3: {fileID: 11400000, guid: 6bcf6d697ba216f49aa6dbbe06ec0948, type: 2}
+  spirit4: {fileID: 0}
+  spirit5: {fileID: 0}
+  spirit6: {fileID: 0}
   onSuccessLines: []
   defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}

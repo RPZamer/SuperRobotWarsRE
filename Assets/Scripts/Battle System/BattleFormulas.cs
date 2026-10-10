@@ -60,9 +60,24 @@ public static class BattleFormulas
         float distanceBonus = (5 - distance) * 3f;
         // WEEK 4: MOTHERSHIP - Commander gives hit/evasion percentage points while in range.
         // WEEK 4: PILOT SKILLS - Add final percentage points after terrain/size; the caller clamps once to 0-100.
+        // WEEK 6: Preserve the existing accuracy formula and add Focus bonuses.
+        // Focus improves the attacker's accuracy and the defender's evasion.
         float raw = (accuracy - evade) * size + distanceBonus + attacker.CommanderBonus - defender.CommanderBonus
             + PilotSkillEffects.HitDodgeBonus(attacker.PotentialStage)
             - PilotSkillEffects.HitDodgeBonus(defender.PotentialStage);
+
+        // WEEK 6: Focus gives +30 hit chance when attacking.
+        if (attacker.FocusActive)
+        {
+            raw += 30f;
+        }
+
+        // WEEK 6: Focus reduces the enemy's hit chance by 30.
+        if (defender.FocusActive)
+        {
+            raw -= 30f;
+        }
+
         return (int)raw;
     }
 

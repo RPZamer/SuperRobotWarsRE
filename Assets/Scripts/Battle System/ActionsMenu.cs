@@ -998,17 +998,17 @@ public class ActionsMenu : MonoBehaviour
 
         BattleUnit selectedUnit = battle.SelectedUnit;
 
-        // WEEK 4: SPIRIT COMMANDS - These commands require the player
-        // to choose a specific unit on the battlefield.
+        // WEEK 4: Determine which Spirit Commands require a selected target.
+        // WEEK 6: Added Faith so it uses the existing allied targeting system.
         bool requiresTarget =
             spirit.Effect == SpiritCommandEffect.Trust ||
             spirit.Effect == SpiritCommandEffect.Prospect ||
             spirit.Effect == SpiritCommandEffect.Daunt ||
             spirit.Effect == SpiritCommandEffect.Confuse ||
-            // WEEK 5 CHANGES PLEASE READ: The existing Spirit target list does not include a resupply effect.
-            // Resupply needs a chosen living ally so its EN/ammo/shield restoration applies to the intended unit.
-            // Adding this effect to the current list reuses the normal Spirit targeting flow and SP charging rules.
-            spirit.Effect == SpiritCommandEffect.Resupply;
+            spirit.Effect == SpiritCommandEffect.Resupply ||
+            spirit.Effect == SpiritCommandEffect.Faith ||
+            spirit.Effect == SpiritCommandEffect.Attune ||
+            spirit.Effect == SpiritCommandEffect.Hope;
 
         if (requiresTarget)
         {

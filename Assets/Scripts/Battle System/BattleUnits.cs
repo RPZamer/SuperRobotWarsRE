@@ -56,11 +56,23 @@ public class BattleUnit : MonoBehaviour
     private bool smashActive;
     private bool accelActive;
 
+    // WEEK 6: Track the new temporary Spirit Command effects.
+    private bool strikeActive;
+    private bool alertActive;
+    private bool persistActive;
+    private bool focusActive;
+
     // WEEK 4: Allow the battle system to check active Spirit effects.
     public bool ValorActive => valorActive;
     public bool SoulActive => soulActive;
     public bool SmashActive => smashActive;
     public bool AccelActive => accelActive;
+
+    // WEEK 6: Allow the combat system to check the new Spirit effects.
+    public bool StrikeActive => strikeActive;
+    public bool AlertActive => alertActive;
+    public bool PersistActive => persistActive;
+    public bool FocusActive => focusActive;
 
     // WEEK 4: MOTHERSHIP - Keep runtime state on this unit, never on shared mech assets.
     private readonly Dictionary<Weapon, int> ammunition = new();
@@ -129,14 +141,28 @@ public class BattleUnit : MonoBehaviour
         // Hidden combined components must not receive separate turns, and HP/EN regeneration must run for the unit's own team phase.
         // Calling the shared effect here also covers docked passengers through the existing ship BeginPassengerTurn callback.
         if (IsCombinedComponent) return;
+
         MechSkillEffect.BeginPhase(this);
+
         HasMoved = false;
         HasActed = false;
         isSelected = false;
         isActing = false;
+
+        // WEEK 6: Focus expires when this unit's next turn begins.
+        // This allows Focus to remain active during the opposing team's phase.
+        if (FocusActive)
+        {
+            ConsumeFocus();
+        }
+
         RefreshVisualState();
+
         // WEEK 4: MOTHERSHIP - Passengers are off-grid, so their ship updates them each phase.
-        if (TryGetComponent(out Mothership ship)) ship.BeginPassengerTurn();
+        if (TryGetComponent(out Mothership ship))
+        {
+            ship.BeginPassengerTurn();
+        }
     }
     public void MarkMoved() => HasMoved = true;
     public BattleTeam Team => team;
@@ -587,6 +613,54 @@ public class BattleUnit : MonoBehaviour
     public void ConsumeAccel()
     {
         accelActive = false;
+    }
+
+    // WEEK 6: Strike guarantees the unit's next attack will hit.
+    public void ActivateStrike()
+    {
+        strikeActive = true;
+    }
+
+    // WEEK 6: Remove Strike after the guaranteed attack is used.
+    public void ConsumeStrike()
+    {
+        strikeActive = false;
+    }
+
+    // WEEK 6: Alert guarantees the unit will evade the next incoming attack.
+    public void ActivateAlert()
+    {
+        alertActive = true;
+    }
+
+    // WEEK 6: Remove Alert after the incoming attack is resolved.
+    public void ConsumeAlert()
+    {
+        alertActive = false;
+    }
+
+    // WEEK 6: Persist protects the unit from being defeated by the next attack.
+    public void ActivatePersist()
+    {
+        persistActive = true;
+    }
+
+    // WEEK 6: Remove Persist after its protection is used.
+    public void ConsumePersist()
+    {
+        persistActive = false;
+    }
+
+    // WEEK 6: Focus improves accuracy and evasion while active.
+    public void ActivateFocus()
+    {
+        focusActive = true;
+    }
+
+    // WEEK 6: Remove Focus when its duration expires.
+    public void ConsumeFocus()
+    {
+        focusActive = false;
     }
     public int TakeDamage(int damage)
     {

@@ -33,7 +33,7 @@ MonoBehaviour:
   spirit1: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
   spirit2: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
   spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
-  spirit4: {fileID: 0}
+  spirit4: {fileID: 11400000, guid: 95add4fcc6cf535409668a9fbf596cea, type: 2}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
   onSuccessLines: []

@@ -52,7 +52,41 @@ public enum SpiritCommandEffect
     // WEEK 5 CHANGES PLEASE READ: Shields must be restorable by a resupply Spirit, but the effect enum has no resupply entry.
     // This new entry is appended so the numeric values of all existing saved Spirit effects remain unchanged.
     // A configured Spirit asset can now select Resupply and use the existing target and SP system.
-    Resupply
+    Resupply,
+
+    // WEEK 6: Vigor restores 30% of the caster's maximum HP.
+    Vigor,
+
+    // WEEK 6: Guts completely restores the caster's HP.
+    Guts,
+
+    // WEEK 6: Spirit raises the caster's Morale by 10.
+    Spirit,
+
+    // WEEK 6: Drive raises the caster's Morale by 30.
+    Drive,
+
+    // WEEK 6: Strike guarantees the caster's next attack hits.
+    Strike,
+
+    // WEEK 6: Alert guarantees evasion of the next incoming attack.
+    Alert,
+
+    // WEEK 6: Persist reduces damage from the next successful enemy attack.
+    Persist,
+
+    // WEEK 6: Focus temporarily increases accuracy and evasion.
+    Focus,
+
+    // WEEK 6: Faith completely restores one living ally's HP.
+    Faith,
+
+    // WEEK 6: Attune raises one allied unit's Morale by 10.
+    Attune,
+
+    // WEEK 6: Hope restores 50 Spirit Points to one living ally.
+    Hope,
+
 
 }
 

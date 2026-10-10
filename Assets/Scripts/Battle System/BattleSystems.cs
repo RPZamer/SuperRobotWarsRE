@@ -1418,11 +1418,20 @@ public class BattleSystem : MonoBehaviour
             }
         }
 
-        // WEEK 3: Energy was paid once. Check hit and critical chance separately for each target.
+        // WEEK 6: Resolve every target before consuming Strike.
         foreach (BattleUnit hitTarget in targets)
         {
             if (hitTarget != null && !hitTarget.IsDefeated)
+            {
                 yield return ResolveWeaponHit(attacker, hitTarget, weapon);
+            }
+        }
+
+        // WEEK 6: Strike expires after the entire attack,
+        // including MAP and multi-target attacks.
+        if (attacker != null && attacker.StrikeActive)
+        {
+            attacker.ConsumeStrike();
         }
     }
 
@@ -1434,11 +1443,39 @@ public class BattleSystem : MonoBehaviour
         string targetName = GetPilotName(target);
         int distance = ManhattanDistance(attacker.GridPosition, target.GridPosition);
         // WEEK 3: Limit the hit chance to 0-100 and stop this hit if the attack misses.
+
+        // WEEK 6: Alert guarantees evasion against the next incoming attack.
+        // Consume Alert before the normal accuracy and special-evasion checks.
+        if (target.AlertActive)
+        {
+            target.ConsumeAlert();
+            target.ChangeMorale(1);
+
+            yield return ShowBattleMessage(
+                targetPilot,
+                PilotEmotion.Default,
+                $"{targetName} avoided the attack with Alert.");
+
+            yield break;
+        }
+
         // WEEK 6 CHANGES PLEASE READ: The incoming hit roll previously had no Evade command modifier.
         // Resolve the response for this exact hit and use the same helper as the reaction preview.
         // Special evasion still runs afterward only when this normal roll would hit.
+        // WEEK 6: Keep the existing reaction and accuracy calculations.
         BattleReaction reaction = ReactionForHit(attacker, target, weapon);
-        int hitRate = BattleFormulas.ReactionHitRate(BattleFormulas.AccuracyRate(attacker, target, weapon, distance), reaction);
+
+        int hitRate = BattleFormulas.ReactionHitRate(
+            BattleFormulas.AccuracyRate(attacker, target, weapon, distance),
+            reaction);
+
+        // WEEK 6: Strike guarantees accuracy against every target
+        // in the current attack. PerformAttack consumes it afterward.
+        if (attacker.StrikeActive)
+        {
+            hitRate = 100;
+        }
+
         if (Random.Range(0, 100) >= hitRate)
         {
             // WEEK 4 MORALE SYSTEM: Successfully evading an attack grants 1 morale.
@@ -1468,11 +1505,23 @@ public class BattleSystem : MonoBehaviour
         // Direct hits must now apply the equipped barrier and separate shield HP before the remaining damage reaches the mech.
         // The shared direct-hit entry point connects those skills while leaving TakeDamage available for poison and other bypass effects.
 
-        // WEEK 6 CHANGES PLEASE READ: Defend must halve formula damage before existing barriers and shield absorption.
-        // Apply the selected response once without changing the original damage formula or equipment rules.
-        // Misses and special evasion return earlier, so they still spend no barrier EN or shield HP.
-        int incomingDamage = BattleFormulas.ReactionDamage(BattleFormulas.Damage(attacker, target, weapon, critical), reaction);
-        int damage = MechSkillEffect.TakeWeaponDamage(target, incomingDamage, weapon);
+        // WEEK 6: Keep the existing damage formula and defensive reaction.
+        int incomingDamage = BattleFormulas.ReactionDamage(
+            BattleFormulas.Damage(attacker, target, weapon, critical),
+            reaction);
+
+        // WEEK 6: Persist reduces damage from the next successful attack.
+        // Apply this before barriers and shields so the existing equipment
+        // systems still process the remaining damage normally.
+        if (target.PersistActive && incomingDamage > 0)
+        {
+            incomingDamage = Mathf.Max(1, incomingDamage / 8);
+            target.ConsumePersist();
+        }
+
+        // WEEK 6: Preserve the existing barrier and shield damage handling.
+        int damage = MechSkillEffect.TakeWeaponDamage(
+            target, incomingDamage, weapon);
         bool defeated = target.IsDefeated;
 
         // WEEK 3: Check the designated Victory and Defeat objectives

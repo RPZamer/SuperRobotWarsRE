@@ -39,6 +39,7 @@ public static class SpiritSystem
         // after an effect successfully activates.
         bool activated = false;
 
+
         switch (spirit.Effect)
         {
             case SpiritCommandEffect.Valor:
@@ -52,6 +53,30 @@ public static class SpiritSystem
                 activated = true;
                 break;
 
+            // WEEK 6: Strike guarantees the caster's next attack will hit.
+            case SpiritCommandEffect.Strike:
+                caster.ActivateStrike();
+                activated = true;
+                break;
+
+            // WEEK 6: Alert guarantees evasion against the next incoming attack.
+            case SpiritCommandEffect.Alert:
+                caster.ActivateAlert();
+                activated = true;
+                break;
+
+            // WEEK 6: Persist prevents the caster from being defeated by one attack.
+            case SpiritCommandEffect.Persist:
+                caster.ActivatePersist();
+                activated = true;
+                break;
+
+            // WEEK 6: Focus improves the caster's accuracy and evasion.
+            case SpiritCommandEffect.Focus:
+                caster.ActivateFocus();
+                activated = true;
+                break;
+
             // WEEK 4: Smash guarantees a critical hit on the caster's next attack.
             case SpiritCommandEffect.Smash:
                 caster.ActivateSmash();
@@ -61,6 +86,43 @@ public static class SpiritSystem
             // WEEK 4: Accel adds 3 spaces to the caster's next movement.
             case SpiritCommandEffect.Accel:
                 caster.ActivateAccel();
+                activated = true;
+                break;
+
+            // WEEK 6: Vigor restores 30% of the caster's maximum HP.
+            case SpiritCommandEffect.Vigor:
+                if (caster.Mech == null)
+                {
+                    break;
+                }
+
+                int vigorHealing =
+                    Mathf.RoundToInt(caster.Mech.Health * 0.30f);
+
+                caster.RestoreHealth(vigorHealing);
+                activated = true;
+                break;
+
+            // WEEK 6: Guts completely restores the caster's HP.
+            case SpiritCommandEffect.Guts:
+                if (caster.Mech == null)
+                {
+                    break;
+                }
+
+                caster.RestoreHealth(caster.Mech.Health);
+                activated = true;
+                break;
+
+            // WEEK 6: Spirit raises the caster's Morale by 10.
+            case SpiritCommandEffect.Spirit:
+                caster.AddMorale(10);
+                activated = true;
+                break;
+
+            // WEEK 6: Drive raises the caster's Morale by 30.
+            case SpiritCommandEffect.Drive:
+                caster.AddMorale(30);
                 activated = true;
                 break;
 
@@ -175,6 +237,49 @@ public static class SpiritSystem
                 activated = true;
                 break;
 
+            // WEEK 6: Faith completely restores one living allied unit's HP.
+            case SpiritCommandEffect.Faith:
+                if (target == null ||
+                    target.IsDefeated ||
+                    target.Team != caster.Team ||
+                    target.Mech == null)
+                {
+                    Debug.LogWarning("Faith requires a living allied target.");
+                    break;
+                }
+
+                target.RestoreHealth(target.Mech.Health);
+                activated = true;
+                break;
+
+            // WEEK 6: Attune raises one living allied unit's Morale by 10.
+            case SpiritCommandEffect.Attune:
+                if (target == null ||
+                    target.IsDefeated ||
+                    target.Team != caster.Team)
+                {
+                    Debug.LogWarning("Attune requires a living allied target.");
+                    break;
+                }
+
+                target.AddMorale(10);
+                activated = true;
+                break;
+
+            // WEEK 6: Hope restores 50 Spirit Points to one living allied unit.
+            case SpiritCommandEffect.Hope:
+                if (target == null ||
+                    target.IsDefeated ||
+                    target.Team != caster.Team)
+                {
+                    Debug.LogWarning("Hope requires a living allied target.");
+                    break;
+                }
+
+                target.RestoreSpiritPoints(50);
+                activated = true;
+                break;
+
             // WEEK 4: Prospect restores 30 Spirit Points to one living ally.
             case SpiritCommandEffect.Prospect:
                 if (target == null ||
@@ -198,6 +303,7 @@ public static class SpiritSystem
                 MechSkillEffect.RestoreSupplies(target);
                 activated = true;
                 break;
+
 
             default:
                 Debug.LogWarning(

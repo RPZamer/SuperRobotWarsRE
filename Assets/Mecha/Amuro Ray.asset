@@ -30,11 +30,11 @@ MonoBehaviour:
   saveBLevel: 1
   saveELevel: 0
   potentialLevel: 4
-  spirit1: {fileID: 0}
-  spirit2: {fileID: 0}
-  spirit3: {fileID: 0}
-  spirit4: {fileID: 0}
-  spirit5: {fileID: 0}
+  spirit1: {fileID: 11400000, guid: 95add4fcc6cf535409668a9fbf596cea, type: 2}
+  spirit2: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit3: {fileID: 11400000, guid: 192439a57fa3af54cac4da2485958808, type: 2}
+  spirit4: {fileID: 11400000, guid: a531b742106e7774d9cee91ed7d3d676, type: 2}
+  spirit5: {fileID: 11400000, guid: 24434f7ab9ea3c54cb45d4e2ec6617a0, type: 2}
   spirit6: {fileID: 0}
   onSuccessLines: []
   defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}

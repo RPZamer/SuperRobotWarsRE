@@ -32,7 +32,7 @@ MonoBehaviour:
   potentialLevel: 7
   spirit1: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
   spirit2: {fileID: 11400000, guid: 714e10a53daee3340b318950173af4f1, type: 2}
-  spirit3: {fileID: 0}
+  spirit3: {fileID: 11400000, guid: 6e6322a233e06ee489a19e5c1df6faef, type: 2}
   spirit4: {fileID: 0}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
