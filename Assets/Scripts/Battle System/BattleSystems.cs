@@ -1847,6 +1847,11 @@ public class BattleSystem : MonoBehaviour
 
         if (scenarioResult == ScenarioResult.Victory)
         {
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "First Level")
+            {
+                PlayerPrefs.SetString("NextScene", "Second Level");
+                PlayerPrefs.Save();
+            }
             StartCoroutine(TransitionToIntermission());
         }
     }
