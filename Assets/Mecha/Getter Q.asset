@@ -1,0 +1,123 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
+  m_Name: Getter Q
+  m_EditorClassIdentifier: Assembly-CSharp::MechBase
+  mechName: Getter Q
+  battleSprite: {fileID: 1703320063166510317, guid: 5499c5759a203f74cafcbbf01bef269c, type: 3}
+  menuSprite: {fileID: 0}
+  battleTheme: {fileID: 8300000, guid: 10d1fddabc045054cb280c2550751b77, type: 3}
+  health: 2000
+  energy: 150
+  movement: 5
+  mobility: 100
+  armor: 1000
+  size: 2
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  weapons:
+  - weaponName: Tomahawk Boomerang
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 0
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 5
+    power: 1500
+    accuracyModifier: 80
+    criticalModifier: 0
+    energyCost: 0
+    maxAmmo: 4
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  - weaponName: Getter Tomahawk
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 1
+    power: 1500
+    accuracyModifier: 120
+    criticalModifier: 0
+    energyCost: 0
+    maxAmmo: 4
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  - weaponName: Getter Beam
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 120
+    criticalModifier: 0
+    energyCost: 50
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  shieldHealth: 0
+  barrier: 0
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 0
+  mazinPower: 0
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 1
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []

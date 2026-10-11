@@ -13,7 +13,7 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private Battlefield battlefield;
     [SerializeField] private Camera battleCamera;
     [SerializeField] private DialogSystem dialogSystem;
-    
+
     // WEEK 6: Reference the story cutscene manager so battle controls
     // can be disabled while dialogue is playing.
     [SerializeField] private CutsceneManager cutsceneManager;
@@ -1250,10 +1250,10 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null) weapon = attacker.GetUsableWeapon(target);
         if (!attacker.CanUseWeapon(weapon, target)) yield break;
 
-        // WEEK 6 CHANGES PLEASE READ: Incoming non-MAP attacks need a player response before either unit fires.
-        // The dedicated exchange waits for confirmation and then reuses PerformAttack for costs, hits and results.
-        // Player-initiated attacks and MAP attacks continue through their existing resolution below.
-        if (attacker.Team != playerTeam && target.Team == playerTeam &&
+        // WEEK 6 CHANGES PLEASE READ: Non-MAP attacks need confirmation when either team initiates combat.
+        // Both sides use the existing reaction exchange so an enemy defender can also Counter, Evade or Defend.
+        // The exchange waits for Begin Combat before either unit fires, while MAP attacks keep their existing handling.
+        if (attacker.Team != target.Team &&
             weapon.Classification != WeaponClassification.Map && actionsMenu != null)
         {
             yield return ResolveReactionAttack(attacker, target, weapon);
@@ -1275,8 +1275,9 @@ public class BattleSystem : MonoBehaviour
         yield return PerformAttack(attacker, target, weapon);
     }
 
-    // WEEK 6 CHANGES PLEASE READ: The existing first-strike-only exchange could not perform a selected ordinary counter.
-    // This coroutine pauses before resource spending, performs at most one chosen counter and rechecks survival and affordability.
+    // WEEK 6 CHANGES PLEASE READ: Enemy defenders need an automatic response before the player confirms combat.
+    // A uniform roll gives Counter, Evade and Defend equal chances when a counter weapon is usable, otherwise Evade and Defend share the chance equally.
+    // The existing exchange pauses before spending resources and rechecks survival and affordability before a single counter.
     // FirstStrike keeps its existing weapon-tag priority, and finally clears every reaction field even when combat ends early.
     private IEnumerator ResolveReactionAttack(BattleUnit attacker, BattleUnit defender, Weapon incoming)
     {
@@ -1290,6 +1291,8 @@ public class BattleSystem : MonoBehaviour
         reactionIncomingWeapon = incoming;
         reactionCounterWeapon = defender.GetUsableWeapon(attacker, WeaponType.None, true);
         selectedReaction = reactionCounterWeapon != null ? BattleReaction.Counter : BattleReaction.Defend;
+        if (defender.Team != playerTeam)
+            selectedReaction = (BattleReaction)Random.Range(reactionCounterWeapon != null ? 0 : 1, 3);
         reactionConfirmed = false;
         choosingCounterWeapon = false;
         reactionPending = true;
@@ -1328,39 +1331,39 @@ public class BattleSystem : MonoBehaviour
         reactionDefender.CanUseWeapon(weapon, reactionAttacker, true);
 
     // WEEK 6 CHANGES PLEASE READ: The reaction preview needs its own participants while player selection remains untouched.
-    // This method supplies live hit chances and the selected counter weapon to the new panel.
+    // This method supplies live hit chances and the selected counter weapon, with reaction choice buttons only for a player defender.
     // Previewing only reads battle state, so EN, ammo, morale and barriers are not consumed.
     private void ShowReactionMenu()
     {
         if (!reactionPending || reactionAttacker == null || reactionDefender == null) return;
         actionsMenu.ShowReaction(reactionAttacker, reactionDefender, reactionIncomingWeapon,
-            selectedReaction, reactionCounterWeapon, CanCounterWith(reactionCounterWeapon));
+            selectedReaction, reactionCounterWeapon, CanCounterWith(reactionCounterWeapon), reactionDefender.Team == playerTeam);
     }
 
     // WEEK 6 CHANGES PLEASE READ: Counter now opens the existing weapon picker instead of firing immediately.
-    // Its rows validate single-target weapons against this attacker using counterattack rules.
+    // Only a player defender can open its rows, which validate single-target weapons against this attacker using counterattack rules.
     // Confirm or Back returns to the reaction preview, leaving Begin Combat as the final commitment.
     public void ChooseCounter()
     {
-        if (!reactionPending || choosingCounterWeapon || !CanCounterWith(reactionCounterWeapon)) return;
+        if (!reactionPending || reactionDefender.Team != playerTeam || choosingCounterWeapon || !CanCounterWith(reactionCounterWeapon)) return;
         selectedReaction = BattleReaction.Counter;
         choosingCounterWeapon = true;
         actionsMenu.ShowWeapons(reactionDefender, reactionCounterWeapon);
     }
 
     // WEEK 6 CHANGES PLEASE READ: Evade and Defend select a response without starting the enemy attack.
-    // Their shared callback refreshes the preview and leaves the enemy coroutine waiting for Begin Combat.
+    // Their shared callback accepts only a player defender so shortcuts and hidden buttons cannot change an enemy's automatic response.
     // Neither choice spends SP, changes stats or consumes the defender's normal action.
     public void ChooseEvade() => ChooseReaction(BattleReaction.Evade);
     public void ChooseDefend() => ChooseReaction(BattleReaction.Defend);
     private void ChooseReaction(BattleReaction reaction)
     {
-        if (!reactionPending || choosingCounterWeapon) return;
+        if (!reactionPending || reactionDefender.Team != playerTeam || choosingCounterWeapon) return;
         selectedReaction = reaction;
         ShowReactionMenu();
     }
 
-    // WEEK 6 CHANGES PLEASE READ: Begin Combat commits the preview once and resumes the waiting enemy coroutine.
+    // WEEK 6 CHANGES PLEASE READ: Begin Combat commits the preview once and resumes the waiting attack coroutine for either team.
     // Counter is checked again here so an unavailable weapon cannot be confirmed through a stale button or shortcut.
     // Closing pending input immediately prevents a second click from changing the exchange after commitment.
     public void BeginReactionCombat()
@@ -1776,7 +1779,7 @@ public class BattleSystem : MonoBehaviour
         }
     }
 
-    // WEEK 3: Check the clicked enemy and start the chosen weapon attack with one click.
+    // WEEK 6: Check the clicked enemy and open confirmation for the chosen weapon.
     private void ChooseAttackTarget(BattleUnit target)
     {
         // WEEK 3: Report why an enemy click cannot become the chosen weapon attack.
@@ -1792,7 +1795,9 @@ public class BattleSystem : MonoBehaviour
         {
             combatHUD.ShowTargetedEnemy(target);
         }
-        // WEEK 3: Click a valid enemy once to attack with the weapon already chosen.
+        // WEEK 6 CHANGES PLEASE READ: Clicking a valid enemy now opens confirmation before the chosen weapon fires.
+        // The enemy picks its response automatically, and the preview offers only Begin Combat.
+        // The existing turn lock keeps movement and ordinary commands unavailable while confirmation is pending.
         Weapon weapon = selectedWeapon;
         PrepareForTurnChange();
         StartCoroutine(ResolvePlayerAttack(target, weapon));
