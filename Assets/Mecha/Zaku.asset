@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Zaku
   battleSprite: {fileID: -102200125386026521, guid: d36a698f9bda7da49994e5bfe022d5cf, type: 3}
+  menuSprite: {fileID: 0}
+  battleTheme: {fileID: 0}
   health: 1500
   energy: 100
   movement: 5
@@ -31,6 +33,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 5
     power: 1000
@@ -48,6 +57,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 1
     power: 1000
@@ -65,6 +81,13 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 1
     maxRange: 5
     power: 1700
@@ -77,3 +100,24 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
+  shieldHealth: 0
+  barrier: 0
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 0
+  mazinPower: 0
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 0
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []

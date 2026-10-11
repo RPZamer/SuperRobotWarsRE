@@ -5,15 +5,27 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using UnityEngine.InputSystem;
+using System.Runtime.CompilerServices;
 
 public class IntermissionMenu : MonoBehaviour
 {
     [SerializeField] private SceneTransition sceneTransition;
+    
+    [SerializeField] private string firstLevel = "First Level"; // Name of the first level scene to load
+    [SerializeField] private string secondLevel = "Second Level"; // Name of the second level scene to load
+
+    private string nextScene; 
 
     [Header("Intermission Panels")]
     [SerializeField] private GameObject mechsPanel;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject pilotsPanel;
+    [SerializeField] private GameObject levelSelectPanel;
+
+    [Header("Debug Level Select")]
+    [SerializeField] private GameObject levelSelectButton;
+    private bool debugLevelSelectUnlocked= false; // Set this to true to enable the level select button
 
     [Header("Mechs")]
     [SerializeField] private List<MechBase> mechs = new();
@@ -29,7 +41,85 @@ public class IntermissionMenu : MonoBehaviour
     [SerializeField] private List<PilotBase> pilots = new();
     [SerializeField] private TMP_Text pilotInfoText;
 
+    private void Start()
+    {
+        // Load the next scene name from PlayerPrefs
+        nextScene = PlayerPrefs.GetString("NextScene", firstLevel); // Default to firstLevel if not set
 
+        if (nextScene == "SampleScene")
+        {
+            nextScene = firstLevel;
+
+            PlayerPrefs.SetString("NextScene", nextScene);
+            PlayerPrefs.Save();
+        }
+        Debug.Log("Next mission scene: " + nextScene);
+
+        if(levelSelectButton != null)
+        {
+            levelSelectButton.SetActive(debugLevelSelectUnlocked);
+        }
+        if (levelSelectPanel != null)
+        {
+            levelSelectPanel.SetActive(false);
+        }
+
+    }
+    private void Update()
+    {
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null)
+        {
+            return;
+        }
+
+        bool ctrlHeld = keyboard.leftCtrlKey.isPressed ||
+            keyboard.rightCtrlKey.isPressed;
+
+        bool shiftHeld = keyboard.leftShiftKey.isPressed ||
+            keyboard.rightShiftKey.isPressed;
+
+        if (ctrlHeld && shiftHeld && keyboard.lKey.wasPressedThisFrame)
+        {
+            debugLevelSelectUnlocked = !debugLevelSelectUnlocked;
+            if (levelSelectButton != null)
+            {
+                levelSelectButton.SetActive(debugLevelSelectUnlocked);
+            }
+
+
+            if (!debugLevelSelectUnlocked && levelSelectPanel != null)
+            {
+                levelSelectPanel.SetActive(false);
+                mainMenu.SetActive(true);
+            }
+            Debug.Log("Debug Level Select unlocked: " + debugLevelSelectUnlocked);
+
+        }
+    }
+
+    public void OpenLevelSelect()
+    {
+        if (!debugLevelSelectUnlocked)
+        {
+            return;
+        }
+
+        mainMenu.SetActive(false);
+        levelSelectPanel.SetActive(true);
+    }
+    public void CloseLevelSelect()
+    {
+        levelSelectPanel.SetActive(false);
+        mainMenu.SetActive(true);
+    }
+    public void SelectLevel(string sceneName)
+    {
+        if (sceneTransition != null)
+        {
+            sceneTransition.FadeToScene(sceneName);
+        }
+    }
     private void DisplayMech(MechBase mech)
     {
         
@@ -158,16 +248,16 @@ public class IntermissionMenu : MonoBehaviour
 
     public void SaveGame()
     {
-        PlayerPrefs.SetString("NextScene", "SampleScene");
+        PlayerPrefs.SetString("NextScene", nextScene);
         PlayerPrefs.Save();
         // Implement your save game logic here
-        Debug.Log("Game saved!");
+        Debug.Log("Game saved! Next scene: " + nextScene);
     }
     public void NextStage()
     {
         if (sceneTransition != null)
         {
-            sceneTransition.FadeToScene("SampleScene");
+            sceneTransition.FadeToScene(nextScene);
         }
         
     }
