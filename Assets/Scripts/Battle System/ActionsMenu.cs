@@ -638,11 +638,11 @@ public class ActionsMenu : MonoBehaviour
         SetVisible(spiritPanel, false);
     }
 
-    // WEEK 6 CHANGES PLEASE READ: Incoming attacks now show both participants and a selectable defensive response.
+    // WEEK 6 CHANGES PLEASE READ: Player-initiated attacks also need a preview of both participants and the enemy's response.
     // The preview calculates the same incoming hit chance used by combat and shows a legal counter weapon's hit chance separately.
-    // Only the chosen response is highlighted, and Counter is disabled when the defender cannot retaliate.
+    // Choice buttons are shown for a player defender and hidden for an enemy defender, leaving only Begin Combat for confirmation.
     public void ShowReaction(BattleUnit attacker, BattleUnit defender, Weapon incoming,
-        BattleReaction reaction, Weapon counter, bool canCounter)
+        BattleReaction reaction, Weapon counter, bool canCounter, bool canChooseReaction = true)
     {
         Hide();
         int distance = Mathf.Abs(attacker.GridPosition.x - defender.GridPosition.x) +
@@ -654,6 +654,9 @@ public class ActionsMenu : MonoBehaviour
         reactionPreviewText.text = $"{attacker.Mech.MechName}\n{incoming.WeaponName} | HIT {incomingHit}%\n\n" +
             $"{defender.Mech.MechName} | HP {defender.CurrentHealth}/{defender.Mech.Health}\n" +
             $"EN {defender.CurrentEnergy}/{defender.Mech.Energy} | {reaction}\n{counterInfo}";
+        counterButton.gameObject.SetActive(canChooseReaction);
+        evadeButton.gameObject.SetActive(canChooseReaction);
+        defendButton.gameObject.SetActive(canChooseReaction);
         counterButton.interactable = canCounter;
         SetReactionHighlight(counterButton, reaction == BattleReaction.Counter);
         SetReactionHighlight(evadeButton, reaction == BattleReaction.Evade);
