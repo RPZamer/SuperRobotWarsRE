@@ -41,6 +41,7 @@ public class IntermissionMenu : MonoBehaviour
     [Header("Pilots")]
     [SerializeField] private List<PilotBase> pilots = new();
     [SerializeField] private TMP_Text pilotInfoText;
+    [SerializeField] private GameObject sortiePanel;
 
     private void Start()
     {
@@ -241,11 +242,13 @@ public class IntermissionMenu : MonoBehaviour
     {
         mainMenu.SetActive(false);
         pilotsPanel.SetActive(true);
+        
 
         if (pilotInfoText != null)
         {
             pilotInfoText.text = "Select a pilot to view their stats.";
         }
+
     }
 
     public void ClosePilots()
@@ -253,6 +256,18 @@ public class IntermissionMenu : MonoBehaviour
         pilotsPanel.SetActive(false);
         mainMenu.SetActive(true);
 
+    }
+
+    public void OpenSortie()
+    {
+        mainMenu.SetActive(false);
+        sortiePanel.SetActive(true);
+    }
+
+    public void CloseSortie()
+    {
+        sortiePanel.SetActive(false);
+        mainMenu.SetActive(true);
     }
 
     public void SaveGame()
