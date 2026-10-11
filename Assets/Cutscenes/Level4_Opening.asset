@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd3be70ca96bae41afa4b68d83c5026, type: 3}
+  m_Name: Level4_Opening
+  m_EditorClassIdentifier: Assembly-CSharp::CutsceneData
+  cutsceneName: Level 4 - Moon Battle Before Decisive Conflict.
+  lines:
+  - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
+    emotion: 0
+    dialogue: Alright team, you know the drill by now. The moon is land though, so keep that in mind. But if you fly you will be in space so be careful.
+    showPortrait: 1
+  transitionToScene: 0
+  destinationScene: 

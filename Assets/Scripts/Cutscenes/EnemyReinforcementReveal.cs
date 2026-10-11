@@ -2,12 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// WEEK 6: Cinematically reveals existing enemy units during cutscenes.
-// Enemy objects remain active and registered with the battlefield.
+// WEEK 6: Cinematically reveals existing battlefield units.
+// Supports both allied and enemy reinforcements.
 public class EnemyReinforcementReveal : MonoBehaviour
 {
     [Header("WEEK 6: Enemy Reinforcements")]
     [SerializeField] private List<BattleUnit> enemyUnits = new();
+
+    // WEEK 6: Level 2 allied reinforcement units.
+    [Header("WEEK 6: Allied Reinforcements")]
+    [SerializeField] private List<BattleUnit> alliedUnits = new();
 
     [Header("WEEK 6: Reveal Settings")]
     [SerializeField, Min(0f)] private float fadeDuration = 0.5f;
@@ -17,26 +21,33 @@ public class EnemyReinforcementReveal : MonoBehaviour
     private readonly Dictionary<SpriteRenderer, Color> originalColors = new();
 
     private bool enemiesHidden;
-    private bool revealStarted;
+    private bool alliesHidden;
 
-    // WEEK 6: Hide enemy sprites before the opening dialogue begins.
+    private bool enemyRevealStarted;
+    private bool allyRevealStarted;
+
+    // WEEK 6: Hide reinforcement sprites before opening dialogue.
     private void Awake()
-    {
-        HideEnemies();
-    }
-
-    private void HideEnemies()
     {
         originalColors.Clear();
 
-        foreach (BattleUnit enemy in enemyUnits)
+        enemiesHidden = HideUnits(enemyUnits, BattleTeam.Enemy);
+        alliesHidden = HideUnits(alliedUnits, BattleTeam.Player);
+    }
+
+    // WEEK 6: Hide sprites without disabling battlefield units.
+    private bool HideUnits(List<BattleUnit> units, BattleTeam team)
+    {
+        bool hiddenAny = false;
+
+        foreach (BattleUnit unit in units)
         {
-            if (enemy == null || enemy.Team != BattleTeam.Enemy)
+            if (unit == null || unit.Team != team)
             {
                 continue;
             }
 
-            SpriteRenderer sprite = enemy.GetComponent<SpriteRenderer>();
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
 
             if (sprite == null)
             {
@@ -49,32 +60,61 @@ public class EnemyReinforcementReveal : MonoBehaviour
             hiddenColor.a = 0f;
 
             sprite.color = hiddenColor;
+
+            hiddenAny = true;
         }
 
-        enemiesHidden = originalColors.Count > 0;
+        return hiddenAny;
     }
 
-    // WEEK 6: Reveal enemies one by one without spawning new objects.
+    // WEEK 6: Preserve Level 1's existing enemy reveal method.
     public IEnumerator RevealEnemies()
     {
-        if (revealStarted || !enemiesHidden)
+        if (enemyRevealStarted || !enemiesHidden)
         {
             yield break;
         }
 
-        revealStarted = true;
+        enemyRevealStarted = true;
 
-        foreach (BattleUnit enemy in enemyUnits)
+        yield return RevealUnits(enemyUnits, BattleTeam.Enemy);
+
+        enemiesHidden = false;
+    }
+
+    // WEEK 6: Reveal Level 2 allied reinforcements.
+    public IEnumerator RevealAllies()
+    {
+        if (allyRevealStarted || !alliesHidden)
         {
-            if (enemy == null || enemy.Team != BattleTeam.Enemy)
+            yield break;
+        }
+
+        allyRevealStarted = true;
+
+        yield return RevealUnits(alliedUnits, BattleTeam.Player);
+
+        alliesHidden = false;
+    }
+
+    // WEEK 6: Shared animation for either reinforcement team.
+    private IEnumerator RevealUnits(
+        List<BattleUnit> units,
+        BattleTeam team)
+    {
+        foreach (BattleUnit unit in units)
+        {
+            if (unit == null || unit.Team != team)
             {
                 continue;
             }
 
-            SpriteRenderer sprite = enemy.GetComponent<SpriteRenderer>();
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
 
             if (sprite == null ||
-                !originalColors.TryGetValue(sprite, out Color originalColor))
+                !originalColors.TryGetValue(
+                    sprite,
+                    out Color originalColor))
             {
                 continue;
             }
@@ -115,14 +155,13 @@ public class EnemyReinforcementReveal : MonoBehaviour
                     delayBetweenEnemies);
             }
         }
-
-        enemiesHidden = false;
     }
 
-    // WEEK 6: Restore enemy visibility if the reveal is interrupted.
+    // WEEK 6: Restore visibility if the component is disabled.
     private void OnDisable()
     {
-        foreach (KeyValuePair<SpriteRenderer, Color> entry in originalColors)
+        foreach (KeyValuePair<SpriteRenderer, Color> entry
+                 in originalColors)
         {
             if (entry.Key != null)
             {
