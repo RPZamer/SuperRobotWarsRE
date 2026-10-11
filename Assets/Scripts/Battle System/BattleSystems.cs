@@ -13,7 +13,10 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private Battlefield battlefield;
     [SerializeField] private Camera battleCamera;
     [SerializeField] private DialogSystem dialogSystem;
-    // WEEK 3: Assign the ActionsMenu object from the Hierarchy.
+    
+    // WEEK 6: Reference the story cutscene manager so battle controls
+    // can be disabled while dialogue is playing.
+    [SerializeField] private CutsceneManager cutsceneManager;
     [SerializeField] private ActionsMenu actionsMenu;
     // WEEK 3: Connect the Combat HUD so the battle system can send selected unit and battle state information to the player.
     [SerializeField] private CombatHUD combatHUD;
@@ -43,6 +46,10 @@ public class BattleSystem : MonoBehaviour
     // WEEK 3 DMG CHECK: Toggle the numeric damage formula breakdown in the Inspector.
     [Header("Diagnostics")]
     [SerializeField] private bool debugBattleCalculations = true;
+
+
+    // WEEK 6: CUTSCENES - Dialogue played after Level 1 victory.
+    [SerializeField] private CutsceneData victoryCutscene;
 
     private void Awake() => BattleDebug.Enabled = debugBattleCalculations;
     private void OnValidate() => BattleDebug.Enabled = debugBattleCalculations;
@@ -183,11 +190,37 @@ public class BattleSystem : MonoBehaviour
             combatHUD.HideScenarioResult();
         }
 
-        StartCoroutine(BeginPlayerTurn());
+        // WEEK 6: Wait until the opening cutscene finishes
+        // before beginning the player's first turn.
+        StartCoroutine(BeginPlayerTurnAfterCutscene());
+    }
+
+    // WEEK 6: Prevent the first player turn from beginning
+    // until the opening story cutscene has finished.
+    private IEnumerator BeginPlayerTurnAfterCutscene()
+    {
+        // WEEK 6: Allow CutsceneManager.Start() to initialize
+        // and begin the opening cutscene.
+        yield return null;
+
+        if (cutsceneManager != null)
+        {
+            yield return new WaitUntil(
+                () => !cutsceneManager.IsPlaying);
+        }
+
+        // WEEK 6: Begin normal gameplay after the cutscene.
+        yield return BeginPlayerTurn();
     }
 
     private void Update()
     {
+        // WEEK 6: Prevent battlefield input during story cutscenes.
+        if (cutsceneManager != null && cutsceneManager.IsPlaying)
+        {
+            return;
+        }
+
         // WEEK 6 CHANGES PLEASE READ: Enemy Phase input was previously ignored while its coroutine ran.
         // A pending reaction now accepts C, E, D, Enter and Back through the same guarded callbacks as the buttons.
         // Returning here keeps movement, unit selection and ordinary action shortcuts locked while the enemy waits.
@@ -982,13 +1015,6 @@ public class BattleSystem : MonoBehaviour
 
         isPlayerTurn = false;
 
-        // WEEK 5: MUSIC SYSTEM - Restore the stage's overworld music
-        // when a new Player Phase begins.
-        if (battleMusic != null)
-        {
-            battleMusic.PlayOverworldMusic();
-        }
-
         // WEEK 3: Update the Combat HUD when the player's phase begins
         // while keeping the current turn number visible.
         if (combatHUD != null)
@@ -1086,13 +1112,6 @@ public class BattleSystem : MonoBehaviour
 
         actionsMenu.Hide();
         battlefield.ClearHighlights();
-
-        // WEEK 5: MUSIC SYSTEM - Return to the stage's overworld music
-        // when the Player Phase ends.
-        if (battleMusic != null)
-        {
-            battleMusic.PlayOverworldMusic();
-        }
 
         StartCoroutine(RunEnemyTurn());
     }
@@ -1374,9 +1393,12 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
-        // WEEK 5: MUSIC SYSTEM - Play the attacking mech's assigned theme
-        // after the weapon has been successfully activated.
-        if (battleMusic != null && attacker.Mech != null)
+        // WEEK 6: MUSIC SYSTEM - Only player units change the battle music.
+        // Keep the selected mech theme playing across turns.
+        // Enemy attacks must not replace the current theme.
+        if (battleMusic != null &&
+            attacker.Team == playerTeam &&
+            attacker.Mech != null)
         {
             battleMusic.PlayMechTheme(attacker.Mech.BattleTheme);
         }
@@ -1433,6 +1455,11 @@ public class BattleSystem : MonoBehaviour
         {
             attacker.ConsumeStrike();
         }
+
+        // WEEK 6: CUTSCENES - Wait until all attack damage and dialogue
+        // have finished before checking the scenario result.
+        // This prevents battle dialogue from interrupting victory cutscenes.
+        EvaluateScenarioResult();
     }
 
     // WEEK 3: Roll hit and critical chance, apply formula damage, and show the battle result.
@@ -1524,10 +1551,6 @@ public class BattleSystem : MonoBehaviour
             target, incomingDamage, weapon);
         bool defeated = target.IsDefeated;
 
-        // WEEK 3: Check the designated Victory and Defeat objectives
-        // immediately after combat damage has been applied.
-        EvaluateScenarioResult();
-
         // Damage and defeat messages use text only, so their portrait flag remains false.
         yield return ShowBattleMessage(
             targetPilot,
@@ -1554,6 +1577,14 @@ public class BattleSystem : MonoBehaviour
         }
 
         yield return ShowBattleMessage(targetPilot, PilotEmotion.Defeated, $"{targetName} was defeated.");
+
+        // WEEK 6: CUTSCENES - Skip normal pilot success dialogue
+        // after the scenario ends so it cannot interfere with
+        // the dedicated victory cutscene.
+        if (ScenarioEnded)
+        {
+            yield break;
+        }
 
         if (attackerPilot == null)
         {
@@ -1850,16 +1881,46 @@ public class BattleSystem : MonoBehaviour
             StartCoroutine(TransitionToIntermission());
         }
     }
+    // WEEK 6: CUTSCENES - Wait for the victory dialogue
+    // before transitioning to Intermission.
     private IEnumerator TransitionToIntermission()
     {
+        // WEEK 6: Preserve the existing victory display delay.
         yield return new WaitForSeconds(2f);
+
+        // WEEK 6: Play the victory cutscene when one is assigned.
+        if (cutsceneManager != null && victoryCutscene != null)
+        {
+            // WEEK 6: CUTSCENES - Start the victory dialogue.
+            cutsceneManager.PlayCutscene(victoryCutscene);
+
+            // WEEK 6: CUTSCENES - Wait until the cutscene actually starts.
+            yield return new WaitUntil(
+                () => cutsceneManager.IsPlaying);
+
+            // WEEK 6: CUTSCENES - Do not transition until every dialogue
+            // line has finished and the cutscene has closed.
+            yield return new WaitUntil(
+                () => !cutsceneManager.IsPlaying);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "WEEK 6: Victory cutscene or Cutscene Manager is not assigned.",
+                this);
+        }
+
+        // WEEK 6: Transition only after the victory dialogue finishes.
         if (sceneTransition != null)
         {
             sceneTransition.FadeToScene("Intermission");
         }
         else
         {
-            Debug.LogWarning("SceneTransition component is not assigned. Cannot transition to Intermission scene.", this);
+            Debug.LogWarning(
+                "SceneTransition component is not assigned. " +
+                "Cannot transition to Intermission scene.",
+                this);
         }
     }
     private static BattleTeam OpposingTeam(BattleTeam team)
