@@ -40,7 +40,7 @@ public class TitleScreen : MonoBehaviour
  
     public void LoadGame()
     {
-        PlayerPrefs.SetString("NextScene", "First Level");
+        PlayerPrefs.SetString("NextScene", "Level 1 - Strange Robot Gathering 1");
         PlayerPrefs.Save();
 
         SceneManager.LoadScene("Intermission");
