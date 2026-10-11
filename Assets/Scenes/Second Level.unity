@@ -6887,15 +6887,17 @@ MonoBehaviour:
   sceneTransition: {fileID: 2112355577}
   battlefield: {fileID: 2007392314}
   battleCamera: {fileID: 519420031}
-  dialogSystem: {fileID: 0}
-  actionsMenu: {fileID: 0}
-  combatHUD: {fileID: 0}
+  dialogSystem: {fileID: 6822054935691612088}
+  cutsceneManager: {fileID: 0}
+  actionsMenu: {fileID: 3493169713391797754}
+  combatHUD: {fileID: 6813465950965076626}
   battleMusic: {fileID: 1767269808}
   playerObjectiveUnit: {fileID: 1516142469}
   enemyObjectiveUnit: {fileID: 1435154527}
   playerTeam: 0
   enemyMoveDelay: 0.5
   debugBattleCalculations: 1
+  victoryCutscene: {fileID: 0}
 --- !u!1 &486647962
 GameObject:
   m_ObjectHideFlags: 0

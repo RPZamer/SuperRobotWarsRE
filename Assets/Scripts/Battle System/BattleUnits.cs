@@ -283,10 +283,22 @@ public class BattleUnit : MonoBehaviour
             spriteRenderer.color = normalColor;
         }
     }
+
+    // changed it so we dont have to manually set the unit starting position
     public bool PlaceOn(Battlefield targetBattlefield)
     {
         battlefield = targetBattlefield;
-        return battlefield != null && battlefield.TryPlace(this, startingPosition);
+
+        if (battlefield == null)
+        {
+            return false;
+        }
+
+        // Find the nearest grid cell to the unit's Inspector position.
+        startingPosition = battlefield.WorldToGrid(transform.position);
+
+        // Place the unit at the exact center of that cell.
+        return battlefield.TryPlace(this, startingPosition);
     }
 
     public void SetGridPosition(Vector2Int position)
