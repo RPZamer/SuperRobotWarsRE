@@ -11,9 +11,10 @@ using System.Runtime.CompilerServices;
 public class IntermissionMenu : MonoBehaviour
 {
     [SerializeField] private SceneTransition sceneTransition;
-    
-    [SerializeField] private string firstLevel = "First Level"; // Name of the first level scene to load
-    [SerializeField] private string secondLevel = "Second Level"; // Name of the second level scene to load
+
+    [Header("Campaign Levels")]
+    [SerializeField] private List<string> campaignLevels = new();
+    private const string NextSceneKey = "NextScene";
 
     private string nextScene; 
 
@@ -43,23 +44,31 @@ public class IntermissionMenu : MonoBehaviour
 
     private void Start()
     {
-        // Load the next scene name from PlayerPrefs
-        nextScene = PlayerPrefs.GetString("NextScene", firstLevel); // Default to firstLevel if not set
-
-        if (nextScene == "SampleScene")
+        
+        if (campaignLevels == null || campaignLevels.Count == 0)
         {
-            nextScene = firstLevel;
-
-            PlayerPrefs.SetString("NextScene", nextScene);
-            PlayerPrefs.Save();
+            Debug.LogError("Campaign levels list is empty. Please assign the campaign levels in the inspector.");
+            return;
         }
-        Debug.Log("Next mission scene: " + nextScene);
 
-        if(levelSelectButton != null)
+        nextScene = PlayerPrefs.GetString(NextSceneKey, campaignLevels[0]);
+        Debug.Log("Saved NextScene: " + nextScene);
+        Debug.Log("Level 2 in campaign list: " + campaignLevels[1]);
+        Debug.Log("Scene name matches: "  + campaignLevels.Contains(nextScene));
+        
+        if (!campaignLevels.Contains(nextScene))
+        {
+            Debug.LogError("Saved mission does not match campaign list: [" + nextScene + "]");
+            return;
+
+        }
+
+       if (levelSelectButton != null)
         {
             levelSelectButton.SetActive(debugLevelSelectUnlocked);
         }
-        if (levelSelectPanel != null)
+
+       if(levelSelectPanel != null)
         {
             levelSelectPanel.SetActive(false);
         }
@@ -255,6 +264,8 @@ public class IntermissionMenu : MonoBehaviour
     }
     public void NextStage()
     {
+        Debug.Log("NEXT STAGE loading: " + nextScene);
+
         if (sceneTransition != null)
         {
             sceneTransition.FadeToScene(nextScene);
