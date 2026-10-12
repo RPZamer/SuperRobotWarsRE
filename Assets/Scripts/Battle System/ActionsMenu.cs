@@ -93,6 +93,10 @@ public class ActionsMenu : MonoBehaviour
     [FormerlySerializedAs("accuracyStat")][SerializeField] private TMP_Text accuracyText;
     [SerializeField] private TMP_Text skillText;
 
+    [Header("Pilot/Mech Images")]
+    [SerializeField] private Image PilotImage;
+    [SerializeField] private Image MechImage;
+
     [Header("Pilot Terrain TMP Fields")]
     [SerializeField] private TMP_Text pilotAirText;
     [SerializeField] private TMP_Text pilotGroundText;
@@ -679,6 +683,18 @@ public class ActionsMenu : MonoBehaviour
     {
         PilotBase pilot = selectedUnit.Pilot;
         MechBase mech = selectedUnit.Mech;
+
+        if (PilotImage != null && pilot != null)
+        {
+            PilotImage.sprite = pilot.GetPortrait(PilotEmotion.Default);
+        }
+
+        if (MechImage != null && mech != null)
+        {
+            MechImage.sprite = mech.BattleSprite;
+        }
+
+
         Set(pilotNameText, $"Pilot: {pilot.PilotName}");
         Set(mechNameText, $"Mech: {mech.MechName}");
         Set(healthText, $"HP: {selectedUnit.CurrentHealth}/{mech.Health}");
