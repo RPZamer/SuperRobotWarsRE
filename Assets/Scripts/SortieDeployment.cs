@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 public class SortieDeployment : MonoBehaviour
 {
@@ -11,16 +12,121 @@ public class SortieDeployment : MonoBehaviour
     [SerializeField] private BattleUnit mazingerZ;
     [SerializeField] private BattleUnit greatMazinger;
     [SerializeField] private BattleUnit gundam;
+   
+    private BattleUnit selectedUnit;
+    public bool DeploymentConfirmed { get; private set; }
+
+    public void SelectUnit(BattleUnit unit)
+    {
+ 
+        selectedUnit = unit;
+        Debug.Log("Selected for deployment: " + unit.name);
+        
+    }
+    public void SelectMazingerZ()
+    {
+        SelectUnit(mazingerZ);
+    }
+    public void SelectGreatMazinger()
+    {
+        SelectUnit(greatMazinger);
+
+    }
+    public void SelectGundam()
+    {
+        SelectUnit(gundam);
+    }
+    public void PlaceSelectedUnit(Vector2Int gridPosition)
+    {
+        if (selectedUnit == null)
+            return;
+        if (!deploymentPositions.Contains(gridPosition))
+            return;
+
+        if (!battlefield.TryDeployUnit(selectedUnit, gridPosition))
+            return;
+
+        Debug.Log(selectedUnit.name + " moved to " + gridPosition);
+
+        selectedUnit = null;
+
+    }
+    public void StartMission()
+    {
+        DeploymentConfirmed = true;
+
+        Debug.Log("Deployment confirmed. Starting mission!");
+
+        transform.Find("Deployment Canvas").gameObject.SetActive(false);
+
+        foreach (Transform child in transform)
+        {
+            if(child.name == "Deployment Zone")
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+
+    }
+
+    private void Update()
+    {
+        if (DeploymentConfirmed)
+            return;
+
+        if (!Input.GetMouseButtonDown(0))
+            return;
+
+        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2Int gridPosition = battlefield.WorldToGrid(mousePosition);
+
+        Debug.Log("Clicked grid position: " + gridPosition);
+        BattleUnit[] units = { mazingerZ, greatMazinger, gundam };
+
+        foreach (BattleUnit unit in units)
+        {
+            if (unit.gameObject.activeInHierarchy && battlefield.WorldToGrid(unit.transform.position) == gridPosition)
+            {
+                SelectUnit(unit);
+                return;
+            }
+        }
+        if (selectedUnit != null)
+        {
+            PlaceSelectedUnit(gridPosition);
+        }
+
+    }
+
     [Header("Sortie Settings")]
-    [SerializeField, Range(1, 5)] private int maxSortieUnits = 5;
+    [SerializeField, Range(1, 8)] private int maxSortieUnits = 3;
 
     [Header("Numbered Deployment Positions")]
     [SerializeField] private List<Vector2Int> deploymentPositions = new();
+
+    [Header("Deployment Tile Visual")]
+    [SerializeField] private GameObject deploymentTilePrefab;
 
     private void Awake()
     {
         CheckSortieSelection();
         DeploySelectedUnits();
+        ShowDeploymentTiles();
+    }
+    private void ShowDeploymentTiles()
+    {
+        foreach(Vector2Int position in deploymentPositions)
+        {
+            GameObject tile = Instantiate(deploymentTilePrefab,
+            battlefield.GridToWorld(position),
+            Quaternion.identity,
+            transform);
+
+            tile.name = "Deployment Zone";
+            Debug.Log("Deployment Zone " + position + " | World Position: " + tile.transform.position);
+            tile.transform.localScale = Vector3.one * battlefield.CellSize;
+
+        }
     }
 
     [ContextMenu("Validate Deployment Positions")]
@@ -200,17 +306,21 @@ public class SortieDeployment : MonoBehaviour
         {
             DeployUnit(mazingerZ, false, slotIndex);
         }
-
+        
+       
         if (SortieData.TetsuyaSelected)
         {
-            DeployUnit(greatMazinger, true, slotIndex);
-            slotIndex++;
+          DeployUnit(greatMazinger, true, slotIndex);
+          slotIndex++;
         }
         else
         {
-            DeployUnit(greatMazinger, false, slotIndex);
+          DeployUnit(greatMazinger, false, slotIndex);
         }
 
+        
+        
+    
         if (SortieData.AmuroSelected)
         {
             DeployUnit(gundam, true, slotIndex);

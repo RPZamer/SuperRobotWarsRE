@@ -7,6 +7,7 @@ public class Battlefield : MonoBehaviour
     [Min(1)][SerializeField] private int width = 10;
     [Min(1)][SerializeField] private int height = 10;
     [Min(0.1f)][SerializeField] private float cellSize = 1f;
+    public float CellSize => cellSize;
 
     [Header("Runtime Grid Lines")]
     [SerializeField] private bool showGridLines = true;
@@ -90,6 +91,22 @@ public class Battlefield : MonoBehaviour
         occupants[position] = unit;
         unit.SetGridPosition(position);
         UpdateUnitTerrain(unit);
+        return true;
+    }
+    public bool TryDeployUnit(BattleUnit unit, Vector2Int position)
+    {
+        if (unit == null || !IsInside(position))
+            return false;
+        BattleUnit occupant = GetUnit(position);
+
+        if (occupant != null && occupant != unit)
+            return false;
+
+        Remove(unit);
+
+        occupants[position] = unit;
+        unit.SetGridPosition(position);
+
         return true;
     }
 

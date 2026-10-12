@@ -199,19 +199,37 @@ public class BattleSystem : MonoBehaviour
     // until the opening story cutscene has finished.
     private IEnumerator BeginPlayerTurnAfterCutscene()
     {
-        // WEEK 6: Allow CutsceneManager.Start() to initialize
-        // and begin the opening cutscene.
+        SortieDeployment sortieDeployment = FindFirstObjectByType<SortieDeployment>();
+
+        if (sortieDeployment != null)
+        {
+            yield return new WaitUntil(() => sortieDeployment.DeploymentConfirmed);
+
+        }
         yield return null;
 
         if (cutsceneManager != null)
         {
-            yield return new WaitUntil(
-                () => !cutsceneManager.IsPlaying);
+            yield return new WaitUntil(() => !cutsceneManager.IsPlaying);
         }
 
-        // WEEK 6: Begin normal gameplay after the cutscene.
         yield return BeginPlayerTurn();
     }
+    //private IEnumerator BeginPlayerTurnAfterCutscene()
+   // {
+        // WEEK 6: Allow CutsceneManager.Start() to initialize
+        // and begin the opening cutscene.
+       // yield return null;
+
+       // if (cutsceneManager != null)
+       // {
+         //   yield return new WaitUntil(
+         //       () => !cutsceneManager.IsPlaying);
+       // }
+
+        // WEEK 6: Begin normal gameplay after the cutscene.
+       // yield return BeginPlayerTurn();
+    //}
 
     private void Update()
     {
