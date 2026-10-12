@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
   m_Name: Char
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: Amuro Ray
+  pilotName: Char
   level: 1
   melee: 100
   ranged: 120
@@ -37,7 +37,7 @@ MonoBehaviour:
   spirit5: {fileID: 11400000, guid: 24434f7ab9ea3c54cb45d4e2ec6617a0, type: 2}
   spirit6: {fileID: 0}
   onSuccessLines: []
-  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
+  defaultPortrait: {fileID: 3467471301840850612, guid: afec914737730b7469c96303ee8d2ba1, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}
