@@ -7294,6 +7294,61 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
   m_BlendShapeWeights: []
+--- !u!1 &1158015375
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1158015377}
+  - component: {fileID: 1158015376}
+  m_Layer: 0
+  m_Name: Sortie Deployment
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1158015376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158015375}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c51d593bd38af34baa21aba7612bd2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SortieDeployment
+  battlefield: {fileID: 2007392314}
+  mazingerZ: {fileID: 1516142469}
+  greatMazinger: {fileID: 1435154527}
+  gundam: {fileID: 4482251231403353720}
+  maxSortieUnits: 5
+  deploymentPositions:
+  - {x: 17, y: 10}
+  - {x: 18, y: 9}
+  - {x: 18, y: 11}
+  - {x: 17, y: 9}
+  - {x: 17, y: 11}
+--- !u!4 &1158015377
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1158015375}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1176506040 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
@@ -9091,6 +9146,17 @@ PrefabInstance:
       addedObject: {fileID: 1975560622}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+--- !u!114 &4482251231403353720 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2478699241586307519, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+  m_PrefabInstance: {fileID: 4482251231403353719}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &5117294907938600271
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9246,3 +9312,4 @@ SceneRoots:
   - {fileID: 2106571074}
   - {fileID: 1179897696}
   - {fileID: 1685596987}
+  - {fileID: 1158015377}
