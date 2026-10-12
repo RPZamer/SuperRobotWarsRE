@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,18 +12,19 @@ public class CutsceneManager : MonoBehaviour
     [Header("WEEK 6: Cutscene Settings")]
     [SerializeField] private CutsceneData openingCutscene;
 
-    // WEEK 6: References for the cinematic enemy reinforcement reveal.
-    [Header("WEEK 6: Enemy Reinforcement Event")]
+    // WEEK 6: Shared reinforcement system for allied and enemy units.
+    [Header("WEEK 6: Reinforcement References")]
     [SerializeField] private EnemyReinforcementReveal reinforcementReveal;
     [SerializeField] private BattleMusic battleMusic;
 
-    // WEEK 6: Element 13 is Amuro's warning.
-    [SerializeField] private int reinforcementAfterLine = 13;
+    // WEEK 6: Configure reinforcement events separately for each level.
+    // A value of -1 disables that event.
+    [Header("WEEK 6: Reinforcement Dialogue Triggers")]
+    [SerializeField] private int alliedReinforcementAfterLine = -1;
+    [SerializeField] private int enemyReinforcementAfterLine = 13;
 
     private bool isPlaying;
     private bool advanceRequested;
-
-    // WEEK 6: Prevent dialogue advancement during cinematic events.
     private bool eventPlaying;
 
     // WEEK 6: Other systems can check whether a cutscene is active.
@@ -42,7 +42,6 @@ public class CutsceneManager : MonoBehaviour
             sceneTransition = FindFirstObjectByType<SceneTransition>();
         }
 
-        // WEEK 6: Find the reinforcement components if not assigned.
         if (reinforcementReveal == null)
         {
             reinforcementReveal =
@@ -66,13 +65,12 @@ public class CutsceneManager : MonoBehaviour
 
     private void Update()
     {
-        // WEEK 6: Block input while reinforcement animation is playing.
+        // WEEK 6: Prevent input during reinforcement animations.
         if (!isPlaying || eventPlaying)
         {
             return;
         }
 
-        // WEEK 6: Advance with Space, Enter, or left mouse click.
         bool advancePressed =
             (Keyboard.current != null &&
              (Keyboard.current.spaceKey.wasPressedThisFrame ||
@@ -85,18 +83,18 @@ public class CutsceneManager : MonoBehaviour
             return;
         }
 
-        // WEEK 6: First press completes the current typewriter line.
+        // WEEK 6: First press completes the typewriter animation.
         if (dialogSystem != null && dialogSystem.IsTyping)
         {
             dialogSystem.CompleteTyping();
             return;
         }
 
-        // WEEK 6: Next press advances to the following dialogue line.
+        // WEEK 6: Second press advances to the next dialogue line.
         advanceRequested = true;
     }
 
-    // WEEK 6: Can also be called by the battle system after victory.
+    // WEEK 6: Used for both opening and victory cutscenes.
     public void PlayCutscene(CutsceneData cutscene)
     {
         if (cutscene == null || isPlaying)
@@ -121,12 +119,11 @@ public class CutsceneManager : MonoBehaviour
             yield break;
         }
 
-        // WEEK 6: Display the existing dialogue interface.
+        // WEEK 6: Show the existing dialogue interface.
         yield return dialogSystem.FadeIn();
 
         if (cutscene.lines != null)
         {
-            // WEEK 6: Track the dialogue index to trigger story events.
             for (int lineIndex = 0;
                  lineIndex < cutscene.lines.Length;
                  lineIndex++)
@@ -146,32 +143,53 @@ public class CutsceneManager : MonoBehaviour
                     line.dialogue,
                     line.showPortrait);
 
-                // WEEK 6: Wait for the player to finish and advance.
+                // WEEK 6: Wait for the player to advance the dialogue.
                 yield return new WaitUntil(
                     () => advanceRequested && !dialogSystem.IsTyping);
 
-                // WEEK 6: Trigger reinforcements after Amuro's warning.
-                // Only the opening cutscene uses this event.
-                if (cutscene == openingCutscene &&
-                    lineIndex == reinforcementAfterLine)
+                // WEEK 6: Only opening cutscenes trigger reinforcement events.
+                if (cutscene != openingCutscene)
+                {
+                    continue;
+                }
+
+                // WEEK 6: Reveal allied reinforcements at the configured line.
+                if (lineIndex == alliedReinforcementAfterLine)
                 {
                     eventPlaying = true;
                     advanceRequested = false;
 
-                    // WEEK 6: Play enemy reinforcement music when Amuro
-                    // notices the approaching Zakus.
+                    // WEEK 6: Allied reinforcements use their assigned music.
                     if (battleMusic != null)
                     {
-                        battleMusic.PlayEnemyReinforcementMusic();
+                        battleMusic.PlayAllyReinforcementMusic();
+                    }
+
+                    if (reinforcementReveal != null)
+                    {
+                        yield return reinforcementReveal.RevealAllies();
                     }
                     else
                     {
                         Debug.LogWarning(
-                            "WEEK 6: Battle Music reference is missing.",
+                            "WEEK 6: Reinforcement Reveal is missing.",
                             this);
                     }
 
-                    // WEEK 6: Reveal the existing enemy units one by one.
+                    eventPlaying = false;
+                }
+
+                // WEEK 6: Reveal enemy reinforcements at the configured line.
+                if (lineIndex == enemyReinforcementAfterLine)
+                {
+                    eventPlaying = true;
+                    advanceRequested = false;
+
+                    if (battleMusic != null)
+                    {
+                        battleMusic.PlayEnemyReinforcementMusic();
+                    }
+
                     if (reinforcementReveal != null)
                     {
                         yield return reinforcementReveal.RevealEnemies();
@@ -179,7 +197,7 @@ public class CutsceneManager : MonoBehaviour
                     else
                     {
                         Debug.LogWarning(
-                            "WEEK 6: Enemy Reinforcement Reveal is missing.",
+                            "WEEK 6: Reinforcement Reveal is missing.",
                             this);
                     }
 
@@ -188,11 +206,10 @@ public class CutsceneManager : MonoBehaviour
             }
         }
 
-        // WEEK 6: Hide the dialogue interface after the final line.
+        // WEEK 6: Hide dialogue after the final line.
         yield return dialogSystem.FadeOut();
 
-        // WEEK 6: Restore overworld music after the opening cutscene.
-        // Victory and other cutscenes will not trigger this music change.
+        // WEEK 6: Restore overworld music when opening dialogue ends.
         if (cutscene == openingCutscene && battleMusic != null)
         {
             battleMusic.FadeToOverworldMusic();
@@ -200,7 +217,7 @@ public class CutsceneManager : MonoBehaviour
 
         isPlaying = false;
 
-        // WEEK 6: Transition only when this cutscene requires it.
+        // WEEK 6: Preserve optional scene transitions.
         if (cutscene.transitionToScene)
         {
             if (sceneTransition != null &&
