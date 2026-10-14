@@ -5938,6 +5938,7 @@ MonoBehaviour:
   mainMenu: {fileID: 548181735}
   pilotsPanel: {fileID: 1032368025}
   levelSelectPanel: {fileID: 1321983642}
+  sortieButton: {fileID: 644424537}
   levelSelectButton: {fileID: 2124790651}
   mechs:
   - {fileID: 11400000, guid: 9917b5e1b2e3c73439734b4e5da29b24, type: 2}
@@ -9007,6 +9008,13 @@ MonoBehaviour:
   amuroToggle: {fileID: 1138182196}
   sortieInfoText: {fileID: 991109924}
   maxSortieUnits: 2
+  campaignSortieLimits: 0300000003000000050000000600000007000000i
+  campaignSceneNames:
+  - Level 1 - Strange Robot Gathering 1
+  - Level 2 - Launch to space, Super Robot Army 1
+  - Level 3 - Space Battle, Keep strong
+  - Level 4 - Moon battle before decisive conflict
+  - Final Stage - Char Vs Super Robot Army
 --- !u!1 &1918794575
 GameObject:
   m_ObjectHideFlags: 0

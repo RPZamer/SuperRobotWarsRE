@@ -16,13 +16,15 @@ public class IntermissionMenu : MonoBehaviour
     [SerializeField] private List<string> campaignLevels = new();
     private const string NextSceneKey = "NextScene";
 
-    private string nextScene; 
+    private string nextScene;
 
     [Header("Intermission Panels")]
     [SerializeField] private GameObject mechsPanel;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject pilotsPanel;
     [SerializeField] private GameObject levelSelectPanel;
+    [Header("Sortie Menu Availability")]
+    [SerializeField] private GameObject sortieButton;
 
     [Header("Debug Level Select")]
     [SerializeField] private GameObject levelSelectButton;
@@ -43,6 +45,23 @@ public class IntermissionMenu : MonoBehaviour
     [SerializeField] private TMP_Text pilotInfoText;
     [SerializeField] private GameObject sortiePanel;
 
+    private bool IsSortieAvailable()
+    {
+        int levelIndex = campaignLevels.IndexOf(nextScene);
+        return levelIndex >= 2 && levelIndex < campaignLevels.Count;
+    }
+
+    private void UpdateSortieAvailability()
+    {
+        bool available = IsSortieAvailable();
+        
+            if (sortieButton != null)
+            {
+                sortieButton.SetActive(available);
+            }
+            Debug.Log("Sortie available for " + nextScene + ": " + available);
+
+    }
     private void Start()
     {
         
@@ -63,8 +82,9 @@ public class IntermissionMenu : MonoBehaviour
             return;
 
         }
+        UpdateSortieAvailability();
 
-       if (levelSelectButton != null)
+        if (levelSelectButton != null)
         {
             levelSelectButton.SetActive(debugLevelSelectUnlocked);
         }
@@ -272,6 +292,12 @@ public class IntermissionMenu : MonoBehaviour
 
     public void OpenSortie()
     {
+        if(!IsSortieAvailable())
+        {
+            Debug.LogWarning("Sortie selection is unavailable for this mission.");
+            return;
+        }
+
         mainMenu.SetActive(false);
         sortiePanel.SetActive(true);
     }

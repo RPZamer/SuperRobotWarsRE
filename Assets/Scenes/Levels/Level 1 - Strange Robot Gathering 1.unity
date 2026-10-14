@@ -7499,6 +7499,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sortie Deployment
       objectReference: {fileID: 0}
+    - target: {fileID: 2488987195055869539, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5801070558638352766, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 1600
@@ -7511,6 +7515,10 @@ PrefabInstance:
       propertyPath: gundam
       value: 
       objectReference: {fileID: 4482251231403353720}
+    - target: {fileID: 8575920849033264134, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8575920849033264134, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: mazingerZ
       value: 
