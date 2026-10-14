@@ -1,4 +1,5 @@
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,9 +16,43 @@ public class SortieSelection : MonoBehaviour
     [Header("Sortie Limits")]
     [SerializeField] private int maxSortieUnits = 5;
 
+    [Header("Campaign Sortie Limits")]
+    [SerializeField] private int[] campaignSortieLimits = { 3, 3, 5, 6, 7 };
+
+    [SerializeField]
+    private string[] campaignSceneNames =
+    {
+        "Level 1 - Strange Robot Gathering 1",
+        "Level 2 - Launch to space, Super Robot Army 1",
+        "Level 3 - Space Battle, Keep strong",
+        "Level 4 - Moon battle before decisive conflict",
+        "Final Stage - Char Vs Super Robot Army"
+    };
+
+    private void UpdateMissionSortieLimit()
+    {
+        string nextScene = PlayerPrefs.GetString("NextScene", campaignSceneNames[0]);
+
+        for (int i = 0; i < campaignSceneNames.Length; i++)
+        {
+            if (campaignSceneNames[i] == nextScene)
+            {
+                if (i < campaignSortieLimits.Length)
+                {
+                    maxSortieUnits = campaignSortieLimits[i];
+
+                    Debug.Log("Mission: " + nextScene + " | Max sortie units: " + maxSortieUnits);
+                }
+                return;
+            }
+        }
+        Debug.LogWarning("No sortie limit configured for upcoming mission: " + nextScene);
+    }
+
     private void Start()
     {
-        if(SortieData.HasCustomSelection)
+        UpdateMissionSortieLimit();
+        if (SortieData.HasCustomSelection)
         {
             kojiToggle.isOn = SortieData.KojiSelected;
             tetsuyaToggle.isOn = SortieData.TetsuyaSelected;
@@ -37,6 +72,7 @@ public class SortieSelection : MonoBehaviour
 
         UpdateSortieInfo();
     }
+    
 
     private void OnSelectionChanged(bool isOn)
     {

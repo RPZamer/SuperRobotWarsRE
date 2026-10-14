@@ -125,6 +125,18 @@ public class IntermissionMenu : MonoBehaviour
     }
     public void SelectLevel(string sceneName)
     {
+        if (!campaignLevels.Contains(sceneName))
+        {
+            Debug.LogWarning("Scene not found in campaign: " + sceneName);
+            return;
+        }
+
+        nextScene = sceneName;
+        PlayerPrefs.SetString(NextSceneKey, nextScene);
+        PlayerPrefs.Save();
+
+        Debug.Log("Debug selected mission: " + nextScene);
+
         if (sceneTransition != null)
         {
             sceneTransition.FadeToScene(sceneName);

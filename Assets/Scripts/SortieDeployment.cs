@@ -12,16 +12,43 @@ public class SortieDeployment : MonoBehaviour
     [SerializeField] private BattleUnit mazingerZ;
     [SerializeField] private BattleUnit greatMazinger;
     [SerializeField] private BattleUnit gundam;
-   
+    [Header ("Deployment Selection Buttons")]
+    [SerializeField] private GameObject mazingerZButton;
+    [SerializeField] private GameObject greatMazingerButton;
+    [SerializeField] private GameObject gundamButton;
+    [Header("Mission Deployment Restrictions")]
+    [SerializeField] private bool greatMazingerIsReinforcement = false;
+
     private BattleUnit selectedUnit;
     public bool DeploymentConfirmed { get; private set; }
 
     public void SelectUnit(BattleUnit unit)
     {
- 
+        if (DeploymentConfirmed || unit == null)
+            return;
+        if (greatMazingerIsReinforcement && unit == greatMazinger)
+        {
+            Debug.LogWarning("Great Mazinger is reserved for reinforcement.");
+            return;
+        }
+
+        if (!unit.gameObject.activeInHierarchy)
+        {
+            Debug.LogWarning(unit.name + " is not available for deployment.");
+            return;
+        }
+        if (SortieData.HasCustomSelection)
+        {
+            if (unit == mazingerZ && !SortieData.KojiSelected)
+                return;
+            if (unit == greatMazinger && !SortieData.TetsuyaSelected)
+                return;
+            if (unit == gundam && !SortieData.AmuroSelected)
+                return;
+        }
         selectedUnit = unit;
         Debug.Log("Selected for deployment: " + unit.name);
-        
+
     }
     public void SelectMazingerZ()
     {
@@ -45,7 +72,7 @@ public class SortieDeployment : MonoBehaviour
 
         if (!battlefield.TryDeployUnit(selectedUnit, gridPosition))
             return;
-
+    
         Debug.Log(selectedUnit.name + " moved to " + gridPosition);
 
         selectedUnit = null;
@@ -61,7 +88,7 @@ public class SortieDeployment : MonoBehaviour
 
         foreach (Transform child in transform)
         {
-            if(child.name == "Deployment Zone")
+            if (child.name == "Deployment Zone")
             {
                 child.gameObject.SetActive(false);
             }
@@ -111,7 +138,25 @@ public class SortieDeployment : MonoBehaviour
     {
         CheckSortieSelection();
         DeploySelectedUnits();
+        UpdateDeploymentButtons();
         ShowDeploymentTiles();
+    }
+   private void UpdateDeploymentButtons()
+    {
+        //if (!SortieData.HasCustomSelection)
+           // return;
+
+        if (mazingerZButton != null)
+            mazingerZButton.SetActive(SortieData.KojiSelected);
+
+        if (greatMazingerButton != null)
+        {
+            greatMazingerButton.SetActive(!greatMazingerIsReinforcement &&
+            (!SortieData.HasCustomSelection || SortieData.TetsuyaSelected));
+        }
+
+        if (gundamButton != null)
+            gundamButton.SetActive(SortieData.AmuroSelected);
     }
     private void ShowDeploymentTiles()
     {

@@ -9006,7 +9006,7 @@ MonoBehaviour:
   tetsuyaToggle: {fileID: 1293660566}
   amuroToggle: {fileID: 1138182196}
   sortieInfoText: {fileID: 991109924}
-  maxSortieUnits: 5
+  maxSortieUnits: 2
 --- !u!1 &1918794575
 GameObject:
   m_ObjectHideFlags: 0
