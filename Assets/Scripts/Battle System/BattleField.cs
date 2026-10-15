@@ -30,6 +30,8 @@ public class Battlefield : MonoBehaviour
     private CombatHUD combatHUD;
 
     public IEnumerable<BattleUnit> Units => occupants.Values;
+    // WEEK 7: Share the existing detector with pilot terrain effects; no extra scene search per combat preview.
+    public CustomTiles GetBonusTile(Vector2Int position) => terrainDetector != null ? terrainDetector.GetBonusTile(position) : null;
 
     private void Awake()
     {
@@ -175,7 +177,8 @@ public class Battlefield : MonoBehaviour
                 // WEEK 5 FIXES: Originally, the range overlay checked only distance and therefore always showed the burst-style reach.
                 // It now uses the weapon's target-area check so column and cone aim cells follow the same geometry as combat.
                 // The overlay shows possible aim cells in all four directions, and the clicked enemy determines the final attack direction.
-                if (!weapon.IsInTargetRange(unit.GridPosition, position)) continue;
+                // WEEK 7: Newtype range highlights must match actual target validation.
+                if (!unit.IsWeaponInRange(weapon, position)) continue;
                 bool target = unit.CanUseWeapon(weapon, GetUnit(position));
                 CreateHighlight(position, target ? blockedColor : new Color(0.25f, 0.7f, 1f, 0.25f));
             }

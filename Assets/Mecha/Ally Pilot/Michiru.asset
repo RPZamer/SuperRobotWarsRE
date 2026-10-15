@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
-  m_Name: Ruri
+  m_Name: Michiru
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
-  pilotName: Ruri
+  pilotName: Michiru
   level: 1
   melee: 100
   ranged: 100
@@ -30,14 +30,40 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 0
   potentialLevel: 7
-  spirit1: {fileID: 0}
-  spirit2: {fileID: 0}
-  spirit3: {fileID: 0}
-  spirit4: {fileID: 0}
+  supportAttackLevel: 1
+  secondAttackLevel: 0
+  supportDefendLevel: 1
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 0
+  ignoreSizeLevel: 0
+  infightLevel: 0
+  gunfightLevel: 0
+  counterCutLevel: 0
+  newtypeLevel: 0
+  auraPowerLevel: 0
+  enhancedAttack: 0
+  moralePlusATK: 0
+  moralePlusDEF: 0
+  instinct: 0
+  guard: 0
+  attacker: 0
+  spiritEndurance: 0
+  hitAndAway: 0
+  applyTerrain: 0
+  tacticalStandby: 0
+  spDown: 1
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 0
+  spirit1: {fileID: 11400000, guid: abf5c77d662ecce44983a1510fd37f44, type: 2}
+  spirit2: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
+  spirit3: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit4: {fileID: 11400000, guid: f6739056b987aa14999a3a973aca35e9, type: 2}
   spirit5: {fileID: 0}
   spirit6: {fileID: 0}
   onSuccessLines: []
-  defaultPortrait: {fileID: 773273671123853354, guid: 3d1b0607e0cbf9d458cd1d77fa6f21b8, type: 3}
+  defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

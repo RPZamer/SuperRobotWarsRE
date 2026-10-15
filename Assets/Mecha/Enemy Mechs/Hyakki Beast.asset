@@ -10,26 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
-  m_Name: Nadesico
+  m_Name: Hyakki Beast
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
-  mechName: Nadesico
-  battleSprite: {fileID: 5651881652614053937, guid: 8982d9816e0032b478a56426c20c270a, type: 3}
+  mechName: Hyakki Beast
+  battleSprite: {fileID: 6045489811348382551, guid: f31ad3bf1001dff4b84dad2475f74ad0, type: 3}
   menuSprite: {fileID: 0}
-  battleTheme: {fileID: 8300000, guid: 51c584ba5e34a034aac14f3abdc96f3e, type: 3}
-  health: 7000
-  energy: 200
+  battleTheme: {fileID: 0}
+  health: 2000
+  energy: 100
   movement: 5
   mobility: 100
-  armor: 800
-  size: 4
+  armor: 1200
+  size: 2
   terrainRatings:
     air: 3
     ground: 3
     water: 3
     space: 3
   weapons:
-  - weaponName: Missle
-    damageType: 1
+  - weaponName: Beem
+    damageType: 0
     travelsToTargetTerrain: 0
     weaponType: 0
     classification: 0
@@ -37,76 +37,52 @@ MonoBehaviour:
     requiredMode: 0
     requiredMorale: 0
     mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
     minRange: 1
     maxRange: 5
     power: 1500
     accuracyModifier: 30
+    criticalModifier: 10
+    energyCost: 10
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 0
+      space: 3
+  - weaponName: Spear
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    mapShape: 0
+    mapLength: 0
+    mapWidth: 0
+    mapHitsAllies: 0
+    minRange: 1
+    maxRange: 1
+    power: 2000
+    accuracyModifier: 0
     criticalModifier: 0
     energyCost: 0
-    maxAmmo: 10
+    maxAmmo: 0
     terrainRatings:
       air: 3
       ground: 3
       water: 2
       space: 3
-  - weaponName: Gravity Blast (MAP)
-    damageType: 1
-    travelsToTargetTerrain: 0
-    weaponType: 0
-    classification: 2
-    attributes: 0
-    requiredMode: 0
-    requiredMorale: 0
-    mapShape: 1
-    mapLength: 7
-    mapWidth: 3
-    mapHitsAllies: 1
-    minRange: 1
-    maxRange: 7
-    power: 2000
-    accuracyModifier: 0
-    criticalModifier: 0
-    energyCost: 80
-    maxAmmo: 0
-    terrainRatings:
-      air: 3
-      ground: 3
-      water: 2
-      space: 4
-  - weaponName: Gravity Blast
-    damageType: 1
-    travelsToTargetTerrain: 0
-    weaponType: 0
-    classification: 0
-    attributes: 0
-    requiredMode: 0
-    requiredMorale: 0
-    mapShape: 0
-    mapLength: 3
-    mapWidth: 3
-    mapHitsAllies: 1
-    minRange: 1
-    maxRange: 7
-    power: 2500
-    accuracyModifier: 0
-    criticalModifier: 0
-    energyCost: 60
-    maxAmmo: 0
-    terrainRatings:
-      air: 3
-      ground: 3
-      water: 2
-      space: 4
   shieldHealth: 0
   barrier: 0
   specialEvasionAbility: 0
   specialEvasionChance: 0
   specialEvasionMorale: 130
   hpRegeneration: 0
-  enRegeneration: 1
+  enRegeneration: 0
   mazinPower: 0
   mode: 0
   gundFormat: 0
