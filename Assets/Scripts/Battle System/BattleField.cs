@@ -272,6 +272,8 @@ public class Battlefield : MonoBehaviour
             {
                 Vector2Int next = position + direction;
                 if (!IsInside(next) || occupants.ContainsKey(next) || distances.ContainsKey(next)) continue;
+                if (terrainDetector != null && !terrainDetector.CanGroundUnitPass(next))
+                    continue;
                 distances[next] = steps + 1;
                 pending.Enqueue(next);
             }

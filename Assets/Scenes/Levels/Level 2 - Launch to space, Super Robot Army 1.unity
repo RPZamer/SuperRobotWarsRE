@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -6554,6 +6555,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -6759,6 +6761,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -7050,6 +7053,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 73c9671d48699b24e95af4575bf6e322, type: 2}
   terrain: 1
   team: 0
@@ -7103,6 +7107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -7360,6 +7365,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 73c9671d48699b24e95af4575bf6e322, type: 2}
   terrain: 1
   team: 0
@@ -7398,6 +7404,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 73c9671d48699b24e95af4575bf6e322, type: 2}
   terrain: 1
   team: 0
@@ -7526,6 +7533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -7639,6 +7647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1
@@ -7834,6 +7843,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 73c9671d48699b24e95af4575bf6e322, type: 2}
   terrain: 1
   team: 0
@@ -8242,6 +8252,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
   pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
   additionalPilots: []
+  debugPilotSkills: 1
   mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
   terrain: 1
   team: 1

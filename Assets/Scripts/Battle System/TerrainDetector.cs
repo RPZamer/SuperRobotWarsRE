@@ -78,6 +78,21 @@ public class TerrainDetector : MonoBehaviour
         }
         return TileTypes.Ground;
     }
+    public bool CanGroundUnitPass(Vector2Int position)
+    {
+        if (terrainTilemap == null || battlefield == null)
+            return true;
+
+        Vector3 worldPosition = battlefield.GridToWorld(position);
+        Vector3Int tilePosition = terrainTilemap.WorldToCell(worldPosition);
+
+        CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
+
+        if (tile == null)
+            return true;
+
+        return !tile.NotPassable && tile.GroundUnitPassable;
+    }
 
     // WEEK 7: Read the painted tile's benefits using the existing world-to-cell mapping.
     // Combat reads these values without changing the tile asset or the terrain detection rules.

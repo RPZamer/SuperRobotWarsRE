@@ -32,6 +32,9 @@ public class MechBase : ScriptableObject
     [SerializeField] private MechSize size = MechSize.M;
     [SerializeField] private TerrainRatings terrainRatings = new();
     [SerializeField] private List<Weapon> weapons = new();
+    [Header("Movement Capabilites")]
+    [SerializeField] private bool canFly = false;
+    public bool CanFly => canFly;
 
     // WEEK 5 CHANGES PLEASE READ: The current mech asset exposes no ability settings, so the effect script has nothing to read.
     // These fields restore the saved ability names and add an optional component recipe for compatible combinations.
