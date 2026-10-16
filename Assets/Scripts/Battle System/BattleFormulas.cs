@@ -78,6 +78,9 @@ public static class BattleFormulas
             raw -= 30f;
         }
 
+        // WEEK 7: Final pilot bonuses stack with Potential/Focus; grounded tile evasion is doubled by Apply Terrain.
+        raw += PilotSkillEffects.FinalHitBonus(attacker) - PilotSkillEffects.FinalDodgeBonus(defender)
+            - PilotSkillEffects.TerrainBonus(defender, false);
         return (int)raw;
     }
 
@@ -89,7 +92,8 @@ public static class BattleFormulas
         // Delegating the two reads applies the bonus without mutating assets or changing the existing critical calculation.
         int rate = MechSkillEffect.PilotStat(attacker, attacker.Pilot.Skill) - MechSkillEffect.PilotStat(defender, defender.Pilot.Skill) + weapon.CriticalModifier
             + PilotSkillEffects.CriticalBonus(attacker.PotentialStage);
-        return rate;
+        // WEEK 7: Supreme adds final critical percentage points only while its morale requirement is met.
+        return rate + PilotSkillEffects.FinalCriticalBonus(attacker);
     }
 
     // WEEK 3 DMG CHECK: Keep the numeric breakdown tied to the exact values used by the damage formula.
@@ -123,7 +127,13 @@ public static class BattleFormulas
         float criticalMultiplier = critical ? 1.25f : 1f;
         // WEEK 4: PILOT SKILLS - Use defender HP BEFORE this hit. Apply reduction once, before final truncation.
         int reduction = PilotSkillEffects.DamageReductionPercent(defender.PotentialStage);
-        float raw = difference * criticalMultiplier * mechMultiplier;
+        // WEEK 7: Add only the requested damage effects to the existing formula, before its one final truncation.
+        float pilotAttackMultiplier = PilotSkillEffects.DamageDealtMultiplier(attacker);
+        float pilotDefenseMultiplier = PilotSkillEffects.DamageTakenMultiplier(defender);
+        float sizeMultiplier = PilotSkillEffects.SizeDamageMultiplier(attacker, defender);
+        int tileDefense = PilotSkillEffects.TerrainBonus(defender, true);
+        float raw = difference * criticalMultiplier * mechMultiplier * pilotAttackMultiplier * pilotDefenseMultiplier
+            * sizeMultiplier * (100 - tileDefense) / 100f;
         if (reduction > 0) raw = raw * (100 - reduction) / 100f;
         int truncated = (int)raw;
         int damage = Mathf.Max(0, truncated);
@@ -142,12 +152,12 @@ public static class BattleFormulas
             $"Defense before terrain = {defenseFactor:R} * {armor} = {defenseBeforeTerrain:R}\n" +
             $"DEFENSE = {defenseBeforeTerrain:R} * {armorTerrain:R} = {defense:R}\n" +
             $"Attack - Defense = {attack:R} - {defense:R} = {difference:R}\n" +
-            "Defender terrain bonus: deferred (effective x1)\n" +
+            $"WEEK 7: tile defense={tileDefense}%, size multiplier={sizeMultiplier:R}, pilot attack/defense multipliers={pilotAttackMultiplier:R}/{pilotDefenseMultiplier:R}\n" +
             $"Potential damage reduction: {reduction}%\n" +
             "Relationship/Ace final damage modifiers: deferred (effective x1)\n" +
             $"Critical={(critical ? 1 : 0)}, multiplier={criticalMultiplier:R}\n" +
             $"Mazin Power multiplier={mechMultiplier:R}\n" +
-            $"Raw damage = {difference:R} * {criticalMultiplier:R} * {mechMultiplier:R} * {100 - reduction}/100 = {raw:R}\n" +
+            $"Raw damage = {difference:R} * {criticalMultiplier:R} * {mechMultiplier:R} * {pilotAttackMultiplier:R} * {pilotDefenseMultiplier:R} * {sizeMultiplier:R} * {100 - tileDefense}/100 * {100 - reduction}/100 = {raw:R}\n" +
             $"Truncate toward zero = {truncated}\n" +
             $"FINAL FORMULA DAMAGE = Max(0, {truncated}) = {damage}",
             attacker);

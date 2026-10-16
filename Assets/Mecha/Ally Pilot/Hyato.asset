@@ -30,6 +30,32 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 0
   potentialLevel: 6
+  supportAttackLevel: 1
+  secondAttackLevel: 0
+  supportDefendLevel: 0
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 2
+  ignoreSizeLevel: 0
+  infightLevel: 4
+  gunfightLevel: 4
+  counterCutLevel: 0
+  newtypeLevel: 0
+  auraPowerLevel: 0
+  enhancedAttack: 1
+  moralePlusATK: 0
+  moralePlusDEF: 0
+  instinct: 0
+  guard: 0
+  attacker: 1
+  spiritEndurance: 0
+  hitAndAway: 0
+  applyTerrain: 0
+  tacticalStandby: 0
+  spDown: 0
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 1
   spirit1: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
   spirit2: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
   spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}

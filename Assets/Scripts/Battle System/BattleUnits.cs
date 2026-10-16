@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum BattleTeam
@@ -16,18 +17,45 @@ public class BattleUnit : MonoBehaviour
     // Public callers still read the ordinary unit properties, while only code in this assembly can update transition resources.
     [SerializeField] private List<PilotBase> additionalPilots = new();
     internal MechSkillEffect.State MechSkillState { get; } = new();
+    // WEEK 7: Runtime counters, crew morale and pending actions must not be shared by pilot assets.
+    internal PilotSkillEffects.State PilotSkillState { get; } = new();
+    public bool HitAndAwayPending => PilotSkillState.HitAndAwayPending;
+    // WEEK 7 DEBUG: A per-unit switch lets us inspect one pilot without changing formulas or flooding the Console.
+    // Explicit context-menu reports and warnings stay available when routine event tracing is switched off.
+    [Header("WEEK 7 Pilot Skill Diagnostics")]
+    [SerializeField] private bool debugPilotSkills = true;
+    public bool PilotSkillDebugEnabled => debugPilotSkills;
+    [ContextMenu("WEEK 7: Log Pilot Skills")]
+    public void LogPilotSkills()
+    {
+        if (!Application.isPlaying)
+        {
+            Debug.Log("[WEEK 7 Pilot Skill] Enter Play Mode to inspect live pilot abilities and support budgets.", this);
+            return;
+        }
+        PilotSkillEffects.ValidateSetup(this);
+        Debug.Log($"[WEEK 7 Pilot Skill] {name}: {PilotSkillEffects.Describe(this)}", this);
+    }
     internal IReadOnlyList<PilotBase> AdditionalPilots => additionalPilots;
     internal Dictionary<Weapon, int> AbilityAmmo => ammunition;
     internal SpriteRenderer AbilitySprite => spriteRenderer;
     public int CurrentShieldHealth => MechSkillState.Shield;
     public bool IsCombinedComponent => MechSkillState.CombinedInto != null;
-    public int GetWeaponPower(Weapon weapon) => MechSkillEffect.WeaponPower(this, weapon);
+    public int GetWeaponPower(Weapon weapon) => MechSkillEffect.WeaponPower(this, weapon) + PilotSkillEffects.WeaponPowerBonus(this, weapon);
+    // WEEK 7: Targeting, highlights and menu range all use the same effective Newtype range.
+    public int GetWeaponMaxRange(Weapon weapon) => weapon.MaxRange + PilotSkillEffects.WeaponRangeBonus(this, weapon);
+    public bool IsWeaponInRange(Weapon weapon, Vector2Int target) => weapon.Classification == WeaponClassification.Map ?
+        weapon.IsInMapArea(GridPosition, target, target, PilotSkillEffects.WeaponRangeBonus(this, weapon)) :
+        Mathf.Abs(target.x - GridPosition.x) + Mathf.Abs(target.y - GridPosition.y) >= weapon.MinRange &&
+        Mathf.Abs(target.x - GridPosition.x) + Mathf.Abs(target.y - GridPosition.y) <= GetWeaponMaxRange(weapon);
     [ContextMenu("WEEK 5: Log Mech Skills")]
     public void LogMechSkills() => MechSkillEffect.Log(this, MechSkillEffect.Describe(this));
     internal void CurrentMoraleForAbility(int value)
     {
         CurrentMorale = Mathf.Clamp(value, MinimumMorale, MaximumMorale);
         MechSkillEffect.RefreshMorale(this);
+        // WEEK 7 DEBUG: Report threshold changes after the existing morale/clamp rules have finished.
+        PilotSkillEffects.RefreshDiagnostics(this);
     }
     // WEEK 3: Assign the mech asset and the terrain this unit is currently using.
     [SerializeField] private MechBase mech;
@@ -127,7 +155,8 @@ public class BattleUnit : MonoBehaviour
     // GUND needs its current morale bonus included when reachability is calculated.
     // Delegating the base movement to MechSkillEffect keeps the existing EN cap and once-per-phase movement rules.
     public int AvailableMovement =>
-        mech != null && !HasMoved && !IsDocked && !HasActed && !IsCombinedComponent
+        mech != null && !HasMoved && !IsDocked && !HasActed && !IsCombinedComponent &&
+        !PilotSkillEffects.HasStatus(this, WeaponStatus.Immobile | WeaponStatus.Inactionable)
             ? Mathf.Min(MechSkillEffect.Movement(this) + (accelActive ? 3 : 0), CurrentEnergy)
             : 0;
 
@@ -146,6 +175,9 @@ public class BattleUnit : MonoBehaviour
 
         HasMoved = false;
         HasActed = false;
+        // WEEK 7: Expire old weapon statuses and retain newly inflicted ones for this turn.
+        // This also spends the turn when Inactionable survives Spirit Endurance.
+        PilotSkillEffects.BeginOwnTurn(this);
         isSelected = false;
         isActing = false;
 
@@ -177,9 +209,25 @@ public class BattleUnit : MonoBehaviour
     public const int StartingMorale = 100;
     public const int BaseMaximumMorale = 150;
     public const int AbsoluteMaximumMorale = 200;
-    public int CurrentMorale { get; private set; } = StartingMorale;
-    public int MaximumMorale => Mathf.Clamp(BaseMaximumMorale + moraleMaximumBonus,
+    // WEEK 7: The current main pilot reads their own morale; Getter form changes cannot transfer another pilot's morale.
+    // Existing main-pilot callers keep their property, and crew-specific changes use the same cap rules.
+    public int CurrentMorale
+    {
+        get => GetMorale(pilot);
+        private set { if (pilot != null) PilotSkillState.Morale[pilot] = value; }
+    }
+    public int GetMorale(PilotBase crewPilot) => crewPilot != null && PilotSkillState.Morale.TryGetValue(crewPilot, out int value) ? value : StartingMorale;
+    public int GetMaximumMorale(PilotBase crewPilot) => Mathf.Clamp(BaseMaximumMorale + moraleMaximumBonus + PilotSkillEffects.MaximumMoraleBonus(crewPilot),
         BaseMaximumMorale, AbsoluteMaximumMorale);
+    public int MaximumMorale => GetMaximumMorale(pilot);
+    public void ChangePilotMorale(PilotBase crewPilot, int amount)
+    {
+        if (!HasSpiritPilot(crewPilot) || IsDefeated) return;
+        PilotSkillState.Morale[crewPilot] = Mathf.Clamp(GetMorale(crewPilot) + amount, MinimumMorale, GetMaximumMorale(crewPilot));
+        if (crewPilot == pilot) MechSkillEffect.RefreshMorale(this);
+        // WEEK 7 DEBUG: A sub-pilot crossing 140 can activate Overflow even when the main pilot's morale stays unchanged.
+        PilotSkillEffects.RefreshDiagnostics(this);
+    }
 
     public bool IsDefeated => CurrentHealth <= 0;
     private void Awake()
@@ -206,8 +254,17 @@ public class BattleUnit : MonoBehaviour
         // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER needs all assigned pilots initialized before the first form's ammo is restored.
         // The separate GetterUnit state reads the existing crew and validates the saved three-form configuration here.
         // This also selects the configured main pilot when starting directly in Getter 2 or Getter 3 without spawning additional units.
+        // WEEK 7: Initialize each crew member's Fighter's Spirit morale before selecting a Getter main pilot.
+        // The existing mech initialization has already populated the crew list at this point.
+        PilotSkillEffects.Initialize(this);
         GetterState.Initialize(this);
+        MechSkillEffect.RefreshMorale(this);
         RestoreAmmo();
+        // WEEK 7 DEBUG: Check the final main pilot/crew and initialized weapons, rather than the pre-Getter setup.
+        // This reports the actual starting morale and flags impossible ability requirements once at battle startup.
+        PilotSkillEffects.ValidateSetup(this);
+        PilotSkillEffects.DebugLog(this, "Initialized: " + PilotSkillEffects.Describe(this));
+        PilotSkillEffects.RefreshDiagnostics(this);
 
         if (mech != null)
         {
@@ -242,6 +299,8 @@ public class BattleUnit : MonoBehaviour
     public void MarkActed()
     {
         HasActed = true;
+        // WEEK 7: Standby/docking finishes a pending Hit and Away move without granting a second attack.
+        PilotSkillState.HitAndAwayPending = false;
         RefreshVisualState();
     }
 
@@ -326,7 +385,8 @@ public class BattleUnit : MonoBehaviour
     public bool CanUseWeapon(Weapon weapon, BattleUnit target, bool counterattack = false)
     {
         if (weapon == null || mech == null || pilot == null || IsDefeated || IsDocked ||
-            target == null || !target.CanBeTargetedBy(this) || !CanAffordWeapon(weapon))
+            target == null || !target.CanBeTargetedBy(this) || !CanAffordWeapon(weapon) ||
+            (!counterattack && HitAndAwayPending) || PilotSkillEffects.HasStatus(this, WeaponStatus.Inactionable))
             return false;
 
         // WEEK 5 FIXES: Originally, moving did not prevent this unit from initiating an attack with an untagged weapon.
@@ -338,7 +398,7 @@ public class BattleUnit : MonoBehaviour
         bool owned = false;
         foreach (Weapon equipped in mech.Weapons)
             if (equipped == weapon) { owned = true; break; }
-        return owned && weapon.IsInTargetRange(GridPosition, target.GridPosition);
+        return owned && IsWeaponInRange(weapon, target.GridPosition);
     }
 
     // WEEK 3: Pick the first weapon that can reach the enemy and has enough energy.
@@ -355,7 +415,8 @@ public class BattleUnit : MonoBehaviour
         {
             if (weapon != null &&
                 CanUseWeapon(weapon, target, counterattack) &&
-                (weapon.Type & requiredType) == requiredType)
+                ((weapon.Type & requiredType) == requiredType ||
+                    (requiredType == WeaponType.FirstStrike && PilotSkillEffects.HasFirstStrike(this, weapon))))
                 return weapon;
         }
         return null;
@@ -387,7 +448,8 @@ public class BattleUnit : MonoBehaviour
     // Resource spending uses this guard too, preventing locked attacks from consuming EN or ammo while leaving skill activation rules intact.
     public bool CanAffordWeapon(Weapon weapon) => weapon != null && ammunition.ContainsKey(weapon) &&
         !IsDefeated && !IsDocked && !IsCombinedComponent && CurrentMorale >= weapon.RequiredMorale &&
-        MechSkillEffect.IsWeaponUnlocked(this, weapon) && GetWeaponEnergyCost(weapon) <= CurrentEnergy &&
+        MechSkillEffect.IsWeaponUnlocked(this, weapon) && PilotSkillEffects.IsWeaponUnlocked(this, weapon) &&
+        !PilotSkillEffects.HasStatus(this, WeaponStatus.Inactionable) && GetWeaponEnergyCost(weapon) <= CurrentEnergy &&
         (weapon.MaxAmmo == 0 || GetAmmo(weapon) > 0);
 
     public bool TrySpendWeapon(Weapon weapon)
@@ -705,17 +767,23 @@ public class BattleUnit : MonoBehaviour
         // Mazin Power needs to latch at 130, while modes and GUND must update when their morale thresholds change.
         // Refreshing here makes weapon unlocks and effective stats current for both combat and Spirit morale changes.
         MechSkillEffect.RefreshMorale(this);
+        // WEEK 7 DEBUG: Report threshold changes after the existing morale/clamp rules have finished.
+        PilotSkillEffects.RefreshDiagnostics(this);
     }
 
     // WEEK 4 MORALE SYSTEM: Future abilities and equipment can raise the ceiling safely.
     public void SetMoraleMaximumBonus(int bonus)
     {
         moraleMaximumBonus = Mathf.Clamp(bonus, 0, AbsoluteMaximumMorale - BaseMaximumMorale);
-        CurrentMorale = Mathf.Clamp(CurrentMorale, MinimumMorale, MaximumMorale);
+        // WEEK 7: A unit-level cap change must clamp every Getter pilot, including currently inactive main pilots.
+        foreach (PilotBase crewPilot in SpiritCrew)
+            PilotSkillState.Morale[crewPilot] = Mathf.Clamp(GetMorale(crewPilot), MinimumMorale, GetMaximumMorale(crewPilot));
         // WEEK 5 CHANGES PLEASE READ: Lowering the morale cap can also lower the unit's current morale.
         // That change must refresh mode unlocks and GUND bonuses just like ChangeMorale does.
         // This keeps effective stats consistent while preserving already-activated Mazin Power for the stage.
         MechSkillEffect.RefreshMorale(this);
+        // WEEK 7 DEBUG: Report threshold changes after the existing morale/clamp rules have finished.
+        PilotSkillEffects.RefreshDiagnostics(this);
     }
 
     public void RechargeEnergy()

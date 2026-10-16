@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Tetsuya Tsurigi
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Tetsuya
+  level: 1
   melee: 120
   ranged: 100
   defense: 110
@@ -29,6 +30,32 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 1
   potentialLevel: 6
+  supportAttackLevel: 2
+  secondAttackLevel: 1
+  supportDefendLevel: 0
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 0
+  ignoreSizeLevel: 0
+  infightLevel: 0
+  gunfightLevel: 0
+  counterCutLevel: 5
+  newtypeLevel: 0
+  auraPowerLevel: 0
+  enhancedAttack: 0
+  moralePlusATK: 1
+  moralePlusDEF: 0
+  instinct: 0
+  guard: 0
+  attacker: 1
+  spiritEndurance: 0
+  hitAndAway: 0
+  applyTerrain: 0
+  tacticalStandby: 0
+  spDown: 0
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 0
   spirit1: {fileID: 11400000, guid: faffeb4ec4156fa46956d8101d79c848, type: 2}
   spirit2: {fileID: 11400000, guid: 714e10a53daee3340b318950173af4f1, type: 2}
   spirit3: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}

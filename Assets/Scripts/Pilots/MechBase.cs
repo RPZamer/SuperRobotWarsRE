@@ -39,6 +39,9 @@ public class MechBase : ScriptableObject
     [Header("WEEK 5 Mech Skills")]
     [Min(0)][SerializeField] private int shieldHealth;
     [SerializeField] private MechBarrier barrier;
+    // WEEK 7: Counter Cut needs an explicit sword equipment flag; melee weapons alone do not imply a sword.
+    [SerializeField] private bool hasSword;
+    public bool HasSword => hasSword;
     [SerializeField] private SpecialEvasionAbility specialEvasionAbility;
     [HideInInspector][Range(0, 100)][SerializeField] private int specialEvasionChance;
     [HideInInspector][Min(0)][SerializeField] private int specialEvasionMorale = 130;

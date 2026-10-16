@@ -9,12 +9,13 @@ using UnityEngine.Tilemaps;
 public class TerrainDetector : MonoBehaviour
 {
     //Stores a battlefield grid cell's position and its terrain type.
-    [Serializable] public class TerrainCell
+    [Serializable]
+    public class TerrainCell
     {
         public Vector2Int Position;
         public TerrainType Terrain = TerrainType.Ground;
     }
-    
+
 
     //Tilemap containing the panted terrain data for this battlefield.
     [SerializeField] private Tilemap terrainTilemap;
@@ -35,7 +36,7 @@ public class TerrainDetector : MonoBehaviour
 
             Vector3Int tilePosition = terrainTilemap.WorldToCell(worldPosition);
 
-            
+
 
             CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
             Debug.Log("[TERRAIN TEST] Battle Cell: " + position
@@ -46,7 +47,7 @@ public class TerrainDetector : MonoBehaviour
             {
                 return ConvertTileType(tile.Tile);
             }
-           
+
 
         }
 
@@ -68,7 +69,7 @@ public class TerrainDetector : MonoBehaviour
         {
             Vector3 worldPosition = battlefield.GridToWorld(position);
             Vector3Int tilePosition = terrainTilemap.WorldToCell(worldPosition);
-            
+
             CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
             if (tile != null)
             {
@@ -76,6 +77,14 @@ public class TerrainDetector : MonoBehaviour
             }
         }
         return TileTypes.Ground;
+    }
+
+    // WEEK 7: Read the painted tile's benefits using the existing world-to-cell mapping.
+    // Combat reads these values without changing the tile asset or the terrain detection rules.
+    public CustomTiles GetBonusTile(Vector2Int position)
+    {
+        if (terrainTilemap == null || battlefield == null) return null;
+        return terrainTilemap.GetTile<CustomTiles>(terrainTilemap.WorldToCell(battlefield.GridToWorld(position)));
     }
 
     private TerrainType ConvertTileType(TileTypes tileType)
