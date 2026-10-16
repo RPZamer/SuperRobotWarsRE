@@ -25,5 +25,5 @@ public enum TileTypes
     Colony,
     Canyon,
 
-    Impassible // for walls or canyons
+    Impassable // for walls or canyons
 }
