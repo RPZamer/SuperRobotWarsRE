@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Boss Borot
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Boss Borot
-  battleSprite: {fileID: -4903496977257165332, guid: b1649902fd17929438d34e968d70439d, type: 3}
+  battleSprite: {fileID: 7639429424499072678, guid: b1649902fd17929438d34e968d70439d, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: a857ea296b3c8ea4fa19ff4fc91f348b, type: 3}
   health: 2000
@@ -36,6 +36,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -60,6 +65,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 110
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -84,6 +94,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 130
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -100,8 +115,10 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
+  canFly: 0
   shieldHealth: 0
   barrier: 0
+  hasSword: 0
   specialEvasionAbility: 0
   specialEvasionChance: 0
   specialEvasionMorale: 130

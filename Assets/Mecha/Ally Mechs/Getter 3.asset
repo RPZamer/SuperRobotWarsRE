@@ -36,6 +36,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -60,6 +65,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -84,6 +94,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 120
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
@@ -100,8 +115,10 @@ MonoBehaviour:
       ground: 3
       water: 4
       space: 0
+  canFly: 0
   shieldHealth: 0
   barrier: 0
+  hasSword: 0
   specialEvasionAbility: 2
   specialEvasionChance: 0
   specialEvasionMorale: 130

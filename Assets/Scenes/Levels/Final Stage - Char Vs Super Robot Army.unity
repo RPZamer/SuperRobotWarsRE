@@ -8870,6 +8870,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1850319771}
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: getterChangeButton
+      value: 
+      objectReference: {fileID: 201352639}
+    - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: reactionPreviewText
       value: 
       objectReference: {fileID: 120077977}
