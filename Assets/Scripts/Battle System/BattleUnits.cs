@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Collections;
 using UnityEngine;
 
 public enum BattleTeam
@@ -72,6 +72,10 @@ public class BattleUnit : MonoBehaviour
     private Battlefield battlefield;
     private SpriteRenderer spriteRenderer;
     private Color normalColor = Color.white;
+
+    [Header("Unit Movement")]
+    [SerializeField] private float movementSpeed = 3f;
+    private Coroutine movementCoroutine;
 
     // WEEK 3: Track the unit's temporary visual state so selection,
     // enemy AI actions, and completed actions can use different colors.
@@ -363,8 +367,30 @@ public class BattleUnit : MonoBehaviour
     public void SetGridPosition(Vector2Int position)
     {
         GridPosition = position;
-        transform.position = battlefield.GridToWorld(position);
+
+        if (battlefield != null)
+        {
+            if (movementCoroutine != null)
+            {
+                StopCoroutine(movementCoroutine);
+            }
+
+            movementCoroutine = StartCoroutine(MoveToPosition(battlefield.GridToWorld(position)));
+        }
     }
+
+    private IEnumerator MoveToPosition(Vector3 targetPosition)
+    {
+        while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
+        {
+            transform.position = Vector3.MoveTowards(transform.position, targetPosition, movementSpeed * Time.deltaTime);
+            yield return null;
+        }
+
+        transform.position = targetPosition;
+        movementCoroutine = null;
+    }
+
 
     // WEEK 3: Spend energy only when the unit is alive and can afford the full cost.
     public bool TrySpendEnergy(int amount)
