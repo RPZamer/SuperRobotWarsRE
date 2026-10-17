@@ -238,12 +238,6 @@ public class CombatHUD : MonoBehaviour
         SceneManager.LoadScene("Title Screen");
     }
 
-    public void ExitGame()
-    {
-        Application.Quit();
-    }
-
-
     private IEnumerator DefeatFadeSequence()
     {
         // Fade in the black background first.

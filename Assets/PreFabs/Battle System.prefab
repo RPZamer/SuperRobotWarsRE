@@ -44,13 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d231c831f7fb41644b811759dc50b9d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleSystem
+  sceneTransition: {fileID: 0}
   battlefield: {fileID: 0}
   battleCamera: {fileID: 0}
   dialogSystem: {fileID: 0}
+  cutsceneManager: {fileID: 0}
   actionsMenu: {fileID: 0}
   combatHUD: {fileID: 0}
+  battleMusic: {fileID: 0}
   playerObjectiveUnit: {fileID: 0}
   enemyObjectiveUnit: {fileID: 0}
   playerTeam: 0
   enemyMoveDelay: 0.5
   debugBattleCalculations: 1
+  victoryCutscene: {fileID: 11400000, guid: 50dc70677b23dba408290f2539c82b1d, type: 2}
