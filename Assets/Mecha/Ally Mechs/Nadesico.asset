@@ -16,7 +16,7 @@ MonoBehaviour:
   battleSprite: {fileID: 5651881652614053937, guid: 8982d9816e0032b478a56426c20c270a, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 51c584ba5e34a034aac14f3abdc96f3e, type: 3}
-  health: 7000
+  health: 7
   energy: 200
   movement: 5
   mobility: 100
@@ -115,6 +115,7 @@ MonoBehaviour:
       ground: 3
       water: 2
       space: 4
+  canFly: 0
   shieldHealth: 0
   barrier: 2
   hasSword: 0

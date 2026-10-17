@@ -2076,12 +2076,21 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Mazinger Z is the designated player objective.
-        // Defeating it completes the scenario with Defeat.
+        // WEEK 3: If all player units die or the player objective (the mothership) is defeated, the scenario ends with Defeat.
+
+        if (FindFirstUnit(BattleTeam.Player) == null)
+        {
+            EndScenario(ScenarioResult.Defeat);
+            return;
+        }
+        
         if (playerObjectiveUnit != null && playerObjectiveUnit.IsDefeated)
         {
             EndScenario(ScenarioResult.Defeat);
+            return;
         }
+
+        
     }
 
     // WEEK 3: Store one permanent final result and immediately stop normal
@@ -2114,8 +2123,14 @@ public class BattleSystem : MonoBehaviour
         // after normal battle controls have been stopped.
         if (combatHUD != null)
         {
-            combatHUD.ShowScenarioResult(
-                scenarioResult == ScenarioResult.Victory ? "VICTORY" : "DEFEAT");
+            if (scenarioResult == ScenarioResult.Victory)
+            {
+                combatHUD.ShowVictoryScreen();
+            }
+            else
+            {
+                combatHUD.ShowDefeatScreen();
+            }
         }
 
         Debug.Log($"[SCENARIO END] {scenarioResult}", this);
@@ -2127,6 +2142,7 @@ public class BattleSystem : MonoBehaviour
             StartCoroutine(TransitionToIntermission());
         }
     }
+
     // WEEK 6: CUTSCENES - Wait for the victory dialogue
     // before transitioning to Intermission.
     private IEnumerator TransitionToIntermission()
