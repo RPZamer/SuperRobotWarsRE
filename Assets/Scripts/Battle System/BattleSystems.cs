@@ -1508,13 +1508,15 @@ public class BattleSystem : MonoBehaviour
             choices.Add(("No follow-up", selectedSupportWeapon == null, () => ChoosePilotFollowup(null, null, false)));
             foreach (Weapon weapon in reactionAttacker.Mech.Weapons)
                 if (weapon != null && CanSelectSecondAttack(weapon))
-                    choices.Add(($"Second Attack: {weapon.WeaponName}", selectedSecondAttack && selectedSupportWeapon == weapon,
+                    choices.Add(($"Second Attack: {weapon.WeaponName} (self)", selectedSecondAttack && selectedSupportWeapon == weapon,
                         () => ChoosePilotFollowup(reactionAttacker, weapon, true)));
+            // WEEK 7 FIX: Only other allied units belong in Support Attack choices.
+            // The acting unit can appear above only as a clearly labelled Second Attack.
             foreach (BattleUnit candidate in battlefield.Units)
-                if (candidate != null && candidate.Mech != null)
+                if (candidate != null && candidate != reactionAttacker && candidate.Team == reactionAttacker.Team && candidate.Mech != null)
                     foreach (Weapon weapon in candidate.Mech.Weapons)
                         if (weapon != null && PilotSkillEffects.CanSupportAttack(candidate, reactionAttacker, reactionDefender, weapon))
-                            choices.Add(($"{candidate.Pilot.PilotName} / {candidate.Mech.MechName}\n{weapon.WeaponName} ({candidate.PilotSkillState.SupportAttacksUsed}/{candidate.Pilot.SupportAttackLevel} used)",
+                            choices.Add(($"Support Attack: {candidate.Pilot.PilotName} / {candidate.Mech.MechName}\n{weapon.WeaponName} ({candidate.PilotSkillState.SupportAttacksUsed}/{candidate.Pilot.SupportAttackLevel} used)",
                                 !selectedSecondAttack && selectedSupportAttacker == candidate && selectedSupportWeapon == weapon,
                                 () => ChoosePilotFollowup(candidate, weapon, false)));
             if (choices.Count > 1) actionsMenu.ShowPilotSupportOptions("Follow-up (50% damage)", choices);
@@ -1543,7 +1545,10 @@ public class BattleSystem : MonoBehaviour
                 $"Follow-up selection rejected for {weapon.WeaponName}: recheck Skill lead, adjacency, unused action, phase uses, range and EN/ammo. " + PilotSkillEffects.DescribeSecondAttack(reactionAttacker, reactionDefender));
             return;
         }
-        selectedSupportAttacker = support; selectedSupportWeapon = weapon; selectedSecondAttack = second;
+        // WEEK 7 FIX: A personal Second Attack never registers the acting unit as an allied supporter.
+        // Its separate flag and weapon drive execution; Support Attack always rechecks the other-unit guard.
+        selectedSupportAttacker = second ? null : support;
+        selectedSupportWeapon = weapon; selectedSecondAttack = second;
         ShowReactionMenu();
     }
     private void ChoosePilotDefender(BattleUnit support)

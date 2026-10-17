@@ -267,7 +267,16 @@ public static class MechSkillEffect
         string.IsNullOrWhiteSpace(unit.Mech.TransformInto.GetterCompatibilityId);
     public static bool TryTransform(BattleUnit unit)
     {
-        if (!CanTransform(unit)) { Log(unit, "Transform rejected: linked form, mode morale threshold or unit availability requirement failed."); return false; }
+        // WEEK 7 GETTER DEBUG: Ordinary Transform deliberately excludes Getter forms.
+        // Explain the correct command even when routine debug logging is disabled.
+        if (!CanTransform(unit))
+        {
+            if (unit != null && unit.Mech != null &&
+                (unit.Mech.GetterForms.Count > 0 || GetterUnit.IsGetterForm(unit.Mech.TransformInto)))
+                Debug.LogWarning("[WEEK 5 GETTER] Ordinary Transform cannot change Getter forms. Select this unit and use Getter Change (T) during the player phase. If that fails, its warning will identify the missing setup.", unit);
+            else Log(unit, "Transform rejected: linked form, mode morale threshold or unit availability requirement failed.");
+            return false;
+        }
         ChangeForm(unit, unit.Mech.TransformInto); return true;
     }
     // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER needs its own form transition rather than the ordinary transform's shared ammo/SP rules.
@@ -276,6 +285,13 @@ public static class MechSkillEffect
     public static MechBase NextGetterForm(BattleUnit unit)
     {
         if (!OnGrid(unit)) return null;
+        // WEEK 7 GETTER FIX: Taking the first Getter Forms entry made Getter 1 and 2
+        // select each other forever, leaving Getter 3 unreachable through the command.
+        // Follow the saved Transform Into cycle (1 -> 2 -> 3 -> 1), using Getter's
+        // existing crew/form validation and resource handling rather than ordinary Transform.
+        MechBase next = unit.Mech.TransformInto;
+        if (unit.GetterState.CanChangeForm(next)) return next;
+        // Keep the existing fallback for assets without a valid preferred form link.
         foreach (MechBase form in unit.Mech.GetterForms)
             if (unit.GetterState.CanChangeForm(form)) return form;
         return null;
@@ -283,7 +299,14 @@ public static class MechSkillEffect
     public static bool TryGetterChange(BattleUnit unit)
     {
         MechBase form = NextGetterForm(unit);
-        if (form == null) { Log(unit, "Getter Change rejected: linked form, compatibility ID or exact three-pilot crew missing."); return false; }
+        if (form == null)
+        {
+            // WEEK 7 GETTER DEBUG: No valid form used to exit before the detailed failure reporter.
+            // Route every rejected Getter Change through the existing always-visible warning.
+            if (unit != null) unit.GetterState.ReportChangeFailure();
+            else Debug.LogWarning("[WEEK 5 GETTER] Cannot change form: no BattleUnit was supplied. Select the deployed Getter first.");
+            return false;
+        }
         return unit.GetterState.TryChangeForm(form);
     }
 

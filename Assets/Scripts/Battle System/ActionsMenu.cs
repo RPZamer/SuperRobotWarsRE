@@ -135,6 +135,8 @@ public class ActionsMenu : MonoBehaviour
     private CanvasGroup pilotSupportPanel;
     private RectTransform pilotSupportContent;
     private TMP_Text pilotSupportTitle;
+    private ScrollRect pilotSupportScroll;
+    private ActionsMenuDragHandle pilotSupportDragHandle;
     private readonly List<Button> pilotSupportButtons = new();
     private readonly List<WeaponRowView> rows = new();
     private BattleSystem battle;
@@ -688,14 +690,17 @@ public class ActionsMenu : MonoBehaviour
     {
         if (pilotSupportPanel == null) PreparePilotSupportPanel();
         if (pilotSupportPanel == null) return;
+        // WEEK 7 FIX: Refreshing a selected row must not jump back to the top of a long list.
+        float scrollPosition = pilotSupportButtons.Count > 0 ? pilotSupportScroll.verticalNormalizedPosition : 1f;
         foreach (Button button in pilotSupportButtons)
             if (button != null) { button.gameObject.SetActive(false); Destroy(button.gameObject); }
         pilotSupportButtons.Clear();
-        pilotSupportTitle.text = title;
+        pilotSupportTitle.text = title + "\nDrag title to move";
         foreach (var choice in choices)
         {
             Button button = Instantiate(beginCombatButton, pilotSupportContent);
             button.name = "WEEK 7 Support Option";
+            button.transform.localScale = Vector3.one;
             button.gameObject.SetActive(true);
             // A fresh event also removes any persistent callbacks inherited from the source button.
             button.onClick = new Button.ButtonClickedEvent();
@@ -704,7 +709,9 @@ public class ActionsMenu : MonoBehaviour
             button.navigation = new Navigation { mode = Navigation.Mode.None };
             LayoutElement layout = button.GetComponent<LayoutElement>();
             if (layout == null) layout = button.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = false;
             layout.minHeight = layout.preferredHeight = choice.label.Contains("\n") ? 72 : 48;
+            layout.flexibleHeight = 0;
             TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
             if (label != null)
             {
@@ -718,9 +725,15 @@ public class ActionsMenu : MonoBehaviour
             SetReactionHighlight(button, choice.selected);
             pilotSupportButtons.Add(button);
         }
-        LayoutRebuilder.ForceRebuildLayoutImmediate(pilotSupportContent);
         pilotSupportPanel.transform.SetAsLastSibling();
         SetVisible(pilotSupportPanel, true);
+        // Rebuild after showing the panel so the fitter and scroll bounds include every row.
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(pilotSupportContent);
+        pilotSupportScroll.StopMovement();
+        pilotSupportScroll.verticalNormalizedPosition = scrollPosition;
+        pilotSupportScroll.Rebuild(CanvasUpdate.PostLayout);
+        pilotSupportDragHandle.ClampToCanvas();
     }
 
     private void PreparePilotSupportPanel()
@@ -731,30 +744,35 @@ public class ActionsMenu : MonoBehaviour
         RectTransform rect = (RectTransform)panel.transform;
         RectTransform reactionRect = (RectTransform)reactionPanel.transform;
         rect.SetParent(reactionRect.parent, false);
-        rect.anchorMin = rect.anchorMax = reactionRect.anchorMin;
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
         rect.sizeDelta = new Vector2(320, 420);
-        rect.anchoredPosition = reactionRect.anchoredPosition + new Vector2(reactionRect.rect.width / 2f + 172, 0);
-        // Keep the added panel within its canvas without repositioning the existing reaction controls.
-        RectTransform parent = rect.parent as RectTransform;
-        if (parent != null)
-            rect.anchoredPosition = new Vector2(Mathf.Clamp(rect.anchoredPosition.x, parent.rect.xMin + 160, parent.rect.xMax - 160),
-                Mathf.Clamp(rect.anchoredPosition.y, parent.rect.yMin + 210, parent.rect.yMax - 210));
+        rect.position = reactionRect.TransformPoint(new Vector3(reactionRect.rect.xMax + 172, reactionRect.rect.center.y, 0));
         panel.GetComponent<Image>().color = new Color(0.08f, 0.12f, 0.18f, 0.98f);
         pilotSupportPanel = panel.GetComponent<CanvasGroup>();
+        // WEEK 7 FIX: Only the title drags the window; dragging options still scrolls the list.
+        GameObject header = new("Drag Support Menu", typeof(RectTransform), typeof(Image), typeof(ActionsMenuDragHandle));
+        header.layer = panel.layer;
+        RectTransform headerRect = (RectTransform)header.transform;
+        headerRect.SetParent(rect, false);
+        headerRect.anchorMin = new Vector2(0, 1); headerRect.anchorMax = Vector2.one;
+        headerRect.pivot = new Vector2(0.5f, 1); headerRect.sizeDelta = new Vector2(0, 48);
+        header.GetComponent<Image>().color = new Color(0.12f, 0.22f, 0.3f);
+        pilotSupportDragHandle = header.GetComponent<ActionsMenuDragHandle>();
+        pilotSupportDragHandle.Initialize(rect, GetComponentInParent<Canvas>(), null, true);
         pilotSupportTitle = Instantiate(reactionPreviewText, rect);
         pilotSupportTitle.name = "WEEK 7 Support Title";
-        pilotSupportTitle.fontSize = 18; pilotSupportTitle.enableAutoSizing = false;
+        pilotSupportTitle.fontSize = 16; pilotSupportTitle.enableAutoSizing = false;
         pilotSupportTitle.alignment = TextAlignmentOptions.Center; pilotSupportTitle.raycastTarget = false;
         pilotSupportTitle.rectTransform.anchorMin = new Vector2(0, 1); pilotSupportTitle.rectTransform.anchorMax = Vector2.one;
         pilotSupportTitle.rectTransform.pivot = new Vector2(0.5f, 1);
-        pilotSupportTitle.rectTransform.anchoredPosition = new Vector2(0, -8);
+        pilotSupportTitle.rectTransform.anchoredPosition = new Vector2(0, -4);
         pilotSupportTitle.rectTransform.sizeDelta = new Vector2(-16, 38);
         GameObject viewportObject = new("WEEK 7 Support Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
         viewportObject.layer = panel.layer;
         RectTransform viewport = (RectTransform)viewportObject.transform;
         viewport.SetParent(rect, false); viewport.anchorMin = Vector2.zero; viewport.anchorMax = Vector2.one;
-        viewport.offsetMin = new Vector2(10, 10); viewport.offsetMax = new Vector2(-10, -52);
+        viewport.offsetMin = new Vector2(10, 10); viewport.offsetMax = new Vector2(-34, -52);
         viewportObject.GetComponent<Image>().color = Color.clear;
         GameObject content = new("Options", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
         content.layer = panel.layer;
@@ -762,14 +780,34 @@ public class ActionsMenu : MonoBehaviour
         pilotSupportContent.SetParent(viewport, false);
         pilotSupportContent.anchorMin = new Vector2(0, 1); pilotSupportContent.anchorMax = Vector2.one;
         pilotSupportContent.pivot = new Vector2(0.5f, 1); pilotSupportContent.sizeDelta = Vector2.zero;
+        pilotSupportContent.anchoredPosition = Vector2.zero;
         VerticalLayoutGroup group = content.GetComponent<VerticalLayoutGroup>();
         group.spacing = 6; group.childControlWidth = group.childControlHeight = true;
         group.childForceExpandWidth = true; group.childForceExpandHeight = false;
         content.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        ScrollRect scroll = viewportObject.GetComponent<ScrollRect>();
-        scroll.viewport = viewport; scroll.content = pilotSupportContent;
-        scroll.horizontal = false; scroll.vertical = true;
-        scroll.movementType = ScrollRect.MovementType.Clamped; scroll.scrollSensitivity = 35;
+        pilotSupportScroll = viewportObject.GetComponent<ScrollRect>();
+        pilotSupportScroll.viewport = viewport; pilotSupportScroll.content = pilotSupportContent;
+        pilotSupportScroll.horizontal = false; pilotSupportScroll.vertical = true;
+        pilotSupportScroll.movementType = ScrollRect.MovementType.Clamped; pilotSupportScroll.scrollSensitivity = 35;
+        // WEEK 7 FIX: A visible track/thumb makes all support and Second Attack rows reachable.
+        GameObject track = new("Support Scrollbar", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+        track.layer = panel.layer;
+        RectTransform trackRect = (RectTransform)track.transform;
+        trackRect.SetParent(rect, false); trackRect.anchorMin = new Vector2(1, 0); trackRect.anchorMax = Vector2.one;
+        trackRect.offsetMin = new Vector2(-28, 10); trackRect.offsetMax = new Vector2(-10, -52);
+        track.GetComponent<Image>().color = new Color(0.04f, 0.07f, 0.1f);
+        GameObject thumb = new("Handle", typeof(RectTransform), typeof(Image));
+        thumb.layer = panel.layer;
+        RectTransform thumbRect = (RectTransform)thumb.transform;
+        thumbRect.SetParent(trackRect, false); thumbRect.anchorMin = Vector2.zero; thumbRect.anchorMax = Vector2.one;
+        thumbRect.sizeDelta = Vector2.zero;
+        thumb.GetComponent<Image>().color = new Color(0.45f, 0.7f, 0.9f);
+        Scrollbar scrollbar = track.GetComponent<Scrollbar>();
+        scrollbar.direction = Scrollbar.Direction.BottomToTop;
+        scrollbar.handleRect = thumbRect; scrollbar.targetGraphic = thumb.GetComponent<Image>();
+        scrollbar.navigation = new Navigation { mode = Navigation.Mode.None };
+        pilotSupportScroll.verticalScrollbar = scrollbar;
+        pilotSupportScroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
     }
 
     // WEEK 6 CHANGES PLEASE READ: A visible selection is needed before the player commits the reaction.

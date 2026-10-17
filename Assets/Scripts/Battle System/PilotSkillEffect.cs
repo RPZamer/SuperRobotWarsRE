@@ -213,8 +213,13 @@ public static class PilotSkillEffects
     }
 
     private static int Distance(BattleUnit a, BattleUnit b) => Mathf.Abs(a.GridPosition.x - b.GridPosition.x) + Mathf.Abs(a.GridPosition.y - b.GridPosition.y);
-    private static bool CanSupport(BattleUnit unit, BattleUnit ally) => unit != null && unit != ally &&
+    // WEEK 7 FIX: Support belongs to a different allied unit, never the acting unit itself.
+    // Reject missing/unavailable allies and missing battlefields before checking team and adjacency.
+    // Both the preview and combat execution use this guard; Second Attack is a separate ability.
+    private static bool CanSupport(BattleUnit unit, BattleUnit ally) => unit != null && ally != null && unit != ally &&
         !unit.IsDefeated && !unit.IsDocked && !unit.IsCombinedComponent && unit.Pilot != null && unit.Mech != null &&
+        !ally.IsDefeated && !ally.IsDocked && !ally.IsCombinedComponent && ally.Pilot != null && ally.Mech != null &&
+        unit.Battlefield != null &&
         unit.Team == ally.Team && unit.Battlefield == ally.Battlefield && Distance(unit, ally) == 1 &&
         !HasStatus(unit, WeaponStatus.Inactionable);
     public static bool CanSecondAttack(BattleUnit attacker, BattleUnit target) => attacker != null && target != null &&
