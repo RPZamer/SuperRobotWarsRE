@@ -144,6 +144,7 @@ MonoBehaviour:
       ground: 3
       water: 1
       space: 3
+  canFly: 1
   shieldHealth: 0
   barrier: 0
   hasSword: 1

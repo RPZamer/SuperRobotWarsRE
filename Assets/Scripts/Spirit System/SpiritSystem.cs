@@ -119,15 +119,16 @@ public static class SpiritSystem
 
             // WEEK 6: Spirit raises the caster's Morale by 10.
             case SpiritCommandEffect.Spirit:
-                // WEEK 7: A Getter sub-pilot's morale Spirit must raise that pilot's own Overflow threshold.
-                caster.ChangePilotMorale(spiritPilot, 10);
+                // WEEK 7 FIX: Self Spirits benefit the whole mech, including all Getter pilots.
+                // Each pilot retains their own morale cap; only the casting pilot pays SP below.
+                foreach (PilotBase crewPilot in caster.SpiritCrew) caster.ChangePilotMorale(crewPilot, 10);
                 activated = true;
                 break;
 
             // WEEK 6: Drive raises the caster's Morale by 30.
             case SpiritCommandEffect.Drive:
-                // WEEK 7: Drive follows the selected pilot just like Spirit, preserving separate crew morale.
-                caster.ChangePilotMorale(spiritPilot, 30);
+                // WEEK 7 FIX: Drive gives every crew member +30, regardless of who casts it.
+                foreach (PilotBase crewPilot in caster.SpiritCrew) caster.ChangePilotMorale(crewPilot, 30);
                 activated = true;
                 break;
 

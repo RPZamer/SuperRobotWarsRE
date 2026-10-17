@@ -11,15 +11,17 @@ public class ActionsMenuDragHandle : MonoBehaviour, IBeginDragHandler, IDragHand
     private Canvas canvas;
     private System.Action moved;
     private Vector2 pointerStart, panelStart;
+    private bool clampPanelRect;
 
     //WEEK 6 QUALITY OF LIFE: Runtime-created handles need the existing panel and Canvas references.
     // Initialization stores those references and a callback that preserves the dragged position for the selected unit.
     // It does not change the Canvas input settings or attach a command to the handle's Button component.
-    public void Initialize(RectTransform target, Canvas owner, System.Action onMoved)
+    public void Initialize(RectTransform target, Canvas owner, System.Action onMoved, bool usePanelRect = false)
     {
         panel = target;
         canvas = owner;
         moved = onMoved;
+        clampPanelRect = usePanelRect;
     }
 
     //  WEEK 6 QUALITY OF LIFE: A drag must start from the pointer's actual location to avoid a menu jump.
@@ -51,7 +53,16 @@ public class ActionsMenuDragHandle : MonoBehaviour, IBeginDragHandler, IDragHand
     {
         if (panel == null || canvas == null) return;
         RectTransform canvasRect = (RectTransform)canvas.transform;
-        Bounds bounds = VisualBounds(panel, canvasRect);
+        Bounds bounds;
+        if (clampPanelRect)
+        {
+            // WEEK 7 FIX: Scroll-list children extend beyond their mask; clamp the panel itself.
+            Vector3[] corners = new Vector3[4];
+            panel.GetWorldCorners(corners);
+            bounds = new Bounds(canvasRect.InverseTransformPoint(corners[0]), Vector3.zero);
+            for (int i = 1; i < corners.Length; i++) bounds.Encapsulate(canvasRect.InverseTransformPoint(corners[i]));
+        }
+        else bounds = VisualBounds(panel, canvasRect);
         Rect screen = canvasRect.rect;
         float x = bounds.size.x > screen.width ? screen.center.x - bounds.center.x :
             bounds.min.x < screen.xMin ? screen.xMin - bounds.min.x : bounds.max.x > screen.xMax ? screen.xMax - bounds.max.x : 0;

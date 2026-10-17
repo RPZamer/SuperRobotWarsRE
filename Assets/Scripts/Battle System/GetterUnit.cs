@@ -120,7 +120,7 @@ public sealed class GetterUnit
             if (!recipe.Contains(form.MainGetterPilot)) return name + "'s Main Getter Pilot is not in its Required Getter Crew.";
             foreach (PilotBase pilot in recipe)
                 if (!crew.Contains(pilot))
-                    return name + " requires " + pilot.PilotName + "; that exact pilot asset was not found in BattleUnit's Pilot / Additional Pilots.";
+                    return name + " requires " + pilot.PilotName + " (asset '" + pilot.name + "', id " + pilot.GetEntityId() + "); that exact pilot asset was not found in BattleUnit's Pilot / Additional Pilots.";
             if (!recipe.SetEquals(unit.SpiritCrew)) return name + "'s Required Getter Crew does not match the deployed unit's three pilot assets.";
             if (!mains.Add(form.MainGetterPilot)) return name + " shares its Main Getter Pilot with another form; each form needs a different main pilot.";
             if (form.GetterForms.Count != 2) return name + " needs the other two forms in Getter Forms.";
@@ -146,6 +146,16 @@ public sealed class GetterUnit
             else if (unit.Battlefield.GetUnit(unit.GridPosition) != unit) problem = "The Getter cannot be found at its grid position in the Battlefield.";
             else if (requestedForm == unit.Mech) problem = "The requested form is already the current form.";
             else problem = "The requested form is not one of this Getter's linked forms, or the unit is unavailable.";
+        }
+        // WEEK 7 GETTER DEBUG: Show which live unit and exact crew assets were actually tested.
+        // Matching pilot names can hide duplicate assets; IDs distinguish them within this run.
+        // The Console context also lets the teammate click the warning to locate the unit.
+        if (unit != null)
+        {
+            List<string> crew = new();
+            foreach (PilotBase pilot in unit.SpiritCrew)
+                crew.Add(pilot.PilotName + " [asset '" + pilot.name + "', id " + pilot.GetEntityId() + "]");
+            problem += $" Unit='{unit.name}', scene='{unit.gameObject.scene.name}', mech asset='{unit.Mech?.name ?? "none"}', main pilot='{unit.Pilot?.PilotName ?? "none"}', runtime crew ({crew.Count})=[{string.Join(", ", crew)}], grid={unit.GridPosition}.";
         }
         Debug.LogWarning("[WEEK 5 GETTER] Cannot change form: " + problem, unit);
     }
