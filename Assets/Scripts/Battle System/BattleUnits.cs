@@ -1,6 +1,7 @@
-using System.Collections.Generic;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public enum BattleTeam
 {
@@ -769,6 +770,14 @@ public class BattleUnit : MonoBehaviour
         CurrentHealth -= appliedDamage;
         LogPotentialChange(previousPotential);
 
+        // play the damage effect
+        BattleEffects effects = GetComponent<BattleEffects>();
+
+        if (effects != null)
+        {
+            effects.PlayDamageEffect();
+        }
+
         if (IsDefeated)
         {
             // WEEK 5 CHANGES PLEASE READ: Defeating a combined mech previously had no hidden component objects to clean up.
@@ -779,6 +788,12 @@ public class BattleUnit : MonoBehaviour
             if (TryGetComponent(out Mothership ship)) ship.DefeatPassengers();
             // WEEK 3: Remove a defeated unit from the grid only if it has a battlefield.
             if (battlefield != null) battlefield.Remove(this);
+
+            // death effect before removing the unti
+            if (effects != null)
+            {
+                effects.PlayDeathEffect();
+            }
             Destroy(gameObject);
         }
 

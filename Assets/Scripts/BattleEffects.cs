@@ -11,6 +11,9 @@ public class BattleEffects : MonoBehaviour
     [Header("Sparkle Effect")]
     [SerializeField] private ParticleSystem sparkleEffect;
 
+    [Header("Death Effect")]
+    [SerializeField] private GameObject DeathEffectPrefab;
+
     private Coroutine effectCoroutine;
     private Color originalColor;
 
@@ -64,5 +67,60 @@ public class BattleEffects : MonoBehaviour
 
         unitSprite.color = originalColor;
         effectCoroutine = null;
+    }
+
+    public void PlayDamageEffect()
+    {
+        if (effectCoroutine != null)
+            StopCoroutine(effectCoroutine);
+
+        effectCoroutine = StartCoroutine(DamageFlash());
+    }
+
+
+    private IEnumerator DamageFlash()
+    {
+        if (unitSprite == null)
+            yield break;
+
+        Color previousColor = unitSprite.color;
+
+        // making it a for loop will allow the flash to play mutliple times, like the damage effect in pokemon.
+        for (int i = 0; i < 3; i++)
+        {
+            unitSprite.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+
+            unitSprite.color = previousColor;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        effectCoroutine = null;
+    }
+
+
+    public void PlayDeathEffect()
+    {
+        if (DeathEffectPrefab == null)
+        { 
+            return; 
+        }
+
+        GameObject effect = Instantiate(DeathEffectPrefab, transform.position, Quaternion.identity);
+        effect.SetActive(true);
+
+        Animator animator = effect.GetComponent<Animator>();
+
+        if (animator != null)
+        {
+            animator.Play(0, 0, 0f);
+
+            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
+
+            if (clips.Length > 0)
+            { 
+                Destroy(effect, clips[0].length); 
+            }
+        }
     }
 }
