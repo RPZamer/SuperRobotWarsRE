@@ -45,8 +45,8 @@ MonoBehaviour:
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
-    minRange: 0
-    maxRange: 0
+    minRange: 1
+    maxRange: 1
     power: 1500
     accuracyModifier: 0
     criticalModifier: 0
@@ -74,8 +74,8 @@ MonoBehaviour:
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
-    minRange: 0
-    maxRange: 0
+    minRange: 1
+    maxRange: 1
     power: 2000
     accuracyModifier: 10
     criticalModifier: 20
@@ -103,8 +103,8 @@ MonoBehaviour:
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
-    minRange: 0
-    maxRange: 0
+    minRange: 1
+    maxRange: 1
     power: 3500
     accuracyModifier: -20
     criticalModifier: 30
