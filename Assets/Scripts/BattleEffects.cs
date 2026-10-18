@@ -16,8 +16,11 @@ public class BattleEffects : MonoBehaviour
 
     [Header("Audio Effects")]
     [SerializeField] private AudioClip SpiritSound;
+    [SerializeField][Range(0f, 1f)] float SpiritVolume = 0.5f;
     [SerializeField] private AudioClip DeathSound;
+    [SerializeField][Range(0f, 1f)] float DeathVolume = 0.5f;
     [SerializeField] private AudioClip DamageSound;
+    [SerializeField][Range(0f, 1f)] float DamageVolume = 0.5f;
 
     private AudioSource audioSource;
 
