@@ -61,7 +61,7 @@ MonoBehaviour:
   spirit3: {fileID: 11400000, guid: abf5c77d662ecce44983a1510fd37f44, type: 2}
   spirit4: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
   spirit5: {fileID: 11400000, guid: 6e6322a233e06ee489a19e5c1df6faef, type: 2}
-  spirit6: {fileID: 11400000, guid: f2a8c327fd739974684c23baa01b085a, type: 2}
+  spirit6: {fileID: 11400000, guid: d89de4f3bbbf83e4cbbff0963f602781, type: 2}
   onSuccessLines:
   - Heh- Serves you right
   defaultPortrait: {fileID: -8615392254259920525, guid: 7a2cb69bf5b4f5c408994920e6959082, type: 3}
