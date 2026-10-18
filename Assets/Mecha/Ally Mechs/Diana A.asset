@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: -5828169928009533628, guid: be004da89ed2e2e4fb94b59b1d7fb28f, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: a857ea296b3c8ea4fa19ff4fc91f348b, type: 3}
-  health: 2500
-  energy: 150
+  health: 4300
+  energy: 130
   movement: 5
-  mobility: 100
-  armor: 1000
+  mobility: 50
+  armor: 1200
   size: 2
   terrainRatings:
     air: 3
@@ -36,14 +36,19 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 1000
-    accuracyModifier: 50
+    power: 1500
+    accuracyModifier: 30
     criticalModifier: 0
     energyCost: 0
     maxAmmo: 0
@@ -60,13 +65,18 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 1
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
     minRange: 1
     maxRange: 5
-    power: 1500
+    power: 2500
     accuracyModifier: 20
     criticalModifier: 10
     energyCost: 0
@@ -81,16 +91,21 @@ MonoBehaviour:
     travelsToTargetTerrain: 0
     weaponType: 2
     classification: 0
-    attributes: 0
+    attributes: 1
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
     minRange: 1
     maxRange: 3
-    power: 1700
+    power: 2700
     accuracyModifier: 20
     criticalModifier: 10
     energyCost: 20
@@ -100,8 +115,10 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
+  canFly: 0
   shieldHealth: 0
   barrier: 0
+  hasSword: 0
   specialEvasionAbility: 0
   specialEvasionChance: 0
   specialEvasionMorale: 130

@@ -23,9 +23,17 @@ public class CutsceneManager : MonoBehaviour
     [SerializeField] private int alliedReinforcementAfterLine = -1;
     [SerializeField] private int enemyReinforcementAfterLine = 13;
 
+    // WEEK 7: Holding left click automatically advances dialogue.
+    [Header("WEEK 7: Skip Cutscene Settings")]
+    [SerializeField, Min(0.01f)]
+    private float skipDialogueInterval = 0.08f;
+
     private bool isPlaying;
     private bool advanceRequested;
     private bool eventPlaying;
+
+    // WEEK 7: Tracks the next time held input may advance dialogue.
+    private float nextSkipTime;
 
     // WEEK 6: Other systems can check whether a cutscene is active.
     public bool IsPlaying => isPlaying;
@@ -86,12 +94,44 @@ public class CutsceneManager : MonoBehaviour
             return;
         }
 
+        // WEEK 7: Detect whether the player is holding left click.
+        bool holdingSkip =
+            Mouse.current != null &&
+            Mouse.current.leftButton.isPressed;
+
+        // WEEK 7: Keep the original keyboard and mouse controls.
         bool advancePressed =
             (Keyboard.current != null &&
              (Keyboard.current.spaceKey.wasPressedThisFrame ||
               Keyboard.current.enterKey.wasPressedThisFrame)) ||
             (Mouse.current != null &&
              Mouse.current.leftButton.wasPressedThisFrame);
+
+        // WEEK 7: Holding left click automatically advances dialogue.
+        if (holdingSkip)
+        {
+            if (Time.unscaledTime < nextSkipTime)
+            {
+                return;
+            }
+
+            nextSkipTime =
+                Time.unscaledTime + skipDialogueInterval;
+
+            if (dialogSystem != null && dialogSystem.IsTyping)
+            {
+                dialogSystem.CompleteTyping();
+            }
+            else
+            {
+                advanceRequested = true;
+            }
+
+            return;
+        }
+
+        // WEEK 7: Reset the skip timer when left click is released.
+        nextSkipTime = 0f;
 
         if (!advancePressed)
         {
@@ -123,6 +163,10 @@ public class CutsceneManager : MonoBehaviour
     private IEnumerator RunCutscene(CutsceneData cutscene)
     {
         isPlaying = true;
+
+        // WEEK 7: Reset held-input timing for each new cutscene.
+        nextSkipTime = 0f;
+        advanceRequested = false;
 
         if (dialogSystem == null)
         {
@@ -229,6 +273,10 @@ public class CutsceneManager : MonoBehaviour
         {
             battleMusic.FadeToOverworldMusic();
         }
+
+        // WEEK 7: Clear skip input when the cutscene finishes.
+        advanceRequested = false;
+        nextSkipTime = 0f;
 
         isPlaying = false;
 

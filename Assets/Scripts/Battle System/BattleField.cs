@@ -164,23 +164,41 @@ public class Battlefield : MonoBehaviour
         return true;
     }
 
-    // WEEK 3: Preview every square within this weapon range and mark its valid enemies red.
+    // WEEK 7: Display Snipe's additional weapon range while
+    // preserving existing MAP weapon targeting shapes.
     public void ShowWeaponRange(BattleUnit unit, Weapon weapon)
     {
         ClearHighlights();
-        if (unit == null || weapon == null) return;
+
+        if (unit == null || weapon == null)
+        {
+            return;
+        }
+
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 Vector2Int position = new(x, y);
-                // WEEK 5 FIXES: Originally, the range overlay checked only distance and therefore always showed the burst-style reach.
-                // It now uses the weapon's target-area check so column and cone aim cells follow the same geometry as combat.
-                // The overlay shows possible aim cells in all four directions, and the clicked enemy determines the final attack direction.
-                // WEEK 7: Newtype range highlights must match actual target validation.
-                if (!unit.IsWeaponInRange(weapon, position)) continue;
-                bool target = unit.CanUseWeapon(weapon, GetUnit(position));
-                CreateHighlight(position, target ? blockedColor : new Color(0.25f, 0.7f, 1f, 0.25f));
+                // WEEK 7 MERGE FIX: Use the unit's shared weapon range calculation.
+                // This preserves teammate Newtype bonuses and allows Snipe
+                // to use the same range validation as actual attacks.
+                if (!unit.IsWeaponInRange(weapon, position))
+                {
+                    continue;
+                }
+
+                // WEEK 7: Highlight valid enemy targets separately from
+                // empty cells or positions that cannot currently be attacked.
+                bool target = unit.CanUseWeapon(
+                    weapon,
+                    GetUnit(position));
+
+                CreateHighlight(
+                    position,
+                    target
+                        ? blockedColor
+                        : new Color(0.25f, 0.7f, 1f, 0.25f));
             }
         }
     }

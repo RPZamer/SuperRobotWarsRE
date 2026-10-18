@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Amuro Ray
   level: 1
-  melee: 100
-  ranged: 120
+  melee: 140
+  ranged: 170
   defense: 90
-  evade: 110
-  accuracy: 120
-  skill: 120
+  evade: 140
+  accuracy: 140
+  skill: 150
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -37,9 +37,9 @@ MonoBehaviour:
   breakMoraleLimitLevel: 0
   ignoreSizeLevel: 0
   infightLevel: 0
-  gunfightLevel: 6
-  counterCutLevel: 3
-  newtypeLevel: 7
+  gunfightLevel: 2
+  counterCutLevel: 4
+  newtypeLevel: 4
   auraPowerLevel: 0
   enhancedAttack: 0
   moralePlusATK: 0
@@ -49,20 +49,21 @@ MonoBehaviour:
   attacker: 0
   spiritEndurance: 0
   hitAndAway: 1
-  applyTerrain: 1
-  tacticalStandby: 1
+  applyTerrain: 0
+  tacticalStandby: 0
   spDown: 0
   supreme: 0
   clearMind: 0
   battler: 0
   getterOverflow: 0
-  spirit1: {fileID: 11400000, guid: 95add4fcc6cf535409668a9fbf596cea, type: 2}
-  spirit2: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
-  spirit3: {fileID: 11400000, guid: 192439a57fa3af54cac4da2485958808, type: 2}
-  spirit4: {fileID: 11400000, guid: a531b742106e7774d9cee91ed7d3d676, type: 2}
-  spirit5: {fileID: 11400000, guid: 24434f7ab9ea3c54cb45d4e2ec6617a0, type: 2}
-  spirit6: {fileID: 0}
-  onSuccessLines: []
+  spirit1: {fileID: 11400000, guid: 6edc0b0cebcc5464e85756d59d76872b, type: 2}
+  spirit2: {fileID: 11400000, guid: d8073cc4578b8654e96fae6c37ffabda, type: 2}
+  spirit3: {fileID: 11400000, guid: cdc50405f5ade01459fcfd9965c894c6, type: 2}
+  spirit4: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit5: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit6: {fileID: 11400000, guid: d89de4f3bbbf83e4cbbff0963f602781, type: 2}
+  onSuccessLines:
+  - Down it goes
   defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}

@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: Zeon Soldier
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Zeon Soldier
-  melee: 90
-  ranged: 110
+  level: 1
+  melee: 140
+  ranged: 140
   defense: 80
-  evade: 100
-  accuracy: 100
-  skill: 80
+  evade: 110
+  accuracy: 130
+  skill: 100
   morale: 100
+  maxSpiritPoints: 100
   terrainRatings:
     air: 3
     ground: 3
@@ -28,6 +30,38 @@ MonoBehaviour:
   saveBLevel: 0
   saveELevel: 0
   potentialLevel: 5
+  supportAttackLevel: 0
+  secondAttackLevel: 0
+  supportDefendLevel: 0
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 0
+  ignoreSizeLevel: 0
+  infightLevel: 0
+  gunfightLevel: 0
+  counterCutLevel: 0
+  newtypeLevel: 0
+  auraPowerLevel: 0
+  enhancedAttack: 0
+  moralePlusATK: 0
+  moralePlusDEF: 0
+  instinct: 0
+  guard: 0
+  attacker: 0
+  spiritEndurance: 0
+  hitAndAway: 0
+  applyTerrain: 0
+  tacticalStandby: 0
+  spDown: 0
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 0
+  spirit1: {fileID: 0}
+  spirit2: {fileID: 0}
+  spirit3: {fileID: 0}
+  spirit4: {fileID: 0}
+  spirit5: {fileID: 0}
+  spirit6: {fileID: 0}
   onSuccessLines: []
   defaultPortrait: {fileID: 0}
   angryPortrait: {fileID: 0}

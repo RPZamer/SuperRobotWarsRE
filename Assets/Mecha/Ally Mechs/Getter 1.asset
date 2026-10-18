@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: 3586813837105404330, guid: bedcd69e8f6a6c542bff5252a289be52, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 10d1fddabc045054cb280c2550751b77, type: 3}
-  health: 2500
-  energy: 150
+  health: 4500
+  energy: 130
   movement: 6
-  mobility: 100
-  armor: 1000
+  mobility: 70
+  armor: 1300
   size: 2
   terrainRatings:
     air: 3
@@ -36,7 +36,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -47,8 +47,8 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 1000
-    accuracyModifier: 150
+    power: 1500
+    accuracyModifier: 50
     criticalModifier: 10
     energyCost: 0
     maxAmmo: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -76,8 +76,8 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 3
     maxRange: 5
-    power: 1500
-    accuracyModifier: 80
+    power: 2500
+    accuracyModifier: 10
     criticalModifier: 10
     energyCost: 0
     maxAmmo: 4
@@ -94,7 +94,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -105,8 +105,8 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 2
-    power: 1500
-    accuracyModifier: 120
+    power: 2500
+    accuracyModifier: 20
     criticalModifier: 10
     energyCost: 10
     maxAmmo: 0
@@ -115,7 +115,7 @@ MonoBehaviour:
       ground: 3
       water: 2
       space: 3
-  - weaponName: Getter Beem
+  - weaponName: Getter Beam
     damageType: 0
     travelsToTargetTerrain: 0
     weaponType: 2
@@ -134,8 +134,8 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 3
-    power: 2500
-    accuracyModifier: 120
+    power: 3500
+    accuracyModifier: 20
     criticalModifier: 20
     energyCost: 50
     maxAmmo: 0

@@ -1667,6 +1667,19 @@ public class BattleSystem : MonoBehaviour
             attacker.ConsumeStrike();
         }
 
+        // WEEK 7: Pierce remains active for the entire attack,
+        // including MAP and multi-target attacks, then expires.
+        if (attacker != null && attacker.PierceActive)
+        {
+            attacker.ConsumePierce();
+        }
+
+        // WEEK 7: Snipe expires after the next completed attack.
+        if (attacker != null && attacker.SnipeActive)
+        {
+            attacker.ConsumeSnipe();
+        }
+
         // WEEK 6: CUTSCENES - Wait until all attack damage and dialogue
         // have finished before checking the scenario result.
         // This prevents battle dialogue from interrupting victory cutscenes.
@@ -1683,17 +1696,33 @@ public class BattleSystem : MonoBehaviour
         int distance = ManhattanDistance(attacker.GridPosition, target.GridPosition);
         // WEEK 3: Limit the hit chance to 0-100 and stop this hit if the attack misses.
 
-        // WEEK 6: Alert guarantees evasion against the next incoming attack.
-        // Consume Alert before the normal accuracy and special-evasion checks.
-        if (target.AlertActive)
+        // WEEK 6 FIX: Alert guarantees evasion of the next incoming attack.
+        // WEEK 7: Flash also guarantees evasion.
+        // Consume only one defensive Spirit per attack so the other
+        // remains available for the next incoming attack.
+        if (target.AlertActive || target.FlashActive)
         {
-            target.ConsumeAlert();
+            string spiritName;
+
+            // WEEK 6: Give Alert priority when both effects are active.
+            if (target.AlertActive)
+            {
+                spiritName = "Alert";
+                target.ConsumeAlert();
+            }
+            else
+            {
+                spiritName = "Flash";
+                target.ConsumeFlash();
+            }
+
+            // WEEK 4: Successfully evading an attack grants 1 Morale.
             target.ChangeMorale(1);
 
             yield return ShowBattleMessage(
                 targetPilot,
                 PilotEmotion.Default,
-                $"{targetName} avoided the attack with Alert.");
+                $"{targetName} avoided the attack with {spiritName}.");
 
             yield break;
         }
@@ -1727,10 +1756,20 @@ public class BattleSystem : MonoBehaviour
         // WEEK 5 CHANGES PLEASE READ: Normal accuracy previously led directly to damage with no special-evasion check.
         // Double Image, Open Get and Offshoot must roll only after that attack would otherwise hit.
         // This hook cancels the hit before barrier costs or shield damage and logs the ability's roll for verification.
-        if (MechSkillEffect.TrySpecialEvade(target))
+        // WEEK 6 FIX: Strike guarantees the next attack hits,
+        // bypassing normal accuracy rolls and special evasion.
+        // WEEK 7: Preserve Pierce's existing special-evasion bypass.
+        if (!attacker.StrikeActive &&
+            !attacker.PierceActive &&
+            MechSkillEffect.TrySpecialEvade(target))
         {
             target.ChangeMorale(1);
-            yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{targetName} used special evasion.");
+
+            yield return ShowBattleMessage(
+                targetPilot,
+                PilotEmotion.Default,
+                $"{targetName} used special evasion.");
+
             yield break;
         }
 
@@ -1779,18 +1818,59 @@ public class BattleSystem : MonoBehaviour
             Mathf.FloorToInt(BattleFormulas.Damage(attacker, target, weapon, critical) * damageMultiplier),
             reaction);
 
+        // WEEK 7: Analyze causes the affected unit to deal 10% less
+        // damage and receive 10% more damage during combat.
+        if (attacker.AnalyzeActive)
+        {
+            incomingDamage = Mathf.Max(
+                1,
+                Mathf.RoundToInt(incomingDamage * 0.90f));
+        }
+
+        if (target.AnalyzeActive)
+        {
+            incomingDamage = Mathf.Max(
+                1,
+                Mathf.RoundToInt(incomingDamage * 1.10f));
+        }
+
         // WEEK 6: Persist reduces damage from the next successful attack.
-        // Apply this before barriers and shields so the existing equipment
-        // systems still process the remaining damage normally.
+        // WEEK 7 FIX: Persist also prevents this attack from defeating
+        // the protected unit, leaving at least 1 HP.
         if (target.PersistActive && incomingDamage > 0)
         {
+            // Preserve the original one-eighth damage reduction.
             incomingDamage = Mathf.Max(1, incomingDamage / 8);
+
+            // WEEK 7 FIX: Limit incoming damage so Persist
+            // cannot allow this attack to reduce HP below 1.
+            // Shield and barrier calculations still run afterward.
+            int maximumSurvivableDamage =
+                Mathf.Max(0, target.CurrentHealth - 1);
+
+            incomingDamage = Mathf.Min(
+                incomingDamage,
+                maximumSurvivableDamage + target.CurrentShieldHealth);
+
             target.ConsumePersist();
         }
 
+        // WEEK 7: Wall reduces damage from the next successful attack.
+        // Apply this before the existing barrier and shield calculations.
+        if (target.WallActive && incomingDamage > 0)
+        {
+            incomingDamage = Mathf.Max(1, incomingDamage / 4);
+            target.ConsumeWall();
+        }
+
         // WEEK 6: Preserve the existing barrier and shield damage handling.
+        // WEEK 7: Pierce bypasses barriers and shields.
+        // Normal attacks retain their existing damage behavior.
         int damage = MechSkillEffect.TakeWeaponDamage(
-            target, incomingDamage, weapon);
+            target,
+            incomingDamage,
+            weapon,
+            attacker.PierceActive);
         bool defeated = target.IsDefeated;
         // WEEK 7 DEBUG: Show both the computed incoming hit and actual barrier/shield/HP result.
         // All values are observed after resolution; this adds no extra damage rolls or resource spending.

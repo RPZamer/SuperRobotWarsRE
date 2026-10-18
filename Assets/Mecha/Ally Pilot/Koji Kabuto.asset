@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Koji Kabuto
   level: 1
-  melee: 120
-  ranged: 100
-  defense: 120
-  evade: 80
-  accuracy: 110
-  skill: 110
+  melee: 160
+  ranged: 145
+  defense: 135
+  evade: 100
+  accuracy: 125
+  skill: 135
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -57,10 +57,10 @@ MonoBehaviour:
   battler: 0
   getterOverflow: 0
   spirit1: {fileID: 11400000, guid: f4eb471bcb60a6b4ca95a344637b0dc2, type: 2}
-  spirit2: {fileID: 11400000, guid: f6739056b987aa14999a3a973aca35e9, type: 2}
-  spirit3: {fileID: 11400000, guid: abf5c77d662ecce44983a1510fd37f44, type: 2}
-  spirit4: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
-  spirit5: {fileID: 11400000, guid: 6e6322a233e06ee489a19e5c1df6faef, type: 2}
+  spirit2: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit3: {fileID: 11400000, guid: 63ba15a937270ed4e831bf65bb7215ef, type: 2}
+  spirit4: {fileID: 11400000, guid: faffeb4ec4156fa46956d8101d79c848, type: 2}
+  spirit5: {fileID: 11400000, guid: a531b742106e7774d9cee91ed7d3d676, type: 2}
   spirit6: {fileID: 11400000, guid: f2a8c327fd739974684c23baa01b085a, type: 2}
   onSuccessLines:
   - Heh- Serves you right
