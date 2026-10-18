@@ -27,7 +27,10 @@ public static class SpiritSystem
 
         // WEEK 4: Do not allow the Spirit to activate when the pilot
         // cannot afford its configured Spirit Point cost.
-        if (spirit.SpiritPointCost > caster.GetSpiritPoints(spiritPilot))
+        // WEEK 7: SP Down uses the casting pilot's discounted cost for both affordability and payment.
+        // This preserves independent Getter SP and leaves the configured Spirit asset cost unchanged.
+        int spiritCost = PilotSkillEffects.SpiritCost(spiritPilot, spirit);
+        if (spiritCost > caster.GetSpiritPoints(spiritPilot))
         {
             Debug.Log(
                 $"{spiritPilot.PilotName} does not have enough SP to use {spirit.CommandName}.");
@@ -116,13 +119,16 @@ public static class SpiritSystem
 
             // WEEK 6: Spirit raises the caster's Morale by 10.
             case SpiritCommandEffect.Spirit:
-                caster.AddMorale(10);
+                // WEEK 7 FIX: Self Spirits benefit the whole mech, including all Getter pilots.
+                // Each pilot retains their own morale cap; only the casting pilot pays SP below.
+                foreach (PilotBase crewPilot in caster.SpiritCrew) caster.ChangePilotMorale(crewPilot, 10);
                 activated = true;
                 break;
 
             // WEEK 6: Drive raises the caster's Morale by 30.
             case SpiritCommandEffect.Drive:
-                caster.AddMorale(30);
+                // WEEK 7 FIX: Drive gives every crew member +30, regardless of who casts it.
+                foreach (PilotBase crewPilot in caster.SpiritCrew) caster.ChangePilotMorale(crewPilot, 30);
                 activated = true;
                 break;
 
@@ -163,7 +169,8 @@ public static class SpiritSystem
                         !ally.IsDefeated &&
                         ally.Team == caster.Team)
                     {
-                        ally.AddMorale(5);
+                        // WEEK 7: Rally formerly affected the Getter's shared morale; retain that crew benefit with individual morale.
+                        foreach (PilotBase crewPilot in ally.SpiritCrew) ally.ChangePilotMorale(crewPilot, 5);
                     }
                 }
 
@@ -384,11 +391,14 @@ public static class SpiritSystem
 
         // WEEK 4: Spend the Spirit Command's configured cost only
         // after the effect has successfully activated.
-        if (!caster.TrySpendSpiritPoints(spirit.SpiritPointCost, spiritPilot))
+        if (!caster.TrySpendSpiritPoints(spiritCost, spiritPilot))
         {
             return false;
         }
 
+        // WEEK 7 DEBUG: Confirm the selected pilot's actual SP Down charge after successful payment, not while previewing.
+        if (spiritPilot.SpDown)
+            PilotSkillEffects.DebugLog(caster, $"SP Down: {spiritPilot.PilotName} used {spirit.CommandName}; base={spirit.SpiritPointCost}, charged={spiritCost}, SP remaining={caster.GetSpiritPoints(spiritPilot)}.");
         Debug.Log(
             $"{spiritPilot.PilotName} used {spirit.CommandName}. " +
             $"SP remaining: {caster.GetSpiritPoints(spiritPilot)}");

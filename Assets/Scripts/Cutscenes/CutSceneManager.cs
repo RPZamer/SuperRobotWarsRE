@@ -61,15 +61,30 @@ public class CutsceneManager : MonoBehaviour
             battleMusic = FindFirstObjectByType<BattleMusic>();
         }
     }
-
-    private void Start()
+    private IEnumerator Start()
     {
-        // WEEK 6: Automatically begin the opening cutscene.
+        SortieDeployment sortieDeployment = FindFirstObjectByType<SortieDeployment>();
+
+        if(sortieDeployment != null)
+        {
+            yield return new WaitUntil(() => sortieDeployment.DeploymentConfirmed);
+
+            //yield return new WaitForSecondsRealtime(0.3f);
+        }
         if (openingCutscene != null)
         {
             PlayCutscene(openingCutscene);
+
         }
     }
+    //private void Start()
+    //{
+        // WEEK 6: Automatically begin the opening cutscene.
+       // if (openingCutscene != null)
+        //{
+           // PlayCutscene(openingCutscene);
+        //}
+    //}
 
     private void Update()
     {

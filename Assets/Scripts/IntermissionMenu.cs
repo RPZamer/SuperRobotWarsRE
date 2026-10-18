@@ -16,13 +16,15 @@ public class IntermissionMenu : MonoBehaviour
     [SerializeField] private List<string> campaignLevels = new();
     private const string NextSceneKey = "NextScene";
 
-    private string nextScene; 
+    private string nextScene;
 
     [Header("Intermission Panels")]
     [SerializeField] private GameObject mechsPanel;
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject pilotsPanel;
     [SerializeField] private GameObject levelSelectPanel;
+    [Header("Sortie Menu Availability")]
+    [SerializeField] private GameObject sortieButton;
 
     [Header("Debug Level Select")]
     [SerializeField] private GameObject levelSelectButton;
@@ -41,7 +43,25 @@ public class IntermissionMenu : MonoBehaviour
     [Header("Pilots")]
     [SerializeField] private List<PilotBase> pilots = new();
     [SerializeField] private TMP_Text pilotInfoText;
+    [SerializeField] private GameObject sortiePanel;
 
+    private bool IsSortieAvailable()
+    {
+        int levelIndex = campaignLevels.IndexOf(nextScene);
+        return levelIndex >= 2 && levelIndex < campaignLevels.Count;
+    }
+
+    private void UpdateSortieAvailability()
+    {
+        bool available = IsSortieAvailable();
+        
+            if (sortieButton != null)
+            {
+                sortieButton.SetActive(available);
+            }
+            Debug.Log("Sortie available for " + nextScene + ": " + available);
+
+    }
     private void Start()
     {
         
@@ -62,8 +82,9 @@ public class IntermissionMenu : MonoBehaviour
             return;
 
         }
+        UpdateSortieAvailability();
 
-       if (levelSelectButton != null)
+        if (levelSelectButton != null)
         {
             levelSelectButton.SetActive(debugLevelSelectUnlocked);
         }
@@ -124,6 +145,18 @@ public class IntermissionMenu : MonoBehaviour
     }
     public void SelectLevel(string sceneName)
     {
+        if (!campaignLevels.Contains(sceneName))
+        {
+            Debug.LogWarning("Scene not found in campaign: " + sceneName);
+            return;
+        }
+
+        nextScene = sceneName;
+        PlayerPrefs.SetString(NextSceneKey, nextScene);
+        PlayerPrefs.Save();
+
+        Debug.Log("Debug selected mission: " + nextScene);
+
         if (sceneTransition != null)
         {
             sceneTransition.FadeToScene(sceneName);
@@ -241,11 +274,13 @@ public class IntermissionMenu : MonoBehaviour
     {
         mainMenu.SetActive(false);
         pilotsPanel.SetActive(true);
+        
 
         if (pilotInfoText != null)
         {
             pilotInfoText.text = "Select a pilot to view their stats.";
         }
+
     }
 
     public void ClosePilots()
@@ -253,6 +288,24 @@ public class IntermissionMenu : MonoBehaviour
         pilotsPanel.SetActive(false);
         mainMenu.SetActive(true);
 
+    }
+
+    public void OpenSortie()
+    {
+        if(!IsSortieAvailable())
+        {
+            Debug.LogWarning("Sortie selection is unavailable for this mission.");
+            return;
+        }
+
+        mainMenu.SetActive(false);
+        sortiePanel.SetActive(true);
+    }
+
+    public void CloseSortie()
+    {
+        sortiePanel.SetActive(false);
+        mainMenu.SetActive(true);
     }
 
     public void SaveGame()

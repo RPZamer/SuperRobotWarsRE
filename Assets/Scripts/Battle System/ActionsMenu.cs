@@ -140,6 +140,14 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private Color normalWeaponColor = Color.white;
     [SerializeField] private Color selectedWeaponColor = new(0.3f, 0.75f, 1f);
 
+    // WEEK 7: Reuse the combat menu's button style for a scrollable, optional support selector.
+    // This runtime panel avoids new prefab assignments and exists only beside the combat preview.
+    private CanvasGroup pilotSupportPanel;
+    private RectTransform pilotSupportContent;
+    private TMP_Text pilotSupportTitle;
+    private ScrollRect pilotSupportScroll;
+    private ActionsMenuDragHandle pilotSupportDragHandle;
+    private readonly List<Button> pilotSupportButtons = new();
     private readonly List<WeaponRowView> rows = new();
     private BattleSystem battle;
     private BattleUnit unit;
@@ -202,6 +210,7 @@ public class ActionsMenu : MonoBehaviour
         // It follows the same immediate visibility reset as the existing panels.
         // The counter-only Back button is also hidden so it cannot appear in a normal weapon list.
         SetVisible(reactionPanel, false, true);
+        SetVisible(pilotSupportPanel, false, true);
         if (counterWeaponBackButton != null) counterWeaponBackButton.gameObject.SetActive(false);
         SetVisible(actionsPanel, false, true);
         SetVisible(weaponsPanel, false, true);
@@ -448,7 +457,8 @@ public class ActionsMenu : MonoBehaviour
         bool canAct = selectedUnit != null && !selectedUnit.HasActed;
         moveButton.interactable = canAct &&
             (!selectedUnit.HasMoved || (battle != null && battle.CanUndoSelectedMove));
-        attackButton.interactable &= canAct;
+        // WEEK 7: Hit and Away preserves movement only, so its remaining action cannot reopen Attack.
+        attackButton.interactable &= canAct && !selectedUnit.HitAndAwayPending;
         standbyButton.interactable = canAct;
         if (boardButton != null)
         {
@@ -609,7 +619,8 @@ public class ActionsMenu : MonoBehaviour
         // Reading effective power here makes the selected weapon's displayed value match the battle formula.
         // This reuses the existing text field and requires no UI layout changes.
         Set(weaponPowerText, unit.GetWeaponPower(weapon).ToString());
-        Set(weaponRangeText, weapon.MinRange + "-" + weapon.MaxRange);
+        // WEEK 7: Newtype's effective range must be visible in the existing weapon details.
+        Set(weaponRangeText, weapon.MinRange + "-" + unit.GetWeaponMaxRange(weapon));
         // WEEK 4: MOTHERSHIP - Existing weapons with zero Max Ammo still only display energy cost.
         Set(weaponEnergyCostText, unit.GetWeaponEnergyCost(weapon).ToString() + (weapon.MaxAmmo > 0 ? $" Ammo | {unit.GetAmmo(weapon)}/{unit.GetAmmoCapacity(weapon)}" : string.Empty));
         Set(weaponAccuracyText, weapon.AccuracyModifier.ToString("+0;-0;0"));
@@ -640,6 +651,8 @@ public class ActionsMenu : MonoBehaviour
         // Hide the new panel and counter-only Back button through the same cleanup used by existing menus.
         // Pending combat data remains owned by BattleSystem so weapon selection can hide and reopen this panel safely.
         SetVisible(reactionPanel, false);
+        // WEEK 7: Support options must close with the preview, including while choosing a counter weapon.
+        SetVisible(pilotSupportPanel, false);
         if (counterWeaponBackButton != null) counterWeaponBackButton.gameObject.SetActive(false);
         // WEEK 4: MOTHERSHIP - Never carry the Dock label into a later menu or phase.
         if (standbyButton != null) SetDockConfirmation(false);
@@ -678,6 +691,133 @@ public class ActionsMenu : MonoBehaviour
         beginCombatButton.interactable = reaction != BattleReaction.Counter || canCounter;
         reactionPanel.transform.SetAsLastSibling();
         SetVisible(reactionPanel, true);
+    }
+
+    // WEEK 7: The player explicitly picks None, a support unit/weapon, or Second Attack before Begin Combat.
+    // A scroll list keeps all legal weapons accessible; highlighted rows show the single committed choice.
+    // Buttons only change preview state, so cancelling or changing options cannot spend EN, ammo or support uses.
+    public void ShowPilotSupportOptions(string title, List<(string label, bool selected, System.Action choose)> choices)
+    {
+        if (pilotSupportPanel == null) PreparePilotSupportPanel();
+        if (pilotSupportPanel == null) return;
+        // WEEK 7 FIX: Refreshing a selected row must not jump back to the top of a long list.
+        float scrollPosition = pilotSupportButtons.Count > 0 ? pilotSupportScroll.verticalNormalizedPosition : 1f;
+        foreach (Button button in pilotSupportButtons)
+            if (button != null) { button.gameObject.SetActive(false); Destroy(button.gameObject); }
+        pilotSupportButtons.Clear();
+        pilotSupportTitle.text = title + "\nDrag title to move";
+        foreach (var choice in choices)
+        {
+            Button button = Instantiate(beginCombatButton, pilotSupportContent);
+            button.name = "WEEK 7 Support Option";
+            button.transform.localScale = Vector3.one;
+            button.gameObject.SetActive(true);
+            // A fresh event also removes any persistent callbacks inherited from the source button.
+            button.onClick = new Button.ButtonClickedEvent();
+            button.onClick.AddListener(() => choice.choose());
+            button.interactable = true;
+            button.navigation = new Navigation { mode = Navigation.Mode.None };
+            LayoutElement layout = button.GetComponent<LayoutElement>();
+            if (layout == null) layout = button.gameObject.AddComponent<LayoutElement>();
+            layout.ignoreLayout = false;
+            layout.minHeight = layout.preferredHeight = choice.label.Contains("\n") ? 72 : 48;
+            layout.flexibleHeight = 0;
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>(true);
+            if (label != null)
+            {
+                label.text = (choice.selected ? "Selected: " : "") + choice.label;
+                label.fontSize = 15; label.enableAutoSizing = false;
+                label.textWrappingMode = TextWrappingModes.Normal;
+                label.rectTransform.anchorMin = Vector2.zero; label.rectTransform.anchorMax = Vector2.one;
+                label.rectTransform.offsetMin = new Vector2(6, 4); label.rectTransform.offsetMax = new Vector2(-6, -4);
+                label.raycastTarget = false;
+            }
+            SetReactionHighlight(button, choice.selected);
+            pilotSupportButtons.Add(button);
+        }
+        pilotSupportPanel.transform.SetAsLastSibling();
+        SetVisible(pilotSupportPanel, true);
+        // Rebuild after showing the panel so the fitter and scroll bounds include every row.
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(pilotSupportContent);
+        pilotSupportScroll.StopMovement();
+        pilotSupportScroll.verticalNormalizedPosition = scrollPosition;
+        pilotSupportScroll.Rebuild(CanvasUpdate.PostLayout);
+        pilotSupportDragHandle.ClampToCanvas();
+    }
+
+    private void PreparePilotSupportPanel()
+    {
+        if (reactionPanel == null || beginCombatButton == null || reactionPreviewText == null) return;
+        GameObject panel = new("WEEK 7 Pilot Support", typeof(RectTransform), typeof(Image), typeof(CanvasGroup));
+        panel.layer = reactionPanel.gameObject.layer;
+        RectTransform rect = (RectTransform)panel.transform;
+        RectTransform reactionRect = (RectTransform)reactionPanel.transform;
+        rect.SetParent(reactionRect.parent, false);
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
+        rect.pivot = new Vector2(0.5f, 0.5f);
+        rect.sizeDelta = new Vector2(320, 420);
+        rect.position = reactionRect.TransformPoint(new Vector3(reactionRect.rect.xMax + 172, reactionRect.rect.center.y, 0));
+        panel.GetComponent<Image>().color = new Color(0.08f, 0.12f, 0.18f, 0.98f);
+        pilotSupportPanel = panel.GetComponent<CanvasGroup>();
+        // WEEK 7 FIX: Only the title drags the window; dragging options still scrolls the list.
+        GameObject header = new("Drag Support Menu", typeof(RectTransform), typeof(Image), typeof(ActionsMenuDragHandle));
+        header.layer = panel.layer;
+        RectTransform headerRect = (RectTransform)header.transform;
+        headerRect.SetParent(rect, false);
+        headerRect.anchorMin = new Vector2(0, 1); headerRect.anchorMax = Vector2.one;
+        headerRect.pivot = new Vector2(0.5f, 1); headerRect.sizeDelta = new Vector2(0, 48);
+        header.GetComponent<Image>().color = new Color(0.12f, 0.22f, 0.3f);
+        pilotSupportDragHandle = header.GetComponent<ActionsMenuDragHandle>();
+        pilotSupportDragHandle.Initialize(rect, GetComponentInParent<Canvas>(), null, true);
+        pilotSupportTitle = Instantiate(reactionPreviewText, rect);
+        pilotSupportTitle.name = "WEEK 7 Support Title";
+        pilotSupportTitle.fontSize = 16; pilotSupportTitle.enableAutoSizing = false;
+        pilotSupportTitle.alignment = TextAlignmentOptions.Center; pilotSupportTitle.raycastTarget = false;
+        pilotSupportTitle.rectTransform.anchorMin = new Vector2(0, 1); pilotSupportTitle.rectTransform.anchorMax = Vector2.one;
+        pilotSupportTitle.rectTransform.pivot = new Vector2(0.5f, 1);
+        pilotSupportTitle.rectTransform.anchoredPosition = new Vector2(0, -4);
+        pilotSupportTitle.rectTransform.sizeDelta = new Vector2(-16, 38);
+        GameObject viewportObject = new("WEEK 7 Support Viewport", typeof(RectTransform), typeof(Image), typeof(RectMask2D), typeof(ScrollRect));
+        viewportObject.layer = panel.layer;
+        RectTransform viewport = (RectTransform)viewportObject.transform;
+        viewport.SetParent(rect, false); viewport.anchorMin = Vector2.zero; viewport.anchorMax = Vector2.one;
+        viewport.offsetMin = new Vector2(10, 10); viewport.offsetMax = new Vector2(-34, -52);
+        viewportObject.GetComponent<Image>().color = Color.clear;
+        GameObject content = new("Options", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+        content.layer = panel.layer;
+        pilotSupportContent = (RectTransform)content.transform;
+        pilotSupportContent.SetParent(viewport, false);
+        pilotSupportContent.anchorMin = new Vector2(0, 1); pilotSupportContent.anchorMax = Vector2.one;
+        pilotSupportContent.pivot = new Vector2(0.5f, 1); pilotSupportContent.sizeDelta = Vector2.zero;
+        pilotSupportContent.anchoredPosition = Vector2.zero;
+        VerticalLayoutGroup group = content.GetComponent<VerticalLayoutGroup>();
+        group.spacing = 6; group.childControlWidth = group.childControlHeight = true;
+        group.childForceExpandWidth = true; group.childForceExpandHeight = false;
+        content.GetComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        pilotSupportScroll = viewportObject.GetComponent<ScrollRect>();
+        pilotSupportScroll.viewport = viewport; pilotSupportScroll.content = pilotSupportContent;
+        pilotSupportScroll.horizontal = false; pilotSupportScroll.vertical = true;
+        pilotSupportScroll.movementType = ScrollRect.MovementType.Clamped; pilotSupportScroll.scrollSensitivity = 35;
+        // WEEK 7 FIX: A visible track/thumb makes all support and Second Attack rows reachable.
+        GameObject track = new("Support Scrollbar", typeof(RectTransform), typeof(Image), typeof(Scrollbar));
+        track.layer = panel.layer;
+        RectTransform trackRect = (RectTransform)track.transform;
+        trackRect.SetParent(rect, false); trackRect.anchorMin = new Vector2(1, 0); trackRect.anchorMax = Vector2.one;
+        trackRect.offsetMin = new Vector2(-28, 10); trackRect.offsetMax = new Vector2(-10, -52);
+        track.GetComponent<Image>().color = new Color(0.04f, 0.07f, 0.1f);
+        GameObject thumb = new("Handle", typeof(RectTransform), typeof(Image));
+        thumb.layer = panel.layer;
+        RectTransform thumbRect = (RectTransform)thumb.transform;
+        thumbRect.SetParent(trackRect, false); thumbRect.anchorMin = Vector2.zero; thumbRect.anchorMax = Vector2.one;
+        thumbRect.sizeDelta = Vector2.zero;
+        thumb.GetComponent<Image>().color = new Color(0.45f, 0.7f, 0.9f);
+        Scrollbar scrollbar = track.GetComponent<Scrollbar>();
+        scrollbar.direction = Scrollbar.Direction.BottomToTop;
+        scrollbar.handleRect = thumbRect; scrollbar.targetGraphic = thumb.GetComponent<Image>();
+        scrollbar.navigation = new Navigation { mode = Navigation.Mode.None };
+        pilotSupportScroll.verticalScrollbar = scrollbar;
+        pilotSupportScroll.verticalScrollbarVisibility = ScrollRect.ScrollbarVisibility.Permanent;
     }
 
     // WEEK 6 CHANGES PLEASE READ: A visible selection is needed before the player commits the reaction.
@@ -984,7 +1124,8 @@ public class ActionsMenu : MonoBehaviour
                 newButton.gameObject.SetActive(true);
 
                 bool canAfford =
-                    selectedUnit.GetSpiritPoints(spiritPilot) >= spirit.SpiritPointCost;
+                    // WEEK 7: Enable commands using the selected crew pilot's discounted SP cost.
+                    selectedUnit.GetSpiritPoints(spiritPilot) >= PilotSkillEffects.SpiritCost(spiritPilot, spirit);
 
                 // WEEK 4: Do not allow the player to spend SP repeatedly
                 // on a self buff that is already waiting to be consumed.
@@ -997,15 +1138,17 @@ public class ActionsMenu : MonoBehaviour
                 bool canUse =
                     canAfford && !alreadyActive;
 
-                // WEEK 7: First click previews the Spirit Command.
-                // Second click activates it using the existing Spirit System.
+                // WEEK 7 MERGE FIX: Preserve the first-click tooltip and
+                // second-click activation while using the teammate's
+                // pilot-adjusted Spirit Command cost.
                 newButton.Setup(
                     spirit,
                     canUse,
                     command => PreviewSpiritCommand(command, spiritPilot),
                     selectedUnit.SpiritCrew.Count > 1
                         ? $"{spiritPilot.PilotName} SP {selectedUnit.GetSpiritPoints(spiritPilot)}/{spiritPilot.MaxSpiritPoints}"
-                        : null);
+                        : null,
+                    PilotSkillEffects.SpiritCost(spiritPilot, spirit));
             }
         if (getterSpiritScroll != null)
         {

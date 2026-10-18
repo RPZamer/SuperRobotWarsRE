@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
+  m_Name: Sayaka
+  m_EditorClassIdentifier: Assembly-CSharp::PilotBase
+  pilotName: Sayaka
+  level: 1
+  melee: 110
+  ranged: 100
+  defense: 100
+  evade: 100
+  accuracy: 100
+  skill: 100
+  morale: 100
+  maxSpiritPoints: 100
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  saveBLevel: 0
+  saveELevel: 0
+  potentialLevel: 7
+  supportAttackLevel: 0
+  secondAttackLevel: 0
+  supportDefendLevel: 1
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 0
+  ignoreSizeLevel: 0
+  infightLevel: 0
+  gunfightLevel: 0
+  counterCutLevel: 0
+  newtypeLevel: 0
+  auraPowerLevel: 0
+  enhancedAttack: 0
+  moralePlusATK: 0
+  moralePlusDEF: 0
+  instinct: 0
+  guard: 0
+  attacker: 0
+  spiritEndurance: 1
+  hitAndAway: 0
+  applyTerrain: 0
+  tacticalStandby: 0
+  spDown: 1
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 0
+  spirit1: {fileID: 11400000, guid: abf5c77d662ecce44983a1510fd37f44, type: 2}
+  spirit2: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit3: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit4: {fileID: 11400000, guid: f2a8c327fd739974684c23baa01b085a, type: 2}
+  spirit5: {fileID: 0}
+  spirit6: {fileID: 0}
+  onSuccessLines: []
+  defaultPortrait: {fileID: 4091626596759107834, guid: d507d8bedd604314eb6483bfda66a612, type: 3}
+  angryPortrait: {fileID: 0}
+  madPortrait: {fileID: 0}
+  sadPortrait: {fileID: 0}
+  motivatedPortrait: {fileID: 0}
+  defeatedPortrait: {fileID: 0}

@@ -18,6 +18,11 @@ public enum WeaponClassification { SingleTarget, AdjacentTargets, Map }
 // Burst remains the default so existing MAP weapons retain their original area until a new shape is selected.
 public enum MapWeaponShape { Burst, Column, Cone }
 
+// WEEK 7: Weapon statuses are opt-in so existing weapons remain ordinary attacks.
+// Inactionable is kept separate because Spirit Endurance must not block it.
+[Flags]
+public enum WeaponStatus { None = 0, StatsDown = 1, Immobile = 2, MoraleDown = 4, SPDown = 8, Inactionable = 16 }
+
 // WEEK 3: Store each weapon inside its mech asset and show its settings in the Inspector.
 [Serializable]
 public class Weapon
@@ -45,6 +50,20 @@ public class Weapon
     [Tooltip("Minimum unit morale needed to fire; 0 means no morale requirement. Morale is not spent.")]
     [Min(0)][SerializeField] private int requiredMorale;
     public int RequiredMorale => requiredMorale;
+    // WEEK 7: These flags identify parryable attacks and weapons that require pilot abilities.
+    // Requirements also select Newtype/Aura power bonuses without changing the stored weapon power.
+    [Header("WEEK 7 Pilot Ability Requirements")]
+    [SerializeField] private bool canBeParried;
+    [Range(0, 9)][SerializeField] private int requiredNewtypeLevel;
+    [Range(0, 9)][SerializeField] private int requiredAuraPowerLevel;
+    [SerializeField] private WeaponStatus statusEffects;
+    [Min(0)][SerializeField] private int statusStrength = 10;
+    public bool CanBeParried => canBeParried;
+    public int RequiredNewtypeLevel => Mathf.Clamp(requiredNewtypeLevel, 0, 9);
+    public int RequiredAuraPowerLevel => Mathf.Clamp(requiredAuraPowerLevel, 0, 9);
+    public WeaponStatus StatusEffects => statusEffects;
+    public int StatusStrength => Mathf.Max(0, statusStrength);
+
     // WEEK 5 FIXES: Originally, MAP weapons had no individual shape or ally-damage settings.
     // These fields let each weapon define a column's length/width or a cone's length/final width.
     // Hits Allies stays enabled by default to preserve existing friendly fire, and can be disabled per weapon.
@@ -97,12 +116,16 @@ public class Weapon
     // WEEK 5 FIXES: Originally, MAP damage included every unit between the minimum and maximum grid distances.
     // This shared check preserves that burst area while adding columns and cones that start at MinRange.
     // Directional shapes extend for mapLength rows, allowing their dimensions to be configured without duplicating geometry in battle code.
-    public bool IsInMapArea(Vector2Int origin, Vector2Int aim, Vector2Int cell)
+    // WEEK 7: The optional bonus keeps MAP geometry and Newtype targeting/highlights on one range rule.
+    public bool IsInMapArea(Vector2Int origin, Vector2Int aim, Vector2Int cell, int rangeBonus = 0)
     {
         Vector2Int offset = cell - origin;
         if (offset == Vector2Int.zero) return false;
         if (mapShape == MapWeaponShape.Burst)
-            return IsInRange(Mathf.Abs(offset.x) + Mathf.Abs(offset.y));
+        {
+            int distance = Mathf.Abs(offset.x) + Mathf.Abs(offset.y);
+            return distance >= minRange && distance <= maxRange + rangeBonus;
+        }
 
         Vector2Int aiming = aim - origin;
         if (aiming == Vector2Int.zero) return false;
@@ -110,7 +133,7 @@ public class Weapon
             ? new Vector2Int(aiming.x > 0 ? 1 : -1, 0)
             : new Vector2Int(0, aiming.y > 0 ? 1 : -1);
         int depth = offset.x * forward.x + offset.y * forward.y - Mathf.Max(1, minRange);
-        int length = Mathf.Max(1, mapLength);
+        int length = Mathf.Max(1, mapLength + rangeBonus);
         if (depth < 0 || depth >= length) return false;
         int width = Mathf.Max(1, mapWidth);
         if (mapShape == MapWeaponShape.Cone)

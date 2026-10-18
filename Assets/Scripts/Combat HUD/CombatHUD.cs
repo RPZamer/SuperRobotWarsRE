@@ -1,6 +1,11 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
+using Unity.VisualScripting;
+using UnityEngine.EventSystems;
 
 public class CombatHUD : MonoBehaviour
 {
@@ -12,8 +17,19 @@ public class CombatHUD : MonoBehaviour
 
     // WEEK 3: Store the persistent HUD text used to display the final
     // Victory or Defeat result when the scenario ends.
-    [Header("Scenario Result")]
-    [SerializeField] private TMP_Text scenarioResultText;
+    [Header("Scenario Result Screens")]
+    [SerializeField] private GameObject victoryCanvas;
+    [SerializeField] private GameObject defeatCanvas;
+
+    [Header("Defeat Screen Fade")]
+    [SerializeField] private CanvasGroup defeatBackgroundGroup;
+    [SerializeField] private CanvasGroup defeatTextGroup;
+
+    [SerializeField] private float backgroundFadeDuration = 2f;
+    [SerializeField] private float textFadeDuration = 1f;
+
+    [SerializeField] private GameObject resultButtons;
+
 
     // WEEK 3: Store the HUD text used to display information about
     // the enemy currently being targeted by the player.
@@ -33,6 +49,8 @@ public class CombatHUD : MonoBehaviour
 
     private void Start()
     {
+        HideScenarioResult();
+
         battleHud = FindFirstObjectByType<BattleSystem>();
         // WEEK 6 CHANGES PLEASE READ: End Turn previously remained silent when this HUD could not connect its button to a battle controller.
         // Startup warnings now identify missing references and multiple active controllers that could select the wrong battle on another setup.
@@ -132,27 +150,134 @@ public class CombatHUD : MonoBehaviour
     // gameplay is still in progress.
     public void HideScenarioResult()
     {
-        if (scenarioResultText != null)
+        if (victoryCanvas != null)
         {
-            scenarioResultText.gameObject.SetActive(false);
+            victoryCanvas.SetActive(false);
+        }
+        if (defeatCanvas != null)
+        {
+            defeatCanvas.SetActive(false);
+
         }
     }
 
     // WEEK 3: Display a persistent Victory or Defeat message after
     // the battle reaches its final scenario result.
-    public void ShowScenarioResult(string resultText)
+    public void ShowScenarioResult()
     {
         // WEEK 4: UI VISIBILITY - Hide combat readouts when the final result appears.
         ClearSelectedUnit();
         ClearTargetedEnemy();
-        if (scenarioResultText != null)
+        if (victoryCanvas != null)
         {
-            scenarioResultText.text = resultText;
-            scenarioResultText.gameObject.SetActive(true);
+            victoryCanvas.SetActive(true);
         }
     }
 
     // Preserve the team's explicit HUD visibility controls.
     public void ShowHUD() => gameObject.SetActive(true);
     public void HideHUD() => gameObject.SetActive(false);
+
+
+    public void ShowVictoryScreen()
+    {
+        if (victoryCanvas != null)
+        {
+            victoryCanvas.SetActive(false);
+        }
+
+        if (defeatCanvas != null)
+        {
+            defeatCanvas.SetActive(false);
+        }
+
+        if (resultButtons != null)
+        {
+            resultButtons.SetActive(false);
+        }
+    }
+
+    public void ShowDefeatScreen()
+    {
+        if (victoryCanvas != null)
+        {
+            victoryCanvas.SetActive(false);
+        }
+
+        if (defeatCanvas != null)
+        {
+            defeatCanvas.SetActive(true);
+        }
+
+        // make the fade in background appear
+        defeatCanvas.SetActive(true);
+
+        defeatBackgroundGroup.alpha = 0f;
+        defeatTextGroup.alpha = 0f;
+
+        StartCoroutine(DefeatFadeSequence());
+    }
+
+
+    // button functions for the defeat screen
+    public void RetryLevel()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ReturnToIntermission()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Intermission");
+    }
+
+    public void ReturnToMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("Title Screen");
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
+
+    private IEnumerator DefeatFadeSequence()
+    {
+        // Fade in the black background first.
+        float elapsed = 0f;
+
+        while (elapsed < backgroundFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            defeatBackgroundGroup.alpha = Mathf.Clamp01(elapsed / backgroundFadeDuration);
+
+            yield return null;
+        }
+
+        defeatBackgroundGroup.alpha = 1f;
+
+        // after the background fades in, fade in the text
+        elapsed = 0f;
+
+        while (elapsed < textFadeDuration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            defeatTextGroup.alpha = Mathf.Clamp01(elapsed / textFadeDuration);
+
+            yield return null;
+        }
+
+        defeatTextGroup.alpha = 1f;
+
+        // show the buttons after the background and text have faded in
+        if (resultButtons != null)
+        { 
+            resultButtons.SetActive(true);
+        }
+    }
 }

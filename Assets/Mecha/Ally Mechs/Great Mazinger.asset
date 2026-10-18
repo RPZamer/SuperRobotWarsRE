@@ -1,0 +1,169 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba060fb92a549b94fa9285f1a99af8f9, type: 3}
+  m_Name: Great Mazinger
+  m_EditorClassIdentifier: Assembly-CSharp::MechBase
+  mechName: Great Mazinger
+  battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
+  menuSprite: {fileID: 0}
+  battleTheme: {fileID: 8300000, guid: 7fc1f00c757d4864790cd453e888bedd, type: 3}
+  health: 3200
+  energy: 120
+  movement: 6
+  mobility: 120
+  armor: 1000
+  size: 2
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  weapons:
+  - weaponName: Mazinger Blade
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 1
+    maxRange: 1
+    power: 1000
+    accuracyModifier: 50
+    criticalModifier: 10
+    energyCost: 0
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  - weaponName: Drill Pressure Punch
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 2
+    maxRange: 3
+    power: 1700
+    accuracyModifier: 15
+    criticalModifier: 15
+    energyCost: 0
+    maxAmmo: 5
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Breast Burn
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 1
+    maxRange: 3
+    power: 2500
+    accuracyModifier: 20
+    criticalModifier: 20
+    energyCost: 40
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Thunder Break
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 0
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 1
+    maxRange: 5
+    power: 3000
+    accuracyModifier: 30
+    criticalModifier: 10
+    energyCost: 70
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 1
+      space: 3
+  canFly: 1
+  shieldHealth: 0
+  barrier: 0
+  hasSword: 1
+  specialEvasionAbility: 0
+  specialEvasionChance: 0
+  specialEvasionMorale: 130
+  hpRegeneration: 0
+  enRegeneration: 1
+  mazinPower: 1
+  mode: 0
+  gundFormat: 0
+  sight: 140
+  repairDevice: 0
+  resupplyDevice: 0
+  transformInto: {fileID: 0}
+  combineInto: {fileID: 0}
+  requiredComponents: []
+  getterCompatibilityId: 
+  requiredGetterPilots: 3
+  getterForms: []
+  mainGetterPilot: {fileID: 0}
+  requiredGetterCrew: []

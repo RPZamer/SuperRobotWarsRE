@@ -7,6 +7,7 @@ public class Battlefield : MonoBehaviour
     [Min(1)][SerializeField] private int width = 10;
     [Min(1)][SerializeField] private int height = 10;
     [Min(0.1f)][SerializeField] private float cellSize = 1f;
+    public float CellSize => cellSize;
 
     [Header("Runtime Grid Lines")]
     [SerializeField] private bool showGridLines = true;
@@ -29,6 +30,8 @@ public class Battlefield : MonoBehaviour
     private CombatHUD combatHUD;
 
     public IEnumerable<BattleUnit> Units => occupants.Values;
+    // WEEK 7: Share the existing detector with pilot terrain effects; no extra scene search per combat preview.
+    public CustomTiles GetBonusTile(Vector2Int position) => terrainDetector != null ? terrainDetector.GetBonusTile(position) : null;
 
     private void Awake()
     {
@@ -90,6 +93,22 @@ public class Battlefield : MonoBehaviour
         occupants[position] = unit;
         unit.SetGridPosition(position);
         UpdateUnitTerrain(unit);
+        return true;
+    }
+    public bool TryDeployUnit(BattleUnit unit, Vector2Int position)
+    {
+        if (unit == null || !IsInside(position))
+            return false;
+        BattleUnit occupant = GetUnit(position);
+
+        if (occupant != null && occupant != unit)
+            return false;
+
+        Remove(unit);
+
+        occupants[position] = unit;
+        unit.SetGridPosition(position);
+
         return true;
     }
 
@@ -161,34 +180,16 @@ public class Battlefield : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 Vector2Int position = new(x, y);
-
-                // WEEK 7: First check the weapon's normal targeting rules.
-                bool inRange = weapon.IsInTargetRange(
-                    unit.GridPosition,
-                    position);
-
-                // WEEK 7: Snipe adds two spaces to non-MAP weapons.
-                // MAP weapons retain their original directional shapes.
-                if (!inRange &&
-                    unit.SnipeActive &&
-                    weapon.Classification != WeaponClassification.Map)
-                {
-                    int distance =
-                        Mathf.Abs(unit.GridPosition.x - position.x) +
-                        Mathf.Abs(unit.GridPosition.y - position.y);
-
-                    inRange =
-                        distance >= weapon.MinRange &&
-                        distance <= weapon.MaxRange + 2;
-                }
-
-                if (!inRange)
+                // WEEK 7 MERGE FIX: Use the unit's shared weapon range calculation.
+                // This preserves teammate Newtype bonuses and allows Snipe
+                // to use the same range validation as actual attacks.
+                if (!unit.IsWeaponInRange(weapon, position))
                 {
                     continue;
                 }
 
-                // WEEK 7: Use the existing attack validation system
-                // to distinguish valid targets from empty cells.
+                // WEEK 7: Highlight valid enemy targets separately from
+                // empty cells or positions that cannot currently be attacked.
                 bool target = unit.CanUseWeapon(
                     weapon,
                     GetUnit(position));
@@ -289,6 +290,8 @@ public class Battlefield : MonoBehaviour
             {
                 Vector2Int next = position + direction;
                 if (!IsInside(next) || occupants.ContainsKey(next) || distances.ContainsKey(next)) continue;
+                if (terrainDetector != null && !terrainDetector.CanGroundUnitPass(next))
+                    continue;
                 distances[next] = steps + 1;
                 pending.Enqueue(next);
             }

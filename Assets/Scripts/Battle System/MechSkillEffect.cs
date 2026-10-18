@@ -62,7 +62,8 @@ public static class MechSkillEffect
     public static int ModeBonus(BattleUnit unit) => unit.MechSkillState.ActiveMode != MechMode.None ? 10 : 0;
     public static int GUNDSteps(BattleUnit unit) => unit.Mech != null && unit.Mech.GUNDFormat ?
         Mathf.Clamp((unit.CurrentMorale - 100) / 10, 0, 5) : 0;
-    public static int PilotStat(BattleUnit unit, int value) => value + ModeBonus(unit);
+    // WEEK 7: Clear Mind/stat-down must affect every existing effective stat read, including status UI and Skill comparisons.
+    public static int PilotStat(BattleUnit unit, int value) => Mathf.Max(0, value + ModeBonus(unit) + PilotSkillEffects.StatBonus(unit));
     public static int Mobility(BattleUnit unit) => unit.Mech.Mobility + 10 * GUNDSteps(unit);
     public static int Sight(BattleUnit unit) => unit.Mech.Sight + 10 * GUNDSteps(unit);
     public static int Armor(BattleUnit unit) => unit.Mech.Armor;
@@ -202,12 +203,14 @@ public static class MechSkillEffect
                 break;
 
             case MechBarrier.AuraBarrier:
+                // WEEK 7 MERGE FIX: Preserve Aura Barrier's original
+                // ranged damage reduction while applying the pilot's
+                // Aura Power bonus.
                 if (weapon.DamageType == WeaponDamageType.Ranged)
                 {
-                    reduction = 1000;
+                    reduction = 1000 + PilotSkillEffects.AuraBarrierBonus(unit);
                 }
                 break;
-
             case MechBarrier.Escutcheon:
                 if (beam && remaining <= 3000)
                 {
@@ -276,7 +279,8 @@ public static class MechSkillEffect
     private static int Distance(BattleUnit a, BattleUnit b) =>
         Mathf.Abs(a.GridPosition.x - b.GridPosition.x) + Mathf.Abs(a.GridPosition.y - b.GridPosition.y);
     private static bool CanSupport(BattleUnit unit, BattleUnit target) => OnGrid(unit) && OnGrid(target) &&
-        unit != target && !unit.HasActed && unit.Team == target.Team && unit.Battlefield == target.Battlefield && Distance(unit, target) == 1;
+        // WEEK 7: Hit and Away leaves a move, not a second Repair/Resupply action.
+        unit != target && !unit.HasActed && !unit.HitAndAwayPending && unit.Team == target.Team && unit.Battlefield == target.Battlefield && Distance(unit, target) == 1;
     public static int RepairHealing(int level) => 500 + 60 * Mathf.Clamp(level, 1, 9999);
     public static bool CanRepair(BattleUnit unit, BattleUnit target) => CanSupport(unit, target) &&
         unit.Mech.RepairDevice && target.CurrentHealth < target.Mech.Health;
@@ -285,7 +289,8 @@ public static class MechSkillEffect
         if (!CanRepair(unit, target)) { Log(unit, "Repair rejected: device, action, adjacency/team or damaged-target requirement failed."); return false; }
         int before = target.CurrentHealth, healing = RepairHealing(unit.Pilot.Level);
         target.RestoreHealth(healing);
-        unit.MarkActed();
+        // WEEK 7: A successful device action consumes Zeal's extra-action allowance just like an attack.
+        PilotSkillEffects.CompleteAction(unit);
         Log(unit, $"Repair L{unit.Pilot.Level}: 500 + 60*level = {healing}; {target.name} HP {before}->{target.CurrentHealth}; action spent.");
         return true;
     }
@@ -315,7 +320,8 @@ public static class MechSkillEffect
         int morale = target.CurrentMorale;
         RestoreSupplies(target);
         target.ChangeMorale(-10);
-        unit.MarkActed();
+        // WEEK 7: Resupply is also an action, so it must use the same Zeal completion rule.
+        PilotSkillEffects.CompleteAction(unit);
         Log(unit, $"Resupply device -> {target.name}: morale {morale}->{target.CurrentMorale}; action spent.");
         return true;
     }
@@ -358,7 +364,16 @@ public static class MechSkillEffect
         string.IsNullOrWhiteSpace(unit.Mech.TransformInto.GetterCompatibilityId);
     public static bool TryTransform(BattleUnit unit)
     {
-        if (!CanTransform(unit)) { Log(unit, "Transform rejected: linked form, mode morale threshold or unit availability requirement failed."); return false; }
+        // WEEK 7 GETTER DEBUG: Ordinary Transform deliberately excludes Getter forms.
+        // Explain the correct command even when routine debug logging is disabled.
+        if (!CanTransform(unit))
+        {
+            if (unit != null && unit.Mech != null &&
+                (unit.Mech.GetterForms.Count > 0 || GetterUnit.IsGetterForm(unit.Mech.TransformInto)))
+                Debug.LogWarning("[WEEK 5 GETTER] Ordinary Transform cannot change Getter forms. Select this unit and use Getter Change (T) during the player phase. If that fails, its warning will identify the missing setup.", unit);
+            else Log(unit, "Transform rejected: linked form, mode morale threshold or unit availability requirement failed.");
+            return false;
+        }
         ChangeForm(unit, unit.Mech.TransformInto); return true;
     }
     // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER needs its own form transition rather than the ordinary transform's shared ammo/SP rules.
@@ -367,6 +382,13 @@ public static class MechSkillEffect
     public static MechBase NextGetterForm(BattleUnit unit)
     {
         if (!OnGrid(unit)) return null;
+        // WEEK 7 GETTER FIX: Taking the first Getter Forms entry made Getter 1 and 2
+        // select each other forever, leaving Getter 3 unreachable through the command.
+        // Follow the saved Transform Into cycle (1 -> 2 -> 3 -> 1), using Getter's
+        // existing crew/form validation and resource handling rather than ordinary Transform.
+        MechBase next = unit.Mech.TransformInto;
+        if (unit.GetterState.CanChangeForm(next)) return next;
+        // Keep the existing fallback for assets without a valid preferred form link.
         foreach (MechBase form in unit.Mech.GetterForms)
             if (unit.GetterState.CanChangeForm(form)) return form;
         return null;
@@ -374,7 +396,14 @@ public static class MechSkillEffect
     public static bool TryGetterChange(BattleUnit unit)
     {
         MechBase form = NextGetterForm(unit);
-        if (form == null) { Log(unit, "Getter Change rejected: linked form, compatibility ID or exact three-pilot crew missing."); return false; }
+        if (form == null)
+        {
+            // WEEK 7 GETTER DEBUG: No valid form used to exit before the detailed failure reporter.
+            // Route every rejected Getter Change through the existing always-visible warning.
+            if (unit != null) unit.GetterState.ReportChangeFailure();
+            else Debug.LogWarning("[WEEK 5 GETTER] Cannot change form: no BattleUnit was supplied. Select the deployed Getter first.");
+            return false;
+        }
         return unit.GetterState.TryChangeForm(form);
     }
 
@@ -428,6 +457,10 @@ public static class MechSkillEffect
         // Capturing each actual pilot's pool before the crew list changes prevents the previous lowest-SP rule from merging them.
         // Getter combinations transfer those pools and initialize all form inventories, while generic combinations keep their existing resource rules.
         Dictionary<PilotBase, int> getterSP = GetterUnit.IsGetterForm(form) ? GetterUnit.ComponentSpiritPoints(parts) : null;
+        // WEEK 7: Carry each actual pilot's morale into a Getter; the old minimum alone loses the three thresholds.
+        Dictionary<PilotBase, int> crewMorale = new();
+        foreach (BattleUnit part in parts)
+            foreach (PilotBase crewPilot in part.SpiritCrew) crewMorale[crewPilot] = part.GetMorale(crewPilot);
         float hp = 1f, en = 1f, ammo = 1f, shield = 1f;
         int morale = unit.CurrentMorale, sp = unit.CurrentSpiritPoints;
         bool moved = false;
@@ -456,6 +489,9 @@ public static class MechSkillEffect
         unit.CurrentMoraleForAbility(morale);
         if (getterSP != null) unit.GetterState.ApplySpiritPoints(getterSP);
         ChangeForm(unit, form, form.MainGetterPilot);
+        // WEEK 7: Restore individual morale after the existing shared-minimum compatibility assignment.
+        if (getterSP != null)
+            foreach (var entry in crewMorale) unit.ChangePilotMorale(entry.Key, entry.Value - unit.GetMorale(entry.Key));
         unit.CurrentHealth = Mathf.Max(1, Mathf.FloorToInt(form.Health * hp));
         unit.CurrentEnergy = Mathf.FloorToInt(form.Energy * en);
         if (getterSP == null) unit.CurrentSpiritPoints = Mathf.Min(sp, unit.Pilot.MaxSpiritPoints);
@@ -496,6 +532,8 @@ public static class MechSkillEffect
         // Separation must return those live pools to the original components rather than copy the current main pilot's SP to everyone.
         // Taking a snapshot before changing any component pilot preserves earned or spent SP without affecting generic separation.
         Dictionary<PilotBase, int> getterSP = GetterUnit.IsGetterForm(unit.Mech) ? unit.GetterState.CopySpiritPoints() : null;
+        // WEEK 7: Snapshot pilot morale before separation changes the active main pilot and crew.
+        Dictionary<PilotBase, int> crewMorale = new(unit.PilotSkillState.Morale);
         for (int i = 0; i < parts.Count; i++)
         {
             Part part = parts[i]; BattleUnit component = part.Unit;
@@ -509,6 +547,11 @@ public static class MechSkillEffect
             if (getterSP != null) component.GetterState.ApplySpiritPoints(getterSP);
             else component.CurrentSpiritPoints = Mathf.Min(component.CurrentSpiritPoints, Mathf.Min(sp, part.Pilot.MaxSpiritPoints));
             component.CurrentMoraleForAbility(morale);
+            // WEEK 7: Return each Getter pilot's own morale along with their existing individual SP.
+            if (getterSP != null)
+                foreach (PilotBase crewPilot in component.SpiritCrew)
+                    if (crewMorale.TryGetValue(crewPilot, out int savedMorale))
+                        component.ChangePilotMorale(crewPilot, savedMorale - component.GetMorale(crewPilot));
             component.HasMoved = moved;
             component.MechSkillState.ShieldFraction = shield;
             component.MechSkillState.Shield = Mathf.FloorToInt(part.Mech.ShieldHealth * shield);

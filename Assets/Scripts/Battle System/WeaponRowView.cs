@@ -44,6 +44,10 @@ public class WeaponRowView : MonoBehaviour
         // GUND changes effective weapon power, and Hyper/Super-only moves need a clear locked-mode explanation.
         // Updating the existing fields keeps the list consistent with combat without adding controls or changing its layout.
         powerText.text = unit.GetWeaponPower(weapon).ToString();
+        // WEEK 7: Match Newtype range and pilot requirements to the checks used when the weapon fires.
+        rangeText.text = $"{weapon.MinRange}-{unit.GetWeaponMaxRange(weapon)}";
+        if (!PilotSkillEffects.IsWeaponUnlocked(unit, weapon))
+            availabilityText.text = $"Requires Newtype L{weapon.RequiredNewtypeLevel} / Aura Power L{weapon.RequiredAuraPowerLevel}";
         if (!MechSkillEffect.IsWeaponUnlocked(unit, weapon)) availabilityText.text = $"Requires {weapon.RequiredMode} Mode";
         // WEEK 5 CHANGES PLEASE READ: A weapon blocked by morale would otherwise be labelled as lacking EN in this row.
         // Showing its configured minimum explains why the attack is unavailable even when the unit has enough resources.

@@ -15,7 +15,7 @@ public class SpiritCommandButton : MonoBehaviour
         SpiritCommandBase spirit,
         bool canAfford,
         Action<SpiritCommandBase> onClicked,
-        string pilotLabel = null)
+        string pilotLabel = null, int? effectiveCost = null)
     {
         if (spirit == null)
         {
@@ -29,7 +29,8 @@ public class SpiritCommandButton : MonoBehaviour
             // An optional label identifies the command owner and their remaining SP, and labelled rows grow enough to fit that extra text.
             // Ordinary units omit the label and retain their original button text and size while Getter's crew list can scroll.
             commandText.text =
-                (string.IsNullOrEmpty(pilotLabel) ? "" : pilotLabel + "\n") + $"{spirit.CommandName} ({spirit.SpiritPointCost} SP)";
+                (string.IsNullOrEmpty(pilotLabel) ? "" : pilotLabel + "\n") + $"{spirit.CommandName} ({effectiveCost ?? spirit.SpiritPointCost} SP)";
+            // WEEK 7: Show the supplied SP Down cost so the player sees exactly what execution will charge.
             if (!string.IsNullOrEmpty(pilotLabel) && button != null)
             {
                 RectTransform row = button.transform as RectTransform;

@@ -32,6 +32,9 @@ public class MechBase : ScriptableObject
     [SerializeField] private MechSize size = MechSize.M;
     [SerializeField] private TerrainRatings terrainRatings = new();
     [SerializeField] private List<Weapon> weapons = new();
+    [Header("Movement Capabilites")]
+    [SerializeField] private bool canFly = false;
+    public bool CanFly => canFly;
 
     // WEEK 5 CHANGES PLEASE READ: The current mech asset exposes no ability settings, so the effect script has nothing to read.
     // These fields restore the saved ability names and add an optional component recipe for compatible combinations.
@@ -39,6 +42,9 @@ public class MechBase : ScriptableObject
     [Header("WEEK 5 Mech Skills")]
     [Min(0)][SerializeField] private int shieldHealth;
     [SerializeField] private MechBarrier barrier;
+    // WEEK 7: Counter Cut needs an explicit sword equipment flag; melee weapons alone do not imply a sword.
+    [SerializeField] private bool hasSword;
+    public bool HasSword => hasSword;
     [SerializeField] private SpecialEvasionAbility specialEvasionAbility;
     [HideInInspector][Range(0, 100)][SerializeField] private int specialEvasionChance;
     [HideInInspector][Min(0)][SerializeField] private int specialEvasionMorale = 130;

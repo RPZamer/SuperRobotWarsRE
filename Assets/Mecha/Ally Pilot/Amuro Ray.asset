@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89f092eff74351b4084e184348294892, type: 3}
+  m_Name: Amuro Ray
+  m_EditorClassIdentifier: Assembly-CSharp::PilotBase
+  pilotName: Amuro Ray
+  level: 1
+  melee: 100
+  ranged: 120
+  defense: 90
+  evade: 110
+  accuracy: 120
+  skill: 120
+  morale: 100
+  maxSpiritPoints: 100
+  terrainRatings:
+    air: 3
+    ground: 3
+    water: 3
+    space: 3
+  saveBLevel: 1
+  saveELevel: 0
+  potentialLevel: 4
+
+  supportAttackLevel: 0
+  secondAttackLevel: 2
+  supportDefendLevel: 0
+  fightersSpiritLevel: 0
+  breakMoraleLimitLevel: 0
+  ignoreSizeLevel: 0
+  infightLevel: 0
+  gunfightLevel: 6
+  counterCutLevel: 3
+  newtypeLevel: 7
+  auraPowerLevel: 0
+  enhancedAttack: 0
+  moralePlusATK: 0
+  moralePlusDEF: 0
+  instinct: 1
+  guard: 0
+  attacker: 0
+  spiritEndurance: 0
+  hitAndAway: 1
+  applyTerrain: 1
+  tacticalStandby: 1
+  spDown: 0
+  supreme: 0
+  clearMind: 0
+  battler: 0
+  getterOverflow: 0
+
+  spirit1: {fileID: 11400000, guid: d74a0f7351f6e0244bf355101ea4922d, type: 2}
+  spirit2: {fileID: 11400000, guid: 192439a57fa3af54cac4da2485958808, type: 2}
+  spirit3: {fileID: 11400000, guid: cb90f1260ba03134db521bd75f833c76, type: 2}
+  spirit4: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
+  spirit5: {fileID: 11400000, guid: 6a1ad8ca7fa03594da8e614cb357e7b2, type: 2}
+  spirit6: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
+
+  onSuccessLines: []
+  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
+  angryPortrait: {fileID: 0}
+  madPortrait: {fileID: 0}
+  sadPortrait: {fileID: 0}
+  motivatedPortrait: {fileID: 0}
+  defeatedPortrait: {fileID: 0}

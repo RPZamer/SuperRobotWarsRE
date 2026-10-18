@@ -54,6 +54,36 @@ public class PilotBase : ScriptableObject
     [Range(0, 2)][SerializeField] private int saveELevel;
     [Range(0, 9)][SerializeField] private int potentialLevel;
 
+    // WEEK 7: Add only the requested pilot settings; zero/false keeps existing pilots unchanged.
+    // Levels belong to assets, while uses, delayed actions and crew morale live on each BattleUnit.
+    [Header("WEEK 7 Pilot Abilities")]
+    [Range(0, 4)][SerializeField] private int supportAttackLevel;
+    [Range(0, 4)][SerializeField] private int secondAttackLevel;
+    [Range(0, 4)][SerializeField] private int supportDefendLevel;
+    [Range(0, 4)][SerializeField] private int fightersSpiritLevel;
+    [Range(0, 4)][SerializeField] private int breakMoraleLimitLevel;
+    [Range(0, 3)][SerializeField] private int ignoreSizeLevel;
+    [Range(0, 9)][SerializeField] private int infightLevel;
+    [Range(0, 9)][SerializeField] private int gunfightLevel;
+    [Range(0, 9)][SerializeField] private int counterCutLevel;
+    [Range(0, 9)][SerializeField] private int newtypeLevel;
+    [Range(0, 9)][SerializeField] private int auraPowerLevel;
+    [SerializeField] private bool enhancedAttack;
+    [SerializeField] private bool moralePlusATK;
+    [SerializeField] private bool moralePlusDEF;
+    [SerializeField] private bool instinct;
+    [SerializeField] private bool guard;
+    [SerializeField] private bool attacker;
+    [SerializeField] private bool spiritEndurance;
+    [SerializeField] private bool hitAndAway;
+    [SerializeField] private bool applyTerrain;
+    [SerializeField] private bool tacticalStandby;
+    [SerializeField] private bool spDown;
+    [SerializeField] private bool supreme;
+    [SerializeField] private bool clearMind;
+    [SerializeField] private bool battler;
+    [SerializeField] private bool getterOverflow;
+
     // WEEK 4: Each pilot can have up to six Spirit Commands.
     [Header("Spirit Commands")]
     [SerializeField] private SpiritCommandBase spirit1;
@@ -94,6 +124,34 @@ public class PilotBase : ScriptableObject
     public int SaveBLevel => Mathf.Clamp(saveBLevel, 0, 2);
     public int SaveELevel => Mathf.Clamp(saveELevel, 0, 2);
     public int PotentialLevel => Mathf.Clamp(potentialLevel, 0, 9);
+
+    // WEEK 7: Read clamped ability levels without modifying shared pilot assets.
+    public int SupportAttackLevel => Mathf.Clamp(supportAttackLevel, 0, 4);
+    public int SecondAttackLevel => Mathf.Clamp(secondAttackLevel, 0, 4);
+    public int SupportDefendLevel => Mathf.Clamp(supportDefendLevel, 0, 4);
+    public int FightersSpiritLevel => Mathf.Clamp(fightersSpiritLevel, 0, 4);
+    public int BreakMoraleLimitLevel => Mathf.Clamp(breakMoraleLimitLevel, 0, 4);
+    public int IgnoreSizeLevel => Mathf.Clamp(ignoreSizeLevel, 0, 3);
+    public int InfightLevel => Mathf.Clamp(infightLevel, 0, 9);
+    public int GunfightLevel => Mathf.Clamp(gunfightLevel, 0, 9);
+    public int CounterCutLevel => Mathf.Clamp(counterCutLevel, 0, 9);
+    public int NewtypeLevel => Mathf.Clamp(newtypeLevel, 0, 9);
+    public int AuraPowerLevel => Mathf.Clamp(auraPowerLevel, 0, 9);
+    public bool EnhancedAttack => enhancedAttack;
+    public bool MoralePlusATK => moralePlusATK;
+    public bool MoralePlusDEF => moralePlusDEF;
+    public bool Instinct => instinct;
+    public bool Guard => guard;
+    public bool Attacker => attacker;
+    public bool SpiritEndurance => spiritEndurance;
+    public bool HitAndAway => hitAndAway;
+    public bool ApplyTerrain => applyTerrain;
+    public bool TacticalStandby => tacticalStandby;
+    public bool SpDown => spDown;
+    public bool Supreme => supreme;
+    public bool ClearMind => clearMind;
+    public bool Battler => battler;
+    public bool GetterOverflow => getterOverflow;
 
     // WEEK 4: Expose the pilot's six Spirit Command slots.
     public SpiritCommandBase Spirit1 => spirit1;

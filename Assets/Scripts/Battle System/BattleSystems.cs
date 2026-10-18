@@ -124,6 +124,11 @@ public class BattleSystem : MonoBehaviour
     private Weapon reactionIncomingWeapon, reactionCounterWeapon;
     private BattleReaction selectedReaction;
     private bool reactionPending, choosingCounterWeapon, reactionConfirmed;
+    // WEEK 7: Support choices belong only to the pending combat preview and default to no support.
+    // A single follow-up slot makes Second Attack and allied Support Attack mutually exclusive.
+    private BattleUnit selectedSupportAttacker, selectedSupportDefender;
+    private Weapon selectedSupportWeapon;
+    private bool selectedSecondAttack;
     public bool IsChoosingCounterWeapon => reactionPending && choosingCounterWeapon;
 
     // Battle messages remain readable briefly after their typewriter animation finishes.
@@ -199,19 +204,37 @@ public class BattleSystem : MonoBehaviour
     // until the opening story cutscene has finished.
     private IEnumerator BeginPlayerTurnAfterCutscene()
     {
-        // WEEK 6: Allow CutsceneManager.Start() to initialize
-        // and begin the opening cutscene.
+        SortieDeployment sortieDeployment = FindFirstObjectByType<SortieDeployment>();
+
+        if (sortieDeployment != null)
+        {
+            yield return new WaitUntil(() => sortieDeployment.DeploymentConfirmed);
+
+        }
         yield return null;
 
         if (cutsceneManager != null)
         {
-            yield return new WaitUntil(
-                () => !cutsceneManager.IsPlaying);
+            yield return new WaitUntil(() => !cutsceneManager.IsPlaying);
         }
 
-        // WEEK 6: Begin normal gameplay after the cutscene.
         yield return BeginPlayerTurn();
     }
+    //private IEnumerator BeginPlayerTurnAfterCutscene()
+    // {
+    // WEEK 6: Allow CutsceneManager.Start() to initialize
+    // and begin the opening cutscene.
+    // yield return null;
+
+    // if (cutsceneManager != null)
+    // {
+    //   yield return new WaitUntil(
+    //       () => !cutsceneManager.IsPlaying);
+    // }
+
+    // WEEK 6: Begin normal gameplay after the cutscene.
+    // yield return BeginPlayerTurn();
+    //}
 
     private void Update()
     {
@@ -952,7 +975,8 @@ public class BattleSystem : MonoBehaviour
         // the entire Player Phase.
         BattleUnit completedUnit = selectedUnit;
         completedUnit.SetSelected(false);
-        completedUnit.MarkActed();
+        // WEEK 7: Tactical Standby's Zeal can also preserve an action after ordinary Standby.
+        PilotSkillEffects.CompleteAction(completedUnit);
         unconfirmedMoves.Remove(completedUnit);
         ReturnToPlayerSelection(completedUnit);
     }
@@ -1022,6 +1046,10 @@ public class BattleSystem : MonoBehaviour
             combatHUD.ShowBattleStatus("Player Phase", currentTurn);
         }
 
+        // WEEK 7: Player-phase pilot effects apply once after the previous phase, including docked crew.
+        // BeginTurn remains responsible for the existing action reset; this hook handles only pilot rules.
+        foreach (BattleUnit unit in PilotPhaseUnits()) PilotSkillEffects.BeginPlayerPhase(unit, unit.Team == playerTeam);
+
         // WEEK 3: Reset player movement at the start of the player turn.
         foreach (BattleUnit unit in battlefield.Units)
         {
@@ -1068,7 +1096,19 @@ public class BattleSystem : MonoBehaviour
         if (attackingUnit != null && !attackingUnit.IsDefeated)
         {
             attackingUnit.SetSelected(false);
-            attackingUnit.MarkActed();
+            // WEEK 7: Zeal preserves one full action; Hit and Away preserves only unused movement.
+            // Ordinary attackers still finish through MarkActed inside the ability helper.
+            PilotSkillEffects.CompleteAttackAction(attackingUnit);
+        }
+
+        // WEEK 7: Keep the attacker selected when an ability leaves an action or move available.
+        // CanUseWeapon blocks another attack during Hit and Away, while Standby still finishes it normally.
+        if (attackingUnit != null && !attackingUnit.IsDefeated && !attackingUnit.HasActed)
+        {
+            isPlayerTurn = true;
+            SelectUnit(attackingUnit);
+            ShowActions();
+            yield break;
         }
 
         // WEEK 4 TURN FLOW: Release the completed attacker and continue with
@@ -1098,6 +1138,9 @@ public class BattleSystem : MonoBehaviour
         // Clearing both pending fields here prevents a previous crew member's command from charging a newly selected unit's SP.
         pendingSpiritCommand = null; pendingSpiritPilot = null;
 
+        // WEEK 7: Capture Tactical Standby eligibility before the enemy phase changes any action state.
+        foreach (BattleUnit unit in PilotPhaseUnits())
+            if (unit.Team == playerTeam) PilotSkillEffects.EndPlayerPhase(unit);
         isPlayerTurn = false;
 
         // WEEK 3: Remove the current selection and close player controls
@@ -1133,6 +1176,14 @@ public class BattleSystem : MonoBehaviour
             combatHUD.ShowBattleStatus("Enemy Phase", currentTurn);
         }
 
+        // WEEK 7: Support Defend's level is a budget for this enemy phase, independent of unit actions.
+        foreach (BattleUnit unit in PilotPhaseUnits())
+        {
+            int before = unit.PilotSkillState.SupportDefendsUsed;
+            unit.PilotSkillState.SupportDefendsUsed = 0;
+            if (unit.Pilot != null && unit.Pilot.SupportDefendLevel > 0)
+                PilotSkillEffects.DebugLog(unit, $"Enemy phase: Support Defend budget reset {before}->0/{unit.Pilot.SupportDefendLevel}.");
+        }
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
 
         // WEEK 3: Create a snapshot of the enemy units before processing
@@ -1250,6 +1301,10 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null) weapon = attacker.GetUsableWeapon(target);
         if (!attacker.CanUseWeapon(weapon, target)) yield break;
 
+        // WEEK 7 DEBUG: Missing the whole menu otherwise silently bypasses the support selector through the existing fallback.
+        if (actionsMenu == null && weapon.Classification != WeaponClassification.Map &&
+            (attacker.Pilot.SupportAttackLevel > 0 || attacker.Pilot.SecondAttackLevel > 0 || target.Pilot.SupportDefendLevel > 0))
+            PilotSkillEffects.WarnOnce(attacker, "missing-actions-menu", "Pilot support selection cannot open because ActionsMenu is not assigned on BattleSystem. Assign the existing Reaction Panel menu.");
         // WEEK 6 CHANGES PLEASE READ: Non-MAP attacks need confirmation when either team initiates combat.
         // Both sides use the existing reaction exchange so an enemy defender can also Counter, Evade or Defend.
         // The exchange waits for Begin Combat before either unit fires, while MAP attacks keep their existing handling.
@@ -1266,13 +1321,16 @@ public class BattleSystem : MonoBehaviour
         Weapon firstStrike = weapon.Classification == WeaponClassification.Map ? null :
             target.GetUsableWeapon(attacker, WeaponType.FirstStrike, true);
         // WEEK 3: If both weapons have FirstStrike, the unit that started the attack goes first.
-        if ((weapon.Type & WeaponType.FirstStrike) == 0 && firstStrike != null)
+        // WEEK 7: Clear Mind grants First Strike dynamically without writing weapon flags to shared assets.
+        if (!PilotSkillEffects.HasFirstStrike(attacker, weapon) && firstStrike != null)
         {
             yield return PerformAttack(target, attacker, firstStrike);
             // WEEK 3: A unit defeated by the first strike cannot finish its attack.
             if (attacker == null || attacker.IsDefeated) yield break;
         }
-        yield return PerformAttack(attacker, target, weapon);
+        yield return PerformAttack(attacker, target, weapon, allowSupportDefend: attacker.Team != playerTeam);
+        if (!ScenarioEnded && weapon.Classification == WeaponClassification.SingleTarget && attacker.Team == playerTeam)
+            yield return ResolvePilotFollowup(attacker, target);
     }
 
     // WEEK 6 CHANGES PLEASE READ: Enemy defenders need an automatic response before the player confirms combat.
@@ -1283,9 +1341,14 @@ public class BattleSystem : MonoBehaviour
     {
         if (!actionsMenu.HasReactionUI)
         {
+            // WEEK 7 DEBUG: Missing reaction UI also prevents the support selector from appearing; report the setup problem directly.
+            PilotSkillEffects.WarnOnce(attacker, "reaction-ui", "Support selection cannot open: ActionsMenu is missing its reaction panel/buttons/preview references. Assign the reaction controls on ActionsMenu.");
             Debug.LogError("WEEK 6: Assign the reaction controls on ActionsMenu before resolving an enemy attack.", actionsMenu);
             yield break;
         }
+        selectedSupportAttacker = selectedSupportDefender = null;
+        selectedSupportWeapon = null;
+        selectedSecondAttack = false;
         reactionAttacker = attacker;
         reactionDefender = defender;
         reactionIncomingWeapon = incoming;
@@ -1306,16 +1369,24 @@ public class BattleSystem : MonoBehaviour
             if (!reactionConfirmed || ScenarioEnded || !attacker.CanUseWeapon(incoming, defender)) yield break;
 
             bool counter = selectedReaction == BattleReaction.Counter && CanCounterWith(reactionCounterWeapon);
-            bool first = counter && (reactionCounterWeapon.Type & WeaponType.FirstStrike) != 0 &&
-                (incoming.Type & WeaponType.FirstStrike) == 0;
+            // WEEK 7: Both participants use the same dynamic First Strike rule, including Clear Mind.
+            bool first = counter && PilotSkillEffects.HasFirstStrike(defender, reactionCounterWeapon) &&
+                !PilotSkillEffects.HasFirstStrike(attacker, incoming);
             if (first) yield return PerformAttack(defender, attacker, reactionCounterWeapon);
             if (ScenarioEnded || attacker == null || attacker.IsDefeated || defender == null || defender.IsDefeated) yield break;
-            yield return PerformAttack(attacker, defender, incoming);
+            yield return PerformAttack(attacker, defender, incoming, allowSupportDefend: attacker.Team != playerTeam);
             if (!first && counter && !ScenarioEnded && CanCounterWith(reactionCounterWeapon))
                 yield return PerformAttack(defender, attacker, reactionCounterWeapon);
+            // WEEK 7: Execute the chosen follow-up only after the complete counter exchange.
+            if (!ScenarioEnded && incoming.Classification == WeaponClassification.SingleTarget && attacker.Team == playerTeam)
+                yield return ResolvePilotFollowup(attacker, defender);
         }
         finally
         {
+            // WEEK 7: Cancelled/finished combat must not lend its support selection to a later attack.
+            selectedSupportAttacker = selectedSupportDefender = null;
+            selectedSupportWeapon = null;
+            selectedSecondAttack = false;
             reactionPending = choosingCounterWeapon = reactionConfirmed = false;
             reactionAttacker = reactionDefender = null;
             reactionIncomingWeapon = reactionCounterWeapon = null;
@@ -1338,6 +1409,7 @@ public class BattleSystem : MonoBehaviour
         if (!reactionPending || reactionAttacker == null || reactionDefender == null) return;
         actionsMenu.ShowReaction(reactionAttacker, reactionDefender, reactionIncomingWeapon,
             selectedReaction, reactionCounterWeapon, CanCounterWith(reactionCounterWeapon), reactionDefender.Team == playerTeam);
+        ShowPilotSupportChoices();
     }
 
     // WEEK 6 CHANGES PLEASE READ: Counter now opens the existing weapon picker instead of firing immediately.
@@ -1382,8 +1454,132 @@ public class BattleSystem : MonoBehaviour
         attacker == reactionAttacker && defender == reactionDefender && weapon == reactionIncomingWeapon
             ? selectedReaction : BattleReaction.Counter;
 
+    // WEEK 7: Support is optional and selected in the existing combat preview, including its exact weapon.
+    // One slot contains None, an allied Support Attack or a personal Second Attack, preventing both together.
+    // Eligibility is checked again after counters so a defeated unit or spent weapon cannot supply an attack.
+    private IEnumerator ResolvePilotFollowup(BattleUnit attacker, BattleUnit target)
+    {
+        if (attacker == null || target == null || attacker.IsDefeated || target.IsDefeated || selectedSupportWeapon == null)
+        {
+            // WEEK 7 DEBUG: A destroyed participant normally cancels follow-ups; it is not a configuration warning.
+            if (selectedSupportWeapon != null) PilotSkillEffects.DebugLog(attacker, "Selected follow-up skipped: attacker or target was defeated during the exchange.");
+            yield break;
+        }
+        if (selectedSecondAttack)
+        {
+            if (!PilotSkillEffects.CanSecondAttack(attacker, target) || !attacker.CanUseWeapon(selectedSupportWeapon, target, true))
+            {
+                // WEEK 7 DEBUG: A selected follow-up can lose resources or eligibility during the counter exchange.
+                // Report the live requirements without retrying the attack or changing its existing rejection behavior.
+                PilotSkillEffects.WarnOnce(attacker, "second-skipped:" + selectedSupportWeapon.WeaponName,
+                    $"Selected Second Attack did not execute. {PilotSkillEffects.DescribeSecondAttack(attacker, target)} Weapon={selectedSupportWeapon.WeaponName}, EN={attacker.CurrentEnergy}/{attacker.GetWeaponEnergyCost(selectedSupportWeapon)} required, ammo={attacker.GetAmmo(selectedSupportWeapon)}, range legal={attacker.IsWeaponInRange(selectedSupportWeapon, target.GridPosition)}, weapon usable={attacker.CanUseWeapon(selectedSupportWeapon, target, true)}.");
+                yield break;
+            }
+            PilotSkillEffects.DebugLog(attacker, "Second Attack: one additional attack at half damage.");
+            yield return PerformAttack(attacker, target, selectedSupportWeapon, 0.5f);
+        }
+        else if (PilotSkillEffects.CanSupportAttack(selectedSupportAttacker, attacker, target, selectedSupportWeapon))
+        {
+            BattleUnit support = selectedSupportAttacker;
+            // WEEK 7: Firing from an ally's previewed move commits that position, preventing an undo after support damage.
+            unconfirmedMoves.Remove(support);
+            support.PilotSkillState.SupportAttacksUsed++;
+            PilotSkillEffects.DebugLog(support, $"Support Attack {support.PilotSkillState.SupportAttacksUsed}/{support.Pilot.SupportAttackLevel}: {selectedSupportWeapon.WeaponName} -> {target.name}, half damage.");
+            yield return PerformAttack(support, target, selectedSupportWeapon, 0.5f, true);
+        }
+        else
+            PilotSkillEffects.WarnOnce(attacker, "support-skipped:" + selectedSupportWeapon.WeaponName,
+                $"Selected Support Attack did not execute: supporter must still be alive, adjacent, unacted, have uses left, and be able to fire {selectedSupportWeapon.WeaponName}. Supporter={(selectedSupportAttacker != null ? PilotSkillEffects.Describe(selectedSupportAttacker) : "missing")}.");
+    }
+
+    // WEEK 7: Before commitment, a personal follow-up must be affordable in addition to the initiating weapon.
+    // After commitment the ordinary CanUseWeapon check handles the remaining resources instead.
+    private bool CanSelectSecondAttack(Weapon weapon) => PilotSkillEffects.CanSecondAttack(reactionAttacker, reactionDefender) &&
+        reactionAttacker.CanUseWeapon(weapon, reactionDefender, true) &&
+        reactionAttacker.CurrentEnergy >= reactionAttacker.GetWeaponEnergyCost(reactionIncomingWeapon) + reactionAttacker.GetWeaponEnergyCost(weapon) &&
+        (weapon != reactionIncomingWeapon || weapon.MaxAmmo == 0 || reactionAttacker.GetAmmo(weapon) >= 2);
+
+    private void ShowPilotSupportChoices()
+    {
+        if (reactionIncomingWeapon.Classification != WeaponClassification.SingleTarget) return;
+        List<(string label, bool selected, System.Action choose)> choices = new();
+        if (reactionAttacker.Team == playerTeam)
+        {
+            choices.Add(("No follow-up", selectedSupportWeapon == null, () => ChoosePilotFollowup(null, null, false)));
+            foreach (Weapon weapon in reactionAttacker.Mech.Weapons)
+                if (weapon != null && CanSelectSecondAttack(weapon))
+                    choices.Add(($"Second Attack: {weapon.WeaponName} (self)", selectedSecondAttack && selectedSupportWeapon == weapon,
+                        () => ChoosePilotFollowup(reactionAttacker, weapon, true)));
+            // WEEK 7 FIX: Only other allied units belong in Support Attack choices.
+            // The acting unit can appear above only as a clearly labelled Second Attack.
+            foreach (BattleUnit candidate in battlefield.Units)
+                if (candidate != null && candidate != reactionAttacker && candidate.Team == reactionAttacker.Team && candidate.Mech != null)
+                    foreach (Weapon weapon in candidate.Mech.Weapons)
+                        if (weapon != null && PilotSkillEffects.CanSupportAttack(candidate, reactionAttacker, reactionDefender, weapon))
+                            choices.Add(($"Support Attack: {candidate.Pilot.PilotName} / {candidate.Mech.MechName}\n{weapon.WeaponName} ({candidate.PilotSkillState.SupportAttacksUsed}/{candidate.Pilot.SupportAttackLevel} used)",
+                                !selectedSecondAttack && selectedSupportAttacker == candidate && selectedSupportWeapon == weapon,
+                                () => ChoosePilotFollowup(candidate, weapon, false)));
+            if (choices.Count > 1) actionsMenu.ShowPilotSupportOptions("Follow-up (50% damage)", choices);
+            // WEEK 7 DEBUG: This runs on menu events, never the per-frame weapon eligibility queries.
+            PilotSkillEffects.DebugLog(reactionAttacker, $"Reaction preview: {choices.Count - 1} legal follow-up weapon options; selected={(selectedSupportWeapon != null ? selectedSupportWeapon.WeaponName : "none")}. " + PilotSkillEffects.DescribeSecondAttack(reactionAttacker, reactionDefender) + " Supports also require adjacency, an unused action, phase uses, range and weapon resources.");
+        }
+        else if (reactionDefender.Team == playerTeam)
+        {
+            choices.Add(("No support defense", selectedSupportDefender == null, () => ChoosePilotDefender(null)));
+            foreach (BattleUnit candidate in battlefield.Units)
+                if (PilotSkillEffects.CanSupportDefend(candidate, reactionDefender))
+                    choices.Add(($"{candidate.Pilot.PilotName} / {candidate.Mech.MechName}\nHP {candidate.CurrentHealth}/{candidate.Mech.Health} ({candidate.PilotSkillState.SupportDefendsUsed}/{candidate.Pilot.SupportDefendLevel} used)",
+                        selectedSupportDefender == candidate, () => ChoosePilotDefender(candidate)));
+            if (choices.Count > 1) actionsMenu.ShowPilotSupportOptions("Support Defend (50% damage)", choices);
+            PilotSkillEffects.DebugLog(reactionDefender, $"Reaction preview: {choices.Count - 1} legal support defenders; selected={(selectedSupportDefender != null ? selectedSupportDefender.name : "none")}. Requires an adjacent ally with Support Defend uses left.");
+        }
+    }
+    private void ChoosePilotFollowup(BattleUnit support, Weapon weapon, bool second)
+    {
+        if (!reactionPending || choosingCounterWeapon || reactionAttacker.Team != playerTeam) return;
+        if (weapon != null && (second ? !CanSelectSecondAttack(weapon) :
+            !PilotSkillEffects.CanSupportAttack(support, reactionAttacker, reactionDefender, weapon)))
+        {
+            // WEEK 7 DEBUG: A stale option should explain its rejection instead of silently ignoring the player's click.
+            PilotSkillEffects.WarnOnce(reactionAttacker, "followup-choice:" + weapon.WeaponName,
+                $"Follow-up selection rejected for {weapon.WeaponName}: recheck Skill lead, adjacency, unused action, phase uses, range and EN/ammo. " + PilotSkillEffects.DescribeSecondAttack(reactionAttacker, reactionDefender));
+            return;
+        }
+        // WEEK 7 FIX: A personal Second Attack never registers the acting unit as an allied supporter.
+        // Its separate flag and weapon drive execution; Support Attack always rechecks the other-unit guard.
+        selectedSupportAttacker = second ? null : support;
+        selectedSupportWeapon = weapon; selectedSecondAttack = second;
+        ShowReactionMenu();
+    }
+    private void ChoosePilotDefender(BattleUnit support)
+    {
+        if (!reactionPending || choosingCounterWeapon || reactionDefender.Team != playerTeam) return;
+        if (support != null && !PilotSkillEffects.CanSupportDefend(support, reactionDefender))
+        {
+            PilotSkillEffects.WarnOnce(reactionDefender, "defender-choice:" + support.GetEntityId(),
+                $"Support Defend selection rejected: {support.name} must be alive, adjacent, on the same team and have phase uses remaining.");
+            return;
+        }
+        selectedSupportDefender = support;
+        ShowReactionMenu();
+    }
+
+    // WEEK 7: Docked units are absent from Battlefield.Units, but their delayed pilot effects still need phase updates.
+    private IEnumerable<BattleUnit> PilotPhaseUnits()
+    {
+        foreach (BattleUnit unit in battlefield.Units)
+        {
+            if (unit == null) continue;
+            yield return unit;
+            if (unit.TryGetComponent(out Mothership ship))
+                foreach (BattleUnit passenger in ship.Passengers)
+                    if (passenger != null && passenger.DockedAt == ship) yield return passenger;
+        }
+    }
+
     // WEEK 3: Pay for one weapon use and collect the units its attack will hit.
-    private IEnumerator PerformAttack(BattleUnit attacker, BattleUnit target, Weapon weapon)
+    private IEnumerator PerformAttack(BattleUnit attacker, BattleUnit target, Weapon weapon,
+        float damageMultiplier = 1f, bool supportAttack = false, bool allowSupportDefend = false)
     {
         if (attacker == null || target == null)
         {
@@ -1394,6 +1590,17 @@ public class BattleSystem : MonoBehaviour
         if (weapon == null || !attacker.TrySpendWeapon(weapon))
         {
             yield break;
+        }
+
+        // WEEK 7 DEBUG: Log only a paid, actual weapon use, so a preview cannot claim a skill was executed.
+        PilotSkillEffects.ReportWeaponUse(attacker, target, weapon, supportAttack, damageMultiplier);
+        // WEEK 7: Morale+ATK belongs to the attack event, so counters/supports gain it even on a miss.
+        // Charge it once per weapon use rather than once per target of a MAP attack.
+        if (attacker.Pilot.MoralePlusATK)
+        {
+            int before = attacker.CurrentMorale;
+            attacker.ChangeMorale(1);
+            PilotSkillEffects.DebugLog(attacker, $"Morale+ATK: morale {before}->{attacker.CurrentMorale} (+1 extra, even on a miss).");
         }
 
         // WEEK 6: MUSIC SYSTEM - Only player units change the battle music.
@@ -1423,7 +1630,7 @@ public class BattleSystem : MonoBehaviour
                     candidate.Pilot == null || candidate.Mech == null ||
                     (!weapon.MapHitsAllies && candidate.Team == attacker.Team))
                     continue;
-                if (weapon.IsInMapArea(attacker.GridPosition, target.GridPosition, candidate.GridPosition))
+                if (weapon.IsInMapArea(attacker.GridPosition, target.GridPosition, candidate.GridPosition, PilotSkillEffects.WeaponRangeBonus(attacker, weapon)))
                     targets.Add(candidate);
             }
         }
@@ -1448,7 +1655,8 @@ public class BattleSystem : MonoBehaviour
         {
             if (hitTarget != null && !hitTarget.IsDefeated)
             {
-                yield return ResolveWeaponHit(attacker, hitTarget, weapon);
+                yield return ResolveWeaponHit(attacker, hitTarget, weapon, damageMultiplier, supportAttack,
+                    allowSupportDefend && weapon.Classification == WeaponClassification.SingleTarget);
             }
         }
 
@@ -1479,7 +1687,8 @@ public class BattleSystem : MonoBehaviour
     }
 
     // WEEK 3: Roll hit and critical chance, apply formula damage, and show the battle result.
-    private IEnumerator ResolveWeaponHit(BattleUnit attacker, BattleUnit target, Weapon weapon)
+    private IEnumerator ResolveWeaponHit(BattleUnit attacker, BattleUnit target, Weapon weapon,
+        float damageMultiplier = 1f, bool supportAttack = false, bool allowSupportDefend = false)
     {
         PilotBase attackerPilot = attacker.Pilot;
         PilotBase targetPilot = target.Pilot;
@@ -1522,7 +1731,8 @@ public class BattleSystem : MonoBehaviour
         // Resolve the response for this exact hit and use the same helper as the reaction preview.
         // Special evasion still runs afterward only when this normal roll would hit.
         // WEEK 6: Keep the existing reaction and accuracy calculations.
-        BattleReaction reaction = ReactionForHit(attacker, target, weapon);
+        // WEEK 7: A follow-up using the same weapon object is still a separate hit, not the original reaction hit.
+        BattleReaction reaction = damageMultiplier < 1f ? BattleReaction.Counter : ReactionForHit(attacker, target, weapon);
 
         int hitRate = BattleFormulas.ReactionHitRate(
             BattleFormulas.AccuracyRate(attacker, target, weapon, distance),
@@ -1563,20 +1773,49 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        // WEEK 7: A support defender replaces only the damage recipient after the original target would be hit.
+        // Its own armor, Guard, barriers, shield, status protection and parry apply; halve once without stacking Defend.
+        BattleUnit supportDefender = allowSupportDefend && PilotSkillEffects.CanSupportDefend(selectedSupportDefender, target)
+            ? selectedSupportDefender : null;
+        if (allowSupportDefend && selectedSupportDefender != null && supportDefender == null)
+            PilotSkillEffects.WarnOnce(target, "defender-skipped:" + selectedSupportDefender.GetEntityId(),
+                $"Selected Support Defend did not execute: {selectedSupportDefender.name} is no longer an eligible adjacent ally with uses remaining. The original target receives the attack.");
+        if (supportDefender != null)
+        {
+            target = supportDefender;
+            targetPilot = target.Pilot;
+            targetName = GetPilotName(target);
+            target.PilotSkillState.SupportDefendsUsed++;
+            reaction = BattleReaction.Defend;
+            PilotSkillEffects.DebugLog(target, $"Support Defend {target.PilotSkillState.SupportDefendsUsed}/{target.Pilot.SupportDefendLevel}: intercepting {weapon.WeaponName}, incoming damage is halved.");
+        }
+        // WEEK 7: Counter Cut cancels parryable weapon hits before damage, barrier costs or statuses.
+        if (PilotSkillEffects.TryCounterCut(target, weapon))
+        {
+            yield return ShowBattleMessage(targetPilot, PilotEmotion.Default, $"{targetName} parried the attack.");
+            yield break;
+        }
+
         // WEEK 4 MORALE SYSTEM: Landing an attack and being hit each grant 1 morale.
         attacker.ChangeMorale(1);
-        target.ChangeMorale(1);
+        // WEEK 7: Morale+DEF adds one only on a connected hit, following the supplied RE rule.
+        int moraleBeforeHit = target.CurrentMorale;
+        target.ChangeMorale(1 + (target.Pilot.MoralePlusDEF ? 1 : 0));
+        if (target.Pilot.MoralePlusDEF)
+            PilotSkillEffects.DebugLog(target, $"Morale+DEF: morale {moraleBeforeHit}->{target.CurrentMorale} (+1 ordinary hit, +1 ability; capped normally).");
 
         // WEEK 3: Roll for a critical hit and use the result when calculating damage.
         int criticalRate = Mathf.Clamp(BattleFormulas.CriticalRate(attacker, target, weapon), 0, 100);
-        bool critical = Random.Range(0, 100) < criticalRate;
+        // WEEK 7: Enhanced Attack guarantees criticals only for allied supports, never Second Attack.
+        bool critical = (supportAttack && attacker.Pilot.EnhancedAttack) || Random.Range(0, 100) < criticalRate;
         // WEEK 5 CHANGES PLEASE READ: Weapon damage previously went straight to mech HP through TakeDamage.
         // Direct hits must now apply the equipped barrier and separate shield HP before the remaining damage reaches the mech.
         // The shared direct-hit entry point connects those skills while leaving TakeDamage available for poison and other bypass effects.
 
         // WEEK 6: Keep the existing damage formula and defensive reaction.
         int incomingDamage = BattleFormulas.ReactionDamage(
-            BattleFormulas.Damage(attacker, target, weapon, critical),
+            // WEEK 7: Support and Second Attack use half damage before shields/barriers absorb the hit.
+            Mathf.FloorToInt(BattleFormulas.Damage(attacker, target, weapon, critical) * damageMultiplier),
             reaction);
 
         // WEEK 7: Analyze causes the affected unit to deal 10% less
@@ -1633,6 +1872,11 @@ public class BattleSystem : MonoBehaviour
             weapon,
             attacker.PierceActive);
         bool defeated = target.IsDefeated;
+        // WEEK 7 DEBUG: Show both the computed incoming hit and actual barrier/shield/HP result.
+        // All values are observed after resolution; this adds no extra damage rolls or resource spending.
+        PilotSkillEffects.DebugLog(attacker, $"Resolved {weapon.WeaponName} -> {target.name}: crit={critical}, Enhanced Attack guaranteed={supportAttack && attacker.Pilot.EnhancedAttack}, hit chance={hitRate}%, follow-up x{damageMultiplier:0.###}, Ignore Size L{attacker.Pilot.IgnoreSizeLevel} size multiplier={PilotSkillEffects.SizeDamageMultiplier(attacker, target):0.###}, damage dealt x{PilotSkillEffects.DamageDealtMultiplier(attacker):0.###}, Guard multiplier={PilotSkillEffects.DamageTakenMultiplier(target):0.###}, terrain defense={PilotSkillEffects.TerrainBonus(target, true)}%, incoming={incomingDamage}, damage applied={damage}, target HP={target.CurrentHealth}.");
+        // WEEK 7: Only connected weapon hits can inflict statuses; Endurance filters them centrally.
+        if (!defeated) PilotSkillEffects.ApplyWeaponStatus(target, weapon);
 
         // Damage and defeat messages use text only, so their portrait flag remains false.
         yield return ShowBattleMessage(
@@ -1917,12 +2161,21 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Mazinger Z is the designated player objective.
-        // Defeating it completes the scenario with Defeat.
+        // WEEK 3: If all player units die or the player objective (the mothership) is defeated, the scenario ends with Defeat.
+
+        if (FindFirstUnit(BattleTeam.Player) == null)
+        {
+            EndScenario(ScenarioResult.Defeat);
+            return;
+        }
+        
         if (playerObjectiveUnit != null && playerObjectiveUnit.IsDefeated)
         {
             EndScenario(ScenarioResult.Defeat);
+            return;
         }
+
+        
     }
 
     // WEEK 3: Store one permanent final result and immediately stop normal
@@ -1955,8 +2208,14 @@ public class BattleSystem : MonoBehaviour
         // after normal battle controls have been stopped.
         if (combatHUD != null)
         {
-            combatHUD.ShowScenarioResult(
-                scenarioResult == ScenarioResult.Victory ? "VICTORY" : "DEFEAT");
+            if (scenarioResult == ScenarioResult.Victory)
+            {
+                combatHUD.ShowVictoryScreen();
+            }
+            else
+            {
+                combatHUD.ShowDefeatScreen();
+            }
         }
 
         Debug.Log($"[SCENARIO END] {scenarioResult}", this);
@@ -1968,6 +2227,7 @@ public class BattleSystem : MonoBehaviour
             StartCoroutine(TransitionToIntermission());
         }
     }
+
     // WEEK 6: CUTSCENES - Wait for the victory dialogue
     // before transitioning to Intermission.
     private IEnumerator TransitionToIntermission()
