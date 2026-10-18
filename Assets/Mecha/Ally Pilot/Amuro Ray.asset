@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Amuro Ray
   level: 1
-  melee: 100
-  ranged: 120
+  melee: 140
+  ranged: 170
   defense: 90
-  evade: 110
-  accuracy: 120
-  skill: 120
+  evade: 140
+  accuracy: 140
+  skill: 150
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -31,24 +31,24 @@ MonoBehaviour:
   saveELevel: 0
   potentialLevel: 4
   supportAttackLevel: 0
-  secondAttackLevel: 0
+  secondAttackLevel: 2
   supportDefendLevel: 0
   fightersSpiritLevel: 0
   breakMoraleLimitLevel: 0
   ignoreSizeLevel: 0
   infightLevel: 0
-  gunfightLevel: 0
-  counterCutLevel: 0
-  newtypeLevel: 0
+  gunfightLevel: 2
+  counterCutLevel: 4
+  newtypeLevel: 4
   auraPowerLevel: 0
   enhancedAttack: 0
   moralePlusATK: 0
   moralePlusDEF: 0
-  instinct: 0
+  instinct: 1
   guard: 0
   attacker: 0
   spiritEndurance: 0
-  hitAndAway: 0
+  hitAndAway: 1
   applyTerrain: 0
   tacticalStandby: 0
   spDown: 0
@@ -56,14 +56,15 @@ MonoBehaviour:
   clearMind: 0
   battler: 0
   getterOverflow: 0
-  spirit1: {fileID: 11400000, guid: 557227f052265b94baa1b99fe54f2e69, type: 2}
-  spirit2: {fileID: 11400000, guid: 63ba15a937270ed4e831bf65bb7215ef, type: 2}
-  spirit3: {fileID: 11400000, guid: 6edc0b0cebcc5464e85756d59d76872b, type: 2}
-  spirit4: {fileID: 11400000, guid: cdc50405f5ade01459fcfd9965c894c6, type: 2}
-  spirit5: {fileID: 0}
-  spirit6: {fileID: 0}
-  onSuccessLines: []
-  defaultPortrait: {fileID: 0}
+  spirit1: {fileID: 11400000, guid: 6edc0b0cebcc5464e85756d59d76872b, type: 2}
+  spirit2: {fileID: 11400000, guid: d8073cc4578b8654e96fae6c37ffabda, type: 2}
+  spirit3: {fileID: 11400000, guid: cdc50405f5ade01459fcfd9965c894c6, type: 2}
+  spirit4: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit5: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit6: {fileID: 11400000, guid: d89de4f3bbbf83e4cbbff0963f602781, type: 2}
+  onSuccessLines:
+  - Down it goes
+  defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

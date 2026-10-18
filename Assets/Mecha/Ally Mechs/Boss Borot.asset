@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: 7639429424499072678, guid: b1649902fd17929438d34e968d70439d, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: a857ea296b3c8ea4fa19ff4fc91f348b, type: 3}
-  health: 2000
+  health: 4200
   energy: 100
   movement: 5
-  mobility: 100
-  armor: 500
+  mobility: 50
+  armor: 900
   size: 2
   terrainRatings:
     air: 3
@@ -47,7 +47,7 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 1500
+    power: 1800
     accuracyModifier: 0
     criticalModifier: 0
     energyCost: 0
@@ -76,7 +76,7 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 2000
+    power: 3000
     accuracyModifier: 10
     criticalModifier: 20
     energyCost: 20
@@ -105,7 +105,7 @@ MonoBehaviour:
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 3500
+    power: 4500
     accuracyModifier: -20
     criticalModifier: 30
     energyCost: 50

@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: -1886470498139493953, guid: ffd42a78764a1504d991671e218a7c61, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 9776a501a042d254e8f69ab27857fb96, type: 3}
-  health: 2000
-  energy: 100
+  health: 3500
+  energy: 80
   movement: 5
-  mobility: 130
-  armor: 800
+  mobility: 100
+  armor: 1000
   size: 2
   terrainRatings:
     air: 3
@@ -47,7 +47,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 3
-    power: 500
+    power: 1000
     accuracyModifier: 100
     criticalModifier: 10
     energyCost: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -76,7 +76,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 1
-    power: 1200
+    power: 2000
     accuracyModifier: 30
     criticalModifier: 10
     energyCost: 10
@@ -105,7 +105,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 7
-    power: 1200
+    power: 2000
     accuracyModifier: 30
     criticalModifier: 10
     energyCost: 0
@@ -123,7 +123,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -134,7 +134,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 3
-    power: 1700
+    power: 2500
     accuracyModifier: 10
     criticalModifier: 40
     energyCost: 20
@@ -152,7 +152,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -163,7 +163,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 5
-    power: 2000
+    power: 2700
     accuracyModifier: 20
     criticalModifier: 40
     energyCost: 0
@@ -173,6 +173,36 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
+  - weaponName: All Out Attack
+    damageType: 1
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 110
+    canBeParried: 0
+    requiredNewtypeLevel: 5
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 1
+    maxRange: 5
+    power: 3000
+    accuracyModifier: 20
+    criticalModifier: 40
+    energyCost: 40
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 3
+      space: 3
+  canFly: 0
   shieldHealth: 1500
   barrier: 0
   hasSword: 1

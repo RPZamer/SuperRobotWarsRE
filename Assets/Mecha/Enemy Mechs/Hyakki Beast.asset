@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: 6045489811348382551, guid: f31ad3bf1001dff4b84dad2475f74ad0, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 0}
-  health: 2000
+  health: 4000
   energy: 100
   movement: 5
-  mobility: 100
-  armor: 1200
+  mobility: 60
+  armor: 1400
   size: 2
   terrainRatings:
     air: 3
@@ -28,7 +28,7 @@ MonoBehaviour:
     water: 3
     space: 3
   weapons:
-  - weaponName: Beem
+  - weaponName: Beam
     damageType: 0
     travelsToTargetTerrain: 0
     weaponType: 0
@@ -36,13 +36,18 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
     minRange: 1
     maxRange: 5
-    power: 1500
+    power: 2300
     accuracyModifier: 30
     criticalModifier: 10
     energyCost: 10
@@ -60,13 +65,18 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 0
     mapWidth: 0
     mapHitsAllies: 0
     minRange: 1
     maxRange: 1
-    power: 2000
+    power: 2500
     accuracyModifier: 0
     criticalModifier: 0
     energyCost: 0
@@ -76,8 +86,10 @@ MonoBehaviour:
       ground: 3
       water: 2
       space: 3
+  canFly: 0
   shieldHealth: 0
   barrier: 0
+  hasSword: 0
   specialEvasionAbility: 0
   specialEvasionChance: 0
   specialEvasionMorale: 130

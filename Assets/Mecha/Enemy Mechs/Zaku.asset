@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: -102200125386026521, guid: d36a698f9bda7da49994e5bfe022d5cf, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 0}
-  health: 1500
-  energy: 100
+  health: 3000
+  energy: 80
   movement: 5
-  mobility: 100
-  armor: 700
+  mobility: 80
+  armor: 900
   size: 2
   terrainRatings:
     air: 3
@@ -36,6 +36,11 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 3
     mapWidth: 3
@@ -60,13 +65,18 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 3
     mapWidth: 3
     mapHitsAllies: 1
     minRange: 1
     maxRange: 1
-    power: 1000
+    power: 2000
     accuracyModifier: 10
     criticalModifier: 10
     energyCost: 10
@@ -84,13 +94,18 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
     mapShape: 0
     mapLength: 3
     mapWidth: 3
     mapHitsAllies: 1
     minRange: 1
     maxRange: 5
-    power: 1700
+    power: 2500
     accuracyModifier: 10
     criticalModifier: 10
     energyCost: 0
@@ -100,8 +115,10 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
+  canFly: 0
   shieldHealth: 0
   barrier: 0
+  hasSword: 0
   specialEvasionAbility: 0
   specialEvasionChance: 0
   specialEvasionMorale: 130

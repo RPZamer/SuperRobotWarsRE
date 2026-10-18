@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Musashi Tomoe
   level: 1
-  melee: 120
-  ranged: 80
-  defense: 120
-  evade: 80
-  accuracy: 90
-  skill: 90
+  melee: 160
+  ranged: 135
+  defense: 130
+  evade: 90
+  accuracy: 120
+  skill: 130
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -62,7 +62,8 @@ MonoBehaviour:
   spirit4: {fileID: 11400000, guid: f4eb471bcb60a6b4ca95a344637b0dc2, type: 2}
   spirit5: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
   spirit6: {fileID: 11400000, guid: d8073cc4578b8654e96fae6c37ffabda, type: 2}
-  onSuccessLines: []
+  onSuccessLines:
+  - Im a part of the Getter Team too, and my Getter 3 is Invincible
   defaultPortrait: {fileID: -5037098058536660253, guid: 6d5d2341048984c4db5d18176ea7cdca, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}

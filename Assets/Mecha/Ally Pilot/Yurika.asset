@@ -59,10 +59,11 @@ MonoBehaviour:
   spirit1: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
   spirit2: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
   spirit3: {fileID: 11400000, guid: 6bcf6d697ba216f49aa6dbbe06ec0948, type: 2}
-  spirit4: {fileID: 0}
-  spirit5: {fileID: 0}
-  spirit6: {fileID: 0}
-  onSuccessLines: []
+  spirit4: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
+  spirit5: {fileID: 11400000, guid: f6739056b987aa14999a3a973aca35e9, type: 2}
+  spirit6: {fileID: 11400000, guid: afccfcad019c55b46a22fe36d47e2421, type: 2}
+  onSuccessLines:
+  - V! another vicrory for us!
   defaultPortrait: {fileID: 8941868229408908293, guid: 017efeb89ea1934458b37f5c289eb097, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}

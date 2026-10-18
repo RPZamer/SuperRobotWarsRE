@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Hyato Jin
   level: 1
-  melee: 110
-  ranged: 110
-  defense: 90
+  melee: 160
+  ranged: 160
+  defense: 110
   evade: 110
-  accuracy: 110
-  skill: 120
+  accuracy: 130
+  skill: 140
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -60,9 +60,10 @@ MonoBehaviour:
   spirit2: {fileID: 11400000, guid: bab035a884f68f740a13f47dd8b8f811, type: 2}
   spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
   spirit4: {fileID: 11400000, guid: 95add4fcc6cf535409668a9fbf596cea, type: 2}
-  spirit5: {fileID: 0}
+  spirit5: {fileID: 11400000, guid: 6edc0b0cebcc5464e85756d59d76872b, type: 2}
   spirit6: {fileID: 0}
-  onSuccessLines: []
+  onSuccessLines:
+  - Heh- too slow
   defaultPortrait: {fileID: 146236736977182944, guid: 7ffb44cec525deb4f8b4f5b88621b2bd, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
