@@ -153,17 +153,13 @@ PrefabInstance:
       propertyPath: m_Name
       value: Death Explosion
       objectReference: {fileID: 0}
-    - target: {fileID: 8897048558517000620, guid: 17336eea5e3483a44942e35b65269226, type: 3}
-      propertyPath: m_IsActive
+    - target: {fileID: 8967744925441600859, guid: 17336eea5e3483a44942e35b65269226, type: 3}
+      propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8967744925441600859, guid: 17336eea5e3483a44942e35b65269226, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.6351
-      objectReference: {fileID: 0}
-    - target: {fileID: 8967744925441600859, guid: 17336eea5e3483a44942e35b65269226, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.40007
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8967744925441600859, guid: 17336eea5e3483a44942e35b65269226, type: 3}
       propertyPath: m_LocalPosition.z
@@ -226,11 +222,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5188281428259305351, guid: 32a58aed8dce78840b275827e8bd8ee4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.6351
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5188281428259305351, guid: 32a58aed8dce78840b275827e8bd8ee4, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.40007
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5188281428259305351, guid: 32a58aed8dce78840b275827e8bd8ee4, type: 3}
       propertyPath: m_LocalPosition.z
