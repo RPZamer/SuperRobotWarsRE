@@ -39,6 +39,16 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private SpiritCommandButton spiritButtonTemplate;
     [SerializeField] private RectTransform spiritButtonContent;
 
+    // WEEK 7: SPIRIT COMMAND TOOLTIPS
+    // Displays command information before the player activates a Spirit.
+    [Header("WEEK 7: Spirit Command Tooltips")]
+    [SerializeField] private TMP_Text spiritTooltipText;
+
+    // WEEK 7: Remember which command and pilot were selected.
+    // This allows the first click to preview and the second to activate.
+    private SpiritCommandBase previewedSpirit;
+    private PilotBase previewedSpiritPilot;
+
     // WEEK 4: Track generated Spirit Command buttons so they can
     // be cleared and rebuilt whenever the menu opens.
     private readonly List<SpiritCommandButton> spiritCommandButtons = new();
@@ -987,16 +997,61 @@ public class ActionsMenu : MonoBehaviour
                 bool canUse =
                     canAfford && !alreadyActive;
 
+                // WEEK 7: First click previews the Spirit Command.
+                // Second click activates it using the existing Spirit System.
                 newButton.Setup(
                     spirit,
                     canUse,
-                    command => UseSpiritCommand(command, spiritPilot),
-                    selectedUnit.SpiritCrew.Count > 1 ? $"{spiritPilot.PilotName} SP {selectedUnit.GetSpiritPoints(spiritPilot)}/{spiritPilot.MaxSpiritPoints}" : null);
+                    command => PreviewSpiritCommand(command, spiritPilot),
+                    selectedUnit.SpiritCrew.Count > 1
+                        ? $"{spiritPilot.PilotName} SP {selectedUnit.GetSpiritPoints(spiritPilot)}/{spiritPilot.MaxSpiritPoints}"
+                        : null);
             }
         if (getterSpiritScroll != null)
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(getterSpiritScroll.content);
             getterSpiritScroll.verticalNormalizedPosition = 1f;
+        }
+    }
+
+    // WEEK 7: SPIRIT COMMAND TOOLTIPS
+    // First click displays the command's description.
+    // Second click activates the selected Spirit Command.
+    private void PreviewSpiritCommand(
+        SpiritCommandBase spirit,
+        PilotBase spiritPilot)
+    {
+        if (spirit == null)
+        {
+            return;
+        }
+
+        // WEEK 7: If the same command and pilot are selected twice,
+        // activate the Spirit Command.
+        if (previewedSpirit == spirit &&
+            previewedSpiritPilot == spiritPilot)
+        {
+            previewedSpirit = null;
+            previewedSpiritPilot = null;
+
+            // WEEK 7: Use the existing Spirit Command system.
+            UseSpiritCommand(spirit, spiritPilot);
+            return;
+        }
+
+        // WEEK 7: IMPORTANT!
+        // Remember the selected command and its pilot.
+        // Without these assignments, every click acts like the first click.
+        previewedSpirit = spirit;
+        previewedSpiritPilot = spiritPilot;
+
+        // WEEK 7: Display the command information.
+        if (spiritTooltipText != null)
+        {
+            spiritTooltipText.text =
+                $"{spirit.CommandName}\n" +
+                $"{spirit.Description}\n" +
+                $"SP Cost: {spirit.SpiritPointCost}";
         }
     }
 
@@ -1019,6 +1074,9 @@ public class ActionsMenu : MonoBehaviour
 
         // WEEK 4: Determine which Spirit Commands require a selected target.
         // WEEK 6: Added Faith so it uses the existing allied targeting system.
+        // WEEK 7: SPIRIT COMMAND TARGETING
+        // Commands that affect another unit require the player
+        // to select a valid target before activation.
         bool requiresTarget =
             spirit.Effect == SpiritCommandEffect.Trust ||
             spirit.Effect == SpiritCommandEffect.Prospect ||
@@ -1027,7 +1085,9 @@ public class ActionsMenu : MonoBehaviour
             spirit.Effect == SpiritCommandEffect.Resupply ||
             spirit.Effect == SpiritCommandEffect.Faith ||
             spirit.Effect == SpiritCommandEffect.Attune ||
-            spirit.Effect == SpiritCommandEffect.Hope;
+            spirit.Effect == SpiritCommandEffect.Hope ||
+            spirit.Effect == SpiritCommandEffect.Prayer ||
+            spirit.Effect == SpiritCommandEffect.Analyze;
 
         if (requiresTarget)
         {
@@ -1079,6 +1139,15 @@ public class ActionsMenu : MonoBehaviour
     // WEEK 4: SPIRIT COMMANDS - Open the selected pilot's Spirit menu.
     private void OpenSpiritMenu()
     {
+        // WEEK 7: Clear the previous Spirit Command preview.
+        previewedSpirit = null;
+        previewedSpiritPilot = null;
+
+        if (spiritTooltipText != null)
+        {
+            spiritTooltipText.text = "Select a Spirit Command to view its effect.";
+        }
+
         if (battle == null || battle.SelectedUnit == null)
         {
             Debug.LogWarning(
@@ -1116,8 +1185,18 @@ public class ActionsMenu : MonoBehaviour
 
 
     // WEEK 4: SPIRIT COMMANDS - Return to the normal Action menu.
+    // WEEK 7: Clear the Spirit Command preview when closing the menu.
     private void CloseSpiritMenu()
     {
+        previewedSpirit = null;
+        previewedSpiritPilot = null;
+
+        if (spiritTooltipText != null)
+        {
+            spiritTooltipText.text =
+                "Select a Spirit Command to view its effect.";
+        }
+
         SetVisible(spiritPanel, false);
         SetVisible(actionsPanel, true);
     }

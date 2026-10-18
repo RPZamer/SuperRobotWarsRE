@@ -62,6 +62,15 @@ public class BattleUnit : MonoBehaviour
     private bool persistActive;
     private bool focusActive;
 
+    // WEEK 7: Track additional Spirit Command effects.
+    private bool dashActive;
+    private bool wallActive;
+    private bool flashActive;
+    private bool snipeActive;
+    private bool zealActive;
+    private bool pierceActive;
+    private bool analyzeActive;
+
     // WEEK 4: Allow the battle system to check active Spirit effects.
     public bool ValorActive => valorActive;
     public bool SoulActive => soulActive;
@@ -73,6 +82,15 @@ public class BattleUnit : MonoBehaviour
     public bool AlertActive => alertActive;
     public bool PersistActive => persistActive;
     public bool FocusActive => focusActive;
+
+    // WEEK 7: Expose active Spirit effects to the battle system.
+    public bool DashActive => dashActive;
+    public bool WallActive => wallActive;
+    public bool FlashActive => flashActive;
+    public bool SnipeActive => snipeActive;
+    public bool ZealActive => zealActive;
+    public bool PierceActive => pierceActive;
+    public bool AnalyzeActive => analyzeActive;
 
     // WEEK 4: MOTHERSHIP - Keep runtime state on this unit, never on shared mech assets.
     private readonly Dictionary<Weapon, int> ammunition = new();
@@ -126,9 +144,15 @@ public class BattleUnit : MonoBehaviour
     // WEEK 5 CHANGES PLEASE READ: Movement previously read only the raw mech asset and Accel bonus.
     // GUND needs its current morale bonus included when reachability is calculated.
     // Delegating the base movement to MechSkillEffect keeps the existing EN cap and once-per-phase movement rules.
+    // WEEK 7: Dash adds 5 movement spaces while preserving Accel,
+    // mech abilities, available energy, and existing movement restrictions.
     public int AvailableMovement =>
         mech != null && !HasMoved && !IsDocked && !HasActed && !IsCombinedComponent
-            ? Mathf.Min(MechSkillEffect.Movement(this) + (accelActive ? 3 : 0), CurrentEnergy)
+            ? Mathf.Min(
+                MechSkillEffect.Movement(this)
+                + (accelActive ? 3 : 0)
+                + (dashActive ? 5 : 0),
+                CurrentEnergy)
             : 0;
 
     // WEEK 3: Allow movement at the start of a turn, then remember when it has been used.
@@ -237,10 +261,24 @@ public class BattleUnit : MonoBehaviour
         RefreshVisualState();
     }
 
-    // WEEK 3: Mark this unit as finished for the current phase.
-    // Finished units appear grey unless currently selected or acting.
+    // WEEK 7: Zeal grants one additional action when the unit
+    // would normally finish its turn.
     public void MarkActed()
     {
+        if (zealActive)
+        {
+            // WEEK 7: Consume Zeal so it cannot grant unlimited actions.
+            ConsumeZeal();
+
+            // WEEK 7: Allow the unit to move and act again.
+            HasMoved = false;
+            HasActed = false;
+
+            RefreshVisualState();
+            return;
+        }
+
+        // WEEK 3: Normal action completion.
         HasActed = true;
         RefreshVisualState();
     }
@@ -323,22 +361,62 @@ public class BattleUnit : MonoBehaviour
     }
 
     // WEEK 3: Use the exact selected weapon, checking ownership, energy and target range.
+    // WEEK 7: Snipe increases maximum weapon range by 2 spaces.
+    // The bonus applies to normal attacks and counterattacks.
     public bool CanUseWeapon(Weapon weapon, BattleUnit target, bool counterattack = false)
     {
         if (weapon == null || mech == null || pilot == null || IsDefeated || IsDocked ||
             target == null || !target.CanBeTargetedBy(this) || !CanAffordWeapon(weapon))
             return false;
 
-        // WEEK 5 FIXES: Originally, moving did not prevent this unit from initiating an attack with an untagged weapon.
-        // We now require PostMovement after movement, while defensive first strikes ignore the defender's movement state.
-        // Limiting defensive weapons to single targets preserves that exception without allowing area attacks as counters.
+        // WEEK 5: Preserve movement and counterattack restrictions.
         if (counterattack ? weapon.Classification != WeaponClassification.SingleTarget :
-            HasMoved && !weapon.CanUseAfterMoving) return false;
+            HasMoved && !weapon.CanUseAfterMoving)
+            return false;
 
         bool owned = false;
+
         foreach (Weapon equipped in mech.Weapons)
-            if (equipped == weapon) { owned = true; break; }
-        return owned && weapon.IsInTargetRange(GridPosition, target.GridPosition);
+        {
+            if (equipped == weapon)
+            {
+                owned = true;
+                break;
+            }
+        }
+
+        if (!owned)
+        {
+            return false;
+        }
+
+        // WEEK 7: First check the weapon's normal range.
+        if (weapon.IsInTargetRange(GridPosition, target.GridPosition))
+        {
+            return true;
+        }
+
+        // WEEK 7: Snipe does not change MAP weapon shapes.
+        // Preserve their existing directional targeting rules.
+        if (weapon.Classification == WeaponClassification.Map)
+        {
+            return false;
+        }
+
+        // WEEK 7: Without Snipe, normal weapon restrictions apply.
+        if (!SnipeActive)
+        {
+            return false;
+        }
+
+        // WEEK 7: Snipe extends maximum range by 2 spaces.
+        // Minimum range remains unchanged.
+        int distance =
+            Mathf.Abs(GridPosition.x - target.GridPosition.x) +
+            Mathf.Abs(GridPosition.y - target.GridPosition.y);
+
+        return distance >= weapon.MinRange &&
+               distance <= weapon.MaxRange + 2;
     }
 
     // WEEK 3: Pick the first weapon that can reach the enemy and has enough energy.
@@ -673,6 +751,101 @@ public class BattleUnit : MonoBehaviour
     public void ConsumeFocus()
     {
         focusActive = false;
+    }
+
+    // WEEK 7: Dash increases the next movement allowance.
+    public void ActivateDash()
+    {
+        dashActive = true;
+    }
+
+    public void ConsumeDash()
+    {
+        dashActive = false;
+    }
+
+    // WEEK 7: Wall reduces incoming damage.
+    public void ActivateWall()
+    {
+        wallActive = true;
+    }
+
+    public void ConsumeWall()
+    {
+        wallActive = false;
+    }
+
+    // WEEK 7: Flash guarantees evasion during the next battle.
+    public void ActivateFlash()
+    {
+        flashActive = true;
+    }
+
+    public void ConsumeFlash()
+    {
+        flashActive = false;
+    }
+
+    // WEEK 7: Snipe increases the range of the next eligible attack.
+    public void ActivateSnipe()
+    {
+        snipeActive = true;
+    }
+
+    public void ConsumeSnipe()
+    {
+        snipeActive = false;
+    }
+
+    // WEEK 7: Activate Zeal so the unit receives one
+    // additional action after completing its current action.
+    public void ActivateZeal()
+    {
+        zealActive = true;
+    }
+
+    public void ConsumeZeal()
+    {
+        zealActive = false;
+    }
+
+    // WEEK 7: Pierce allows the next attack to bypass defenses.
+    public void ActivatePierce()
+    {
+        pierceActive = true;
+    }
+
+    public void ConsumePierce()
+    {
+        pierceActive = false;
+    }
+
+    // WEEK 7: Analyze marks an enemy as vulnerable.
+    public void ActivateAnalyze()
+    {
+        analyzeActive = true;
+    }
+
+    public void ConsumeAnalyze()
+    {
+        analyzeActive = false;
+    }
+
+    // WEEK 7: Prayer clears temporary negative status effects.
+    // Additional status conditions can be connected here as implemented.
+    public void ClearNegativeStatusEffects()
+    {
+        if (IsDefeated)
+        {
+            return;
+        }
+
+        // WEEK 7: Restore morale to its normal starting value
+        // if the unit has been demoralized.
+        if (CurrentMorale < StartingMorale)
+        {
+            ChangeMorale(StartingMorale - CurrentMorale);
+        }
     }
     public int TakeDamage(int damage)
     {

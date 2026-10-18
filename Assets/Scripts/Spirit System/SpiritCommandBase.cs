@@ -87,6 +87,16 @@ public enum SpiritCommandEffect
     // WEEK 6: Hope restores 50 Spirit Points to one living ally.
     Hope,
 
+    // WEEK 7: Additional Spirit Commands.
+    Dash,
+    Wall,
+    Flash,
+    Snipe,
+    Zeal,
+    Prayer,
+    Analyze,
+    Pierce
+
 
 }
 

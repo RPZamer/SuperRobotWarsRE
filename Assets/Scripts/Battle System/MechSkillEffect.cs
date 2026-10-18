@@ -137,41 +137,137 @@ public static class MechSkillEffect
 
     // WEEK 5 MECH SKILL: Direct hits pass through barrier, shield HP, then mech HP.
     // TakeDamage remains the HP-only route for poison/indirect damage; previews do not spend barrier EN.
-    public static int TakeWeaponDamage(BattleUnit unit, int damage, Weapon weapon)
+    // WEEK 7: Pierce bypasses barriers and shields while normal
+    // attacks continue using the existing defensive systems.
+    public static int TakeWeaponDamage(
+        BattleUnit unit,
+        int damage,
+        Weapon weapon,
+        bool pierce = false)
     {
-        if (unit.Mech == null || weapon == null || unit.IsDefeated || unit.IsDocked || unit.IsCombinedComponent) return 0;
-        int remaining = Mathf.Max(0, damage), reduction = 0, cost = 0;
-        bool beam = (weapon.Attributes & WeaponAttribute.Beam) != 0;
-        bool gravity = (weapon.Attributes & WeaponAttribute.Gravity) != 0;
+        if (unit.Mech == null ||
+            weapon == null ||
+            unit.IsDefeated ||
+            unit.IsDocked ||
+            unit.IsCombinedComponent)
+        {
+            return 0;
+        }
+
+        int remaining = Mathf.Max(0, damage);
+
+        // WEEK 7: Pierce sends damage directly to mech HP.
+        // Barriers and shields are not activated or consumed.
+        if (pierce)
+        {
+            int hpBefore = unit.CurrentHealth;
+
+            int hpDamage = unit.TakeDamage(remaining);
+
+            Log(
+                unit,
+                $"WEEK 7 Pierce: incoming={damage}, " +
+                $"HP {hpBefore}->{unit.CurrentHealth}, " +
+                $"damage={hpDamage}. Barriers and shields bypassed.");
+
+            return hpDamage;
+        }
+
+        // WEEK 5: Preserve existing barrier calculations.
+        int reduction = 0;
+        int cost = 0;
+
+        bool beam =
+            (weapon.Attributes & WeaponAttribute.Beam) != 0;
+
+        bool gravity =
+            (weapon.Attributes & WeaponAttribute.Gravity) != 0;
+
         switch (unit.Mech.Barrier)
         {
             case MechBarrier.BeamCoat:
-                if (beam) { reduction = 1000; cost = 5; }
+                if (beam)
+                {
+                    reduction = 1000;
+                    cost = 5;
+                }
                 break;
+
             case MechBarrier.DistortionField:
-                if (gravity || beam) { reduction = gravity ? 5000 : 3000; cost = 5; }
+                if (gravity || beam)
+                {
+                    reduction = gravity ? 5000 : 3000;
+                    cost = 5;
+                }
                 break;
+
             case MechBarrier.AuraBarrier:
-                if (weapon.DamageType == WeaponDamageType.Ranged) reduction = 1000; break;
+                if (weapon.DamageType == WeaponDamageType.Ranged)
+                {
+                    reduction = 1000;
+                }
+                break;
+
             case MechBarrier.Escutcheon:
-                if (beam && remaining <= 3000) reduction = remaining; break;
+                if (beam && remaining <= 3000)
+                {
+                    reduction = remaining;
+                }
+                break;
         }
+
         if (remaining > 0 && reduction > 0)
         {
             int enBefore = unit.CurrentEnergy;
-            bool applied = cost == 0 || unit.TrySpendEnergy(cost);
-            if (applied) remaining = Mathf.Max(0, remaining - reduction);
-            Log(unit, $"{unit.Mech.Barrier}: incoming={damage}, reduction={(applied ? reduction : 0)}, EN {enBefore}->{unit.CurrentEnergy}, applied={applied}.");
+
+            bool applied =
+                cost == 0 || unit.TrySpendEnergy(cost);
+
+            if (applied)
+            {
+                remaining = Mathf.Max(
+                    0,
+                    remaining - reduction);
+            }
+
+            Log(
+                unit,
+                $"{unit.Mech.Barrier}: incoming={damage}, " +
+                $"reduction={(applied ? reduction : 0)}, " +
+                $"EN {enBefore}->{unit.CurrentEnergy}, " +
+                $"applied={applied}.");
         }
+
+        // WEEK 5: Preserve normal shield damage handling.
         int shieldBefore = unit.CurrentShieldHealth;
-        int absorbed = Mathf.Min(shieldBefore, remaining);
+
+        int absorbed = Mathf.Min(
+            shieldBefore,
+            remaining);
+
         unit.MechSkillState.Shield -= absorbed;
+
         if (unit.Mech.ShieldHealth > 0)
-            unit.MechSkillState.ShieldFraction = unit.CurrentShieldHealth / (float)unit.Mech.ShieldHealth;
-        int hpBefore = unit.CurrentHealth;
-        int hpDamage = unit.TakeDamage(remaining - absorbed);
-        Log(unit, $"Direct hit={damage}: shield {shieldBefore}->{unit.CurrentShieldHealth} (absorbed {absorbed}), HP {hpBefore}->{unit.CurrentHealth} (damage {hpDamage}).");
-        return absorbed + hpDamage;
+        {
+            unit.MechSkillState.ShieldFraction =
+                unit.CurrentShieldHealth /
+                (float)unit.Mech.ShieldHealth;
+        }
+
+        int hpBeforeNormal = unit.CurrentHealth;
+
+        int normalHpDamage =
+            unit.TakeDamage(remaining - absorbed);
+
+        Log(
+            unit,
+            $"Direct hit={damage}: " +
+            $"shield {shieldBefore}->{unit.CurrentShieldHealth} " +
+            $"(absorbed {absorbed}), " +
+            $"HP {hpBeforeNormal}->{unit.CurrentHealth} " +
+            $"(damage {normalHpDamage}).");
+
+        return absorbed + normalHpDamage;
     }
 
     private static bool OnGrid(BattleUnit unit) => unit != null && !unit.IsDefeated && !unit.IsDocked &&

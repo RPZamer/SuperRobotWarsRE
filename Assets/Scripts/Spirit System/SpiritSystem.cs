@@ -304,6 +304,72 @@ public static class SpiritSystem
                 activated = true;
                 break;
 
+            // WEEK 7: Dash increases the caster's next movement by 5.
+            case SpiritCommandEffect.Dash:
+                caster.ActivateDash();
+                activated = true;
+                break;
+
+            // WEEK 7: Wall reduces incoming damage for the current turn.
+            case SpiritCommandEffect.Wall:
+                caster.ActivateWall();
+                activated = true;
+                break;
+
+            // WEEK 7: Flash guarantees evasion during the next battle.
+            case SpiritCommandEffect.Flash:
+                caster.ActivateFlash();
+                activated = true;
+                break;
+
+            // WEEK 7: Snipe extends the next eligible attack's range.
+            case SpiritCommandEffect.Snipe:
+                caster.ActivateSnipe();
+                activated = true;
+                break;
+
+            // WEEK 7: Zeal restores the caster's action.
+            case SpiritCommandEffect.Zeal:
+                caster.ActivateZeal();
+                activated = true;
+                break;
+
+            // WEEK 7: Pierce bypasses defensive effects on the next attack.
+            case SpiritCommandEffect.Pierce:
+                caster.ActivatePierce();
+                activated = true;
+                break;
+
+            // WEEK 7: Prayer removes negative status effects from an ally.
+            case SpiritCommandEffect.Prayer:
+                if (target == null ||
+                    target.IsDefeated ||
+                    target.Team != caster.Team)
+                {
+                    Debug.LogWarning(
+                        "Prayer requires a living allied target.");
+                    break;
+                }
+
+                target.ClearNegativeStatusEffects();
+                activated = true;
+                break;
+
+            // WEEK 7: Analyze weakens an enemy for the current turn.
+            case SpiritCommandEffect.Analyze:
+                if (target == null ||
+                    target.IsDefeated ||
+                    target.Team == caster.Team)
+                {
+                    Debug.LogWarning(
+                        "Analyze requires a living enemy target.");
+                    break;
+                }
+
+                target.ActivateAnalyze();
+                activated = true;
+                break;
+
 
             default:
                 Debug.LogWarning(
