@@ -198,6 +198,122 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &143370249
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 143370250}
+  - component: {fileID: 143370252}
+  - component: {fileID: 143370251}
+  m_Layer: 0
+  m_Name: Getter 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &143370250
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143370249}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9, y: 4.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2007392315}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143370251
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143370249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
+  pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+  additionalPilots:
+  - {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
+  - {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
+  debugPilotSkills: 1
+  mech: {fileID: 11400000, guid: 3cbe4ab588c4abc44b4aff2b63c2a0a0, type: 2}
+  terrain: 1
+  team: 0
+  tileType: 0
+  startingPosition: {x: 18, y: 9}
+  moraleMaximumBonus: 0
+--- !u!212 &143370252
+SpriteRenderer:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143370249}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 4161162757350784841, guid: bedcd69e8f6a6c542bff5252a289be52, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 0.56, y: 0.48}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+  m_BlendShapeWeights: []
 --- !u!1001 &174391826
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6402,7 +6518,7 @@ GameObject:
   - component: {fileID: 239414550}
   - component: {fileID: 239414549}
   m_Layer: 0
-  m_Name: Zaku 5
+  m_Name: Hyakkir Beast 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6435,10 +6551,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
-  pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
+  pilot: {fileID: 11400000, guid: 6e7d082fe6d515c459d5f9212b42c491, type: 2}
   additionalPilots: []
   debugPilotSkills: 1
-  mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
+  mech: {fileID: 11400000, guid: a62bad1bffb9cc54f91a04f97566ae45, type: 2}
   terrain: 1
   team: 1
   tileType: 0
@@ -6493,7 +6609,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -102200125386026521, guid: d36a698f9bda7da49994e5bfe022d5cf, type: 3}
+  m_Sprite: {fileID: 6045489811348382551, guid: f31ad3bf1001dff4b84dad2475f74ad0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -7167,7 +7283,7 @@ GameObject:
   - component: {fileID: 1528816554}
   - component: {fileID: 1528816553}
   m_Layer: 0
-  m_Name: Zaku 4
+  m_Name: 'Hyakki Beast '
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7200,10 +7316,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
-  pilot: {fileID: 11400000, guid: a1acdd472a9112d48a88ef6bc7a53991, type: 2}
+  pilot: {fileID: 11400000, guid: 6e7d082fe6d515c459d5f9212b42c491, type: 2}
   additionalPilots: []
   debugPilotSkills: 1
-  mech: {fileID: 11400000, guid: 143dcfb6aa6c2394a82eeb031d570e5e, type: 2}
+  mech: {fileID: 11400000, guid: a62bad1bffb9cc54f91a04f97566ae45, type: 2}
   terrain: 1
   team: 1
   tileType: 0
@@ -7258,7 +7374,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -102200125386026521, guid: d36a698f9bda7da49994e5bfe022d5cf, type: 3}
+  m_Sprite: {fileID: 6045489811348382551, guid: f31ad3bf1001dff4b84dad2475f74ad0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -8132,6 +8248,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3001029639445926574, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7279891740654960686, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
       propertyPath: m_LocalPosition.x
       value: 2.03
@@ -8140,9 +8260,16 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: 3.89
       objectReference: {fileID: 0}
+    - target: {fileID: 7459214850977389931, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 2196389327976452306, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 143370250}
     - targetCorrespondingSourceObject: {fileID: 2196389327976452306, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
       insertIndex: -1
       addedObject: {fileID: 867244213}

@@ -9,6 +9,11 @@ public class SortieSelection : MonoBehaviour
     public Toggle kojiToggle;
     public Toggle tetsuyaToggle;
     public Toggle amuroToggle;
+    public Toggle ryomaToggle; 
+    public Toggle sayakaToggle; 
+    public Toggle junToggle; 
+    public Toggle bossToggle; 
+    public Toggle michiruToggle;
 
     [Header("Sortie Information")]
     [SerializeField] private TMP_Text sortieInfoText;
@@ -57,6 +62,14 @@ public class SortieSelection : MonoBehaviour
             kojiToggle.isOn = SortieData.KojiSelected;
             tetsuyaToggle.isOn = SortieData.TetsuyaSelected;
             amuroToggle.isOn = SortieData.AmuroSelected;
+
+            ryomaToggle.isOn = SortieData.RyomaSelected;
+            sayakaToggle.isOn = SortieData.SayakaSelected; 
+            junToggle.isOn = SortieData.JunSelected; 
+            bossToggle.isOn = SortieData.BossSelected; 
+            michiruToggle.isOn = SortieData.MichiruSelected;
+
+            
         }
         else
         {
@@ -64,11 +77,21 @@ public class SortieSelection : MonoBehaviour
             kojiToggle.isOn = true;
             tetsuyaToggle.isOn = true;
             amuroToggle.isOn = true;
+            ryomaToggle.isOn = false;
+            sayakaToggle.isOn = false;
+            junToggle.isOn = false;
+            bossToggle.isOn = false;
+            michiruToggle.isOn = false;
         }
 
         kojiToggle.onValueChanged.AddListener(OnSelectionChanged);
         tetsuyaToggle.onValueChanged.AddListener(OnSelectionChanged);
         amuroToggle.onValueChanged.AddListener(OnSelectionChanged);
+        ryomaToggle.onValueChanged.AddListener(OnSelectionChanged);
+        sayakaToggle.onValueChanged.AddListener(OnSelectionChanged);
+        junToggle.onValueChanged.AddListener(OnSelectionChanged);
+        bossToggle.onValueChanged.AddListener(OnSelectionChanged);
+        michiruToggle.onValueChanged.AddListener(OnSelectionChanged);
 
         UpdateSortieInfo();
     }
@@ -86,11 +109,31 @@ public class SortieSelection : MonoBehaviour
         if (kojiToggle.isOn) selectedCount++;
         if (tetsuyaToggle.isOn) selectedCount++;
         if (amuroToggle.isOn) selectedCount++;
+        if (ryomaToggle.isOn) selectedCount++;
+        if (sayakaToggle.isOn) selectedCount++;
+        if (junToggle.isOn) selectedCount++;
+        if (bossToggle.isOn) selectedCount++;
+        if (michiruToggle.isOn) selectedCount++;
 
         if (sortieInfoText != null)
         {
-            sortieInfoText.text = "Selected Units: " + selectedCount + " / " + maxSortieUnits;
+            if (selectedCount > maxSortieUnits)
+            {
+                sortieInfoText.text =
+                    "Selected Units: " + selectedCount + " / " + maxSortieUnits +
+                    "\nToo many mechs! Maximum allowed: " + maxSortieUnits;
+
+                sortieInfoText.color = Color.red;
+            }
+            else
+            {
+                sortieInfoText.text =
+                    "Selected Units: " + selectedCount + " / " + maxSortieUnits;
+
+                sortieInfoText.color = Color.white;
+            }
         }
+
         Debug.Log("Sortie Units selected: " + selectedCount);
     }
 
@@ -100,6 +143,11 @@ public class SortieSelection : MonoBehaviour
         if (kojiToggle.isOn) selectedCount++;
         if (tetsuyaToggle.isOn) selectedCount++;
         if (amuroToggle.isOn) selectedCount++;
+        if (ryomaToggle.isOn) selectedCount++;
+        if (sayakaToggle.isOn) selectedCount++;
+        if (junToggle.isOn) selectedCount++;
+        if (bossToggle.isOn) selectedCount++;
+        if (michiruToggle.isOn) selectedCount++;
         if (selectedCount == 0)
         {
             Debug.LogWarning("Select at least one unit before confirming.");
@@ -115,6 +163,11 @@ public class SortieSelection : MonoBehaviour
         SortieData.KojiSelected = kojiToggle.isOn;
         SortieData.TetsuyaSelected = tetsuyaToggle.isOn;
         SortieData.AmuroSelected = amuroToggle.isOn;
+        SortieData.RyomaSelected = ryomaToggle.isOn;
+        SortieData.SayakaSelected = sayakaToggle.isOn;
+        SortieData.JunSelected = junToggle.isOn;
+        SortieData.BossSelected = bossToggle.isOn;
+        SortieData.MichiruSelected = michiruToggle.isOn;
         SortieData.HasCustomSelection = true;
 
         Debug.Log("Sortie confirmed with " + selectedCount + " units.");      
@@ -130,6 +183,21 @@ public class SortieSelection : MonoBehaviour
 
         if (amuroToggle != null)
             amuroToggle.onValueChanged.RemoveListener(OnSelectionChanged);
+
+        if (ryomaToggle != null)
+            ryomaToggle.onValueChanged.RemoveListener(OnSelectionChanged);
+
+        if (sayakaToggle != null)
+            sayakaToggle.onValueChanged.RemoveListener(OnSelectionChanged);
+
+        if (junToggle != null)
+            junToggle.onValueChanged.RemoveListener(OnSelectionChanged);
+
+        if (bossToggle != null)
+            bossToggle.onValueChanged.RemoveListener(OnSelectionChanged);
+
+        if (michiruToggle != null)
+            michiruToggle.onValueChanged.RemoveListener(OnSelectionChanged);
     }
 
 }

@@ -74,8 +74,14 @@ public class Battlefield : MonoBehaviour
             return comparison != 0 ? comparison : string.CompareOrdinal(left.name, right.name);
         });
 
+        SortieDeployment sortieDeployment = FindFirstObjectByType<SortieDeployment>();
+
         foreach (BattleUnit unit in sceneUnits)
         {
+            if (sortieDeployment != null && !sortieDeployment.DeploymentConfirmed && sortieDeployment.IsAvailableSortieUnit(unit))
+            {
+                continue;
+            }
             if (!occupants.ContainsValue(unit) && !unit.PlaceOn(this))
             {
                 Debug.LogWarning($"Could not place {unit.name} on its starting grid position.", unit);
