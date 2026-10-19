@@ -1,4 +1,4 @@
-
+using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -27,13 +27,24 @@ public class SortieDeployment : MonoBehaviour
     [SerializeField] private GameObject gundamButton;
     [Header("Mission Deployment Restrictions")]
     [SerializeField] private bool greatMazingerIsReinforcement = false;
+    [Header("Sortie Counter")]
+    [SerializeField] private TMP_Text sortieCounterText;
 
     private BattleUnit selectedUnit;
+
     public bool DeploymentConfirmed 
     { 
         get; private set; 
     }
     private bool deploymentInitialized = false;
+    private void UpdateSortieCounter()
+    {
+        if (sortieCounterText != null)
+        {
+            sortieCounterText.text =
+                "Selected Mechs: " + selectedUnits.Count + " / " + maxSortieUnits;
+        }
+    }
 
     public void SelectUnit(BattleUnit unit)
     {
@@ -43,12 +54,6 @@ public class SortieDeployment : MonoBehaviour
         if (greatMazingerIsReinforcement && unit == greatMazinger)
         {
             Debug.LogWarning("Great Mazinger is reserved for reinforcement.");
-            return;
-        }
-
-        if (!unit.gameObject.activeInHierarchy)
-        {
-            Debug.LogWarning(unit.name + " is not available for deployment.");
             return;
         }
 
@@ -92,24 +97,62 @@ public class SortieDeployment : MonoBehaviour
     }
     public void ToggleSortieUnit(BattleUnit unit)
     {
-        if (DeploymentConfirmed || unit == null)
+        if (!deploymentInitialized || DeploymentConfirmed ||
+            unit == null || battlefield == null)
             return;
+
         if (!availableUnits.Contains(unit))
             return;
+
+        
         if (selectedUnits.Contains(unit))
         {
+            battlefield.Remove(unit);
             selectedUnits.Remove(unit);
+
+            UpdateSortieCounter();
+
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+                sprite.enabled = false;
+
+            if (selectedUnit == unit)
+                selectedUnit = null;
+
             Debug.Log(unit.name + " removed from sortie.");
             return;
         }
+
         if (selectedUnits.Count >= maxSortieUnits)
         {
-            Debug.Log("Maximum sortie units selected.");
+            Debug.LogWarning("Maximum sortie units selected.");
             return;
         }
-        selectedUnits.Add(unit);
-        Debug.Log(unit.name + " selected for sortie.");
+        unit.PlaceOn(battlefield);
 
+        foreach (Vector2Int position in deploymentPositions)
+        {
+            if (!battlefield.IsInside(position))
+                continue;
+
+            if (battlefield.GetUnit(position) != null)
+                continue;
+
+            if (!battlefield.TryDeployUnit(unit, position))
+                continue;
+            selectedUnits.Add(unit);
+
+            UpdateSortieCounter();
+
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+                sprite.enabled = true;
+
+            Debug.Log(unit.name + " deployed at " + position);
+            return;
+        }
+
+        Debug.LogWarning("No available deployment tiles.");
     }
 
     public void PlaceSelectedUnit(Vector2Int gridPosition)
@@ -212,36 +255,33 @@ public class SortieDeployment : MonoBehaviour
 
     private void Awake()
     {
-        CheckSortieSelection();
-        LoadSortieSelection();
+        
+        selectedUnits.Clear();
+        selectedUnit = null;
+        DeploymentConfirmed = false;
+        deploymentInitialized = false;
+
         UpdateSortieVisibility();
-        //DeploySelectedUnits();
-        UpdateDeploymentButtons();
         ShowDeploymentTiles();
+        UpdateDeploymentButtons();
     }
-    
+
     private System.Collections.IEnumerator Start()
     {
         yield return null;
         InitializeDeployment();
     }
 
-   private void UpdateDeploymentButtons()
+    private void UpdateDeploymentButtons()
     {
-        //if (!SortieData.HasCustomSelection)
-           // return;
-
         if (mazingerZButton != null)
-            mazingerZButton.SetActive(SortieData.KojiSelected);
+            mazingerZButton.SetActive(true);
 
         if (greatMazingerButton != null)
-        {
-            greatMazingerButton.SetActive(!greatMazingerIsReinforcement &&
-            (!SortieData.HasCustomSelection || SortieData.TetsuyaSelected));
-        }
+            greatMazingerButton.SetActive(!greatMazingerIsReinforcement);
 
         if (gundamButton != null)
-            gundamButton.SetActive(SortieData.AmuroSelected);
+            gundamButton.SetActive(true);
     }
     private void ShowDeploymentTiles()
     {
@@ -389,18 +429,25 @@ public class SortieDeployment : MonoBehaviour
     {
         deploymentInitialized = false;
 
-        if (!DeploySelectedUnits())
+        if (battlefield == null ||
+            deploymentPositions.Count < maxSortieUnits)
         {
-            Debug.LogError("Initial deployment failed.");
+            Debug.LogError("Sortie configuration is incomplete.");
             return;
         }
+
+        selectedUnits.Clear();
+        selectedUnit = null;
 
         UpdateSortieVisibility();
 
         deploymentInitialized = true;
 
-        Debug.Log("Initial sortie deployment complete.");
+        UpdateSortieCounter();
+        Debug.Log("Sortie deployment ready for unit selection.");
+        
     }
+    
 
     private void CheckSortieSelection()
     {
