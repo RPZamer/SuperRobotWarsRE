@@ -29362,9 +29362,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 615586220}
   sceneTransition: {fileID: 665353181}
   openingCutscene: {fileID: 11400000, guid: 6a3e8782e936ff340b02fa0480e33aa6, type: 2}
+  sortieAfterOpeningCutscene: 1
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: -1

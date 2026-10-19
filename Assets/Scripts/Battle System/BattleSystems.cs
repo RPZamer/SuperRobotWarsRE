@@ -51,6 +51,15 @@ public class BattleSystem : MonoBehaviour
     // WEEK 6: CUTSCENES - Dialogue played after Level 1 victory.
     [SerializeField] private CutsceneData victoryCutscene;
 
+    // WEEK 7: FINAL STAGE - Char's second-wave reinforcements.
+    // These fields are optional so Levels 1-4 remain unchanged.
+    [Header("WEEK 7: Final Stage Reinforcements")]
+    [SerializeField] private EnemyReinforcementReveal finalStageReinforcements;
+    [SerializeField] private CutsceneData charArrivalCutscene;
+
+    // WEEK 7: Prevent Char's arrival from triggering more than once.
+    private bool charArrivalTriggered;
+    private bool charArrivalInProgress;
     private void Awake() => BattleDebug.Enabled = debugBattleCalculations;
     private void OnValidate() => BattleDebug.Enabled = debugBattleCalculations;
 
@@ -1091,6 +1100,15 @@ public class BattleSystem : MonoBehaviour
         {
             yield break;
         }
+
+        // WEEK 7: FINAL STAGE - Wait for Char's arrival cutscene
+        // and reinforcement animation before restoring player controls.
+        if (charArrivalInProgress)
+        {
+            yield return new WaitUntil(
+                () => !charArrivalInProgress);
+        }
+
         // WEEK 3: Completing an attack finishes only this individual unit's
         // action. The Player Phase remains active until the player ends it.
         if (attackingUnit != null && !attackingUnit.IsDefeated)
@@ -1186,18 +1204,37 @@ public class BattleSystem : MonoBehaviour
         }
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
 
+        // WEEK 7: FINAL STAGE REINFORCEMENTS
+        // Find the reinforcement controller for this scene.
+        EnemyReinforcementReveal reinforcementReveal =
+            FindFirstObjectByType<EnemyReinforcementReveal>();
+
         // WEEK 3: Create a snapshot of the enemy units before processing
         // actions so battlefield changes during combat do not modify the
         // collection currently being processed.
         List<BattleUnit> enemies = new();
 
+        // WEEK 7: FINAL STAGE REINFORCEMENTS
+        // Prevent unrevealed reinforcements from taking enemy turns.
         foreach (BattleUnit unit in battlefield.Units)
         {
-            if (unit != null && unit.Team == enemyTeam && !unit.IsDefeated)
+            if (unit == null ||
+                unit.Team != enemyTeam ||
+                unit.IsDefeated)
             {
-                unit.BeginTurn();
-                enemies.Add(unit);
+                continue;
             }
+
+            // WEEK 7: Skip Char and reinforcement Zakus
+            // until their arrival sequence begins.
+            if (reinforcementReveal != null &&
+                reinforcementReveal.IsWaitingEnemy(unit))
+            {
+                continue;
+            }
+
+            unit.BeginTurn();
+            enemies.Add(unit);
         }
 
 
@@ -1205,12 +1242,21 @@ public class BattleSystem : MonoBehaviour
         // Enemy Phase instead of allowing only the first enemy to act.
         foreach (BattleUnit enemy in enemies)
         {
+            // WEEK 7: FINAL STAGE - Wait for Char's arrival sequence
+            // before allowing another enemy to perform an action.
+            if (charArrivalInProgress)
+            {
+                yield return new WaitUntil(
+                    () => !charArrivalInProgress);
+            }
+
             // WEEK 3: Stop remaining enemy units from acting immediately
             // after the scenario reaches Victory or Defeat.
             if (ScenarioEnded)
             {
                 yield break;
             }
+
             if (enemy == null || enemy.IsDefeated || enemy.HasActed)
             {
                 continue;
@@ -1282,11 +1328,19 @@ public class BattleSystem : MonoBehaviour
             }
         }
 
+        // WEEK 7: FINAL STAGE - Do not begin the next Player Phase
+        // while Char's arrival cutscene or reinforcement reveal is running.
+        if (charArrivalInProgress)
+        {
+            yield return new WaitUntil(
+                () => !charArrivalInProgress);
+        }
+
         // WEEK 3: The Enemy Phase ends only after every required enemy
         // action has been processed.
         if (!ScenarioEnded &&
-    FindFirstUnit(playerTeam) != null &&
-    FindFirstUnit(enemyTeam) != null)
+            FindFirstUnit(playerTeam) != null &&
+            FindFirstUnit(enemyTeam) != null)
         {
             currentTurn++;
             yield return BeginPlayerTurn();
@@ -2141,8 +2195,8 @@ public class BattleSystem : MonoBehaviour
         battlefield.ClearHighlights();
     }
 
-    // WEEK 3: Evaluate the designated scenario objectives after relevant
-    // combat events. Once a final result is reached, it cannot be changed.
+    // WEEK 7: FINAL STAGE - Evaluate victory, defeat,
+    // and the trigger for Char's reinforcement arrival.
     private void EvaluateScenarioResult()
     {
         if (ScenarioEnded)
@@ -2150,32 +2204,97 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Great Mazinger Z is the designated enemy objective. >>>> Changed to all enemy units defeated.
-        // Defeating it completes the scenario with Victory.
-        //if (enemyObjectiveUnit != null && enemyObjectiveUnit.IsDefeated)
+        // WEEK 7: Defeat takes priority over reinforcement arrival.
+        if (FindFirstUnit(playerTeam) == null ||
+            (playerObjectiveUnit != null && playerObjectiveUnit.IsDefeated))
+        {
+            EndScenario(ScenarioResult.Defeat);
+            return;
+        }
+
+        // WEEK 7: Trigger Char's arrival after the first enemy wave
+        // has been defeated. Only runs when reinforcements are assigned.
+        if (finalStageReinforcements != null &&
+            charArrivalCutscene != null &&
+            !charArrivalTriggered &&
+            !charArrivalInProgress &&
+            finalStageReinforcements.IsFirstWaveDefeated(battlefield.Units))
+        {
+            charArrivalTriggered = true;
+            charArrivalInProgress = true;
+
+            StartCoroutine(PlayCharArrival());
+            return;
+        }
+
+        // WEEK 7: Never declare victory while Char is arriving.
+        if (charArrivalInProgress)
+        {
+            return;
+        }
+
+        // WEEK 3: Victory occurs when every enemy has been defeated.
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
 
         if (FindFirstUnit(enemyTeam) == null)
         {
             EndScenario(ScenarioResult.Victory);
-            return;
         }
+    }
 
-        // WEEK 3: If all player units die or the player objective (the mothership) is defeated, the scenario ends with Defeat.
+    // WEEK 7: FINAL STAGE - Play Char's arrival dialogue,
+    // reveal his reinforcements, and resume normal combat.
+    private IEnumerator PlayCharArrival()
+    {
+        // WEEK 7: Remember whether Char arrived during the Player Phase
+        // so the reinforcement sequence does not change the active phase.
+        bool wasPlayerTurn = isPlayerTurn;
 
-        if (FindFirstUnit(BattleTeam.Player) == null)
+        Debug.Log("[WEEK 7] Char's reinforcement sequence started.", this);
+
+        // WEEK 7: Disable player commands during the arrival sequence.
+        isPlayerTurn = false;
+
+        if (actionsMenu != null)
         {
-            EndScenario(ScenarioResult.Defeat);
-            return;
-        }
-        
-        if (playerObjectiveUnit != null && playerObjectiveUnit.IsDefeated)
-        {
-            EndScenario(ScenarioResult.Defeat);
-            return;
+            actionsMenu.Hide();
         }
 
-        
+        if (battlefield != null)
+        {
+            battlefield.ClearHighlights();
+        }
+
+        // WEEK 7: Play Char's arrival dialogue.
+        if (cutsceneManager != null && charArrivalCutscene != null)
+        {
+            cutsceneManager.PlayCutscene(charArrivalCutscene);
+
+            yield return new WaitUntil(
+                () => cutsceneManager.IsPlaying);
+
+            yield return new WaitUntil(
+                () => !cutsceneManager.IsPlaying);
+        }
+        else
+        {
+            Debug.LogWarning(
+                "[WEEK 7] Char arrival cutscene or Cutscene Manager is missing.",
+                this);
+        }
+
+        // WEEK 7: Reveal Char and his assigned reinforcement units.
+        if (finalStageReinforcements != null)
+        {
+            yield return finalStageReinforcements.RevealEnemies();
+        }
+
+        // WEEK 7: Restore the phase that was active before Char arrived.
+        isPlayerTurn = wasPlayerTurn && !ScenarioEnded;
+
+        charArrivalInProgress = false;
+
+        Debug.Log("[WEEK 7] Char and his reinforcements have arrived.", this);
     }
 
     // WEEK 3: Store one permanent final result and immediately stop normal

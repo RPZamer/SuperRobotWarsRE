@@ -46,9 +46,39 @@ public class SortieDeployment : MonoBehaviour
         }
     }
 
+    // WEEK 7: CUTSCENE SORTIE INTEGRATION
+    // Prevent deployment interaction until the opening cutscene finishes.
+    private bool deploymentAvailable = true;
+
+    // WEEK 7: Hide deployment during opening dialogue without
+    // disabling the SortieDeployment component itself.
+    public void SetDeploymentAvailable(bool available)
+    {
+        deploymentAvailable = available;
+
+        Transform deploymentCanvas = transform.Find("Deployment Canvas");
+
+        if (deploymentCanvas != null)
+        {
+            deploymentCanvas.gameObject.SetActive(
+                available && !DeploymentConfirmed);
+        }
+
+        // WEEK 7: Hide deployment tiles during the opening cutscene.
+        foreach (Transform child in transform)
+        {
+            if (child.name == "Deployment Zone")
+            {
+                child.gameObject.SetActive(
+                    available && !DeploymentConfirmed);
+            }
+        }
+    }
+
     public void SelectUnit(BattleUnit unit)
     {
-        if (DeploymentConfirmed || unit == null)
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || DeploymentConfirmed || unit == null)
             return;
 
         if (greatMazingerIsReinforcement && unit == greatMazinger)
@@ -158,8 +188,10 @@ public class SortieDeployment : MonoBehaviour
 
     public void PlaceSelectedUnit(Vector2Int gridPosition)
     {
-        if (selectedUnit == null)
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || selectedUnit == null)
             return;
+
         if (!deploymentPositions.Contains(gridPosition))
             return;
 
@@ -173,28 +205,44 @@ public class SortieDeployment : MonoBehaviour
     }
     public void StartMission()
     {
+        // WEEK 7: Wait until the opening cutscene finishes.
+        if (!deploymentAvailable || DeploymentConfirmed)
+        {
+            Debug.LogWarning("Deployment is not available yet.");
+            return;
+        }
+
+        // Make sure deployment has initialized.
+        if (!deploymentInitialized)
+        {
+            Debug.LogWarning("Deployment is not ready.");
+            return;
+        }
+
+        // Require at least one selected mech.
         if (selectedUnits.Count == 0)
         {
             Debug.LogWarning("Select at least one mech before starting.");
             return;
-
         }
+
+        // Enforce the mission's maximum sortie limit.
         if (selectedUnits.Count > maxSortieUnits)
         {
             Debug.LogWarning("Too many mechs selected for sortie.");
             return;
         }
 
-        if (!deploymentInitialized)
-        {
-            Debug.LogWarning("Deployment is not ready.");
-            return;
-        }
         DeploymentConfirmed = true;
 
         Debug.Log("Deployment confirmed. Starting mission!");
 
-        transform.Find("Deployment Canvas").gameObject.SetActive(false);
+        Transform deploymentCanvas = transform.Find("Deployment Canvas");
+
+        if (deploymentCanvas != null)
+        {
+            deploymentCanvas.gameObject.SetActive(false);
+        }
 
         foreach (Transform child in transform)
         {
@@ -206,7 +254,9 @@ public class SortieDeployment : MonoBehaviour
     }
     private void Update()
     {
-        if (!deploymentInitialized || DeploymentConfirmed)
+        // Only allow deployment interaction after initialization
+        // and after the opening cutscene has finished.
+        if (!deploymentInitialized || !deploymentAvailable || DeploymentConfirmed)
             return;
 
         if (!Input.GetMouseButtonDown(0))

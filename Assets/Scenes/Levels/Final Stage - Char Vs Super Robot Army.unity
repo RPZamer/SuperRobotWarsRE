@@ -11148,13 +11148,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 1235683968}
   sceneTransition: {fileID: 665353181}
-  openingCutscene: {fileID: 11400000, guid: 24b1a7be3e55321418be03703df80ec5, type: 2}
+  openingCutscene: {fileID: 11400000, guid: a3591910599bd1f41b403116415bbd76, type: 2}
+  sortieAfterOpeningCutscene: 1
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: -1
-  enemyReinforcementAfterLine: 13
+  enemyReinforcementAfterLine: -1
   skipDialogueInterval: 0.08
 --- !u!4 &2106571074
 Transform:

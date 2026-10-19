@@ -12,6 +12,11 @@ public class CutsceneManager : MonoBehaviour
     [Header("WEEK 6: Cutscene Settings")]
     [SerializeField] private CutsceneData openingCutscene;
 
+    // WEEK 7: CUTSCENE SORTIE INTEGRATION
+    // Levels 3, 4, and the final stage deploy after opening dialogue.
+    [Header("WEEK 7: Sortie Deployment")]
+    [SerializeField] private bool sortieAfterOpeningCutscene;
+
     // WEEK 6: Shared reinforcement system for allied and enemy units.
     [Header("WEEK 6: Reinforcement References")]
     [SerializeField] private EnemyReinforcementReveal reinforcementReveal;
@@ -61,30 +66,49 @@ public class CutsceneManager : MonoBehaviour
             battleMusic = FindFirstObjectByType<BattleMusic>();
         }
     }
+    // WEEK 7: CUTSCENE SORTIE INTEGRATION
+    // Control whether the opening cutscene happens before or after deployment.
     private IEnumerator Start()
     {
-        SortieDeployment sortieDeployment = FindFirstObjectByType<SortieDeployment>();
+        SortieDeployment sortieDeployment =
+            FindFirstObjectByType<SortieDeployment>();
 
-        if(sortieDeployment != null)
+        if (sortieAfterOpeningCutscene && sortieDeployment != null)
         {
-            yield return new WaitUntil(() => sortieDeployment.DeploymentConfirmed);
+            // WEEK 7: Hide deployment before opening dialogue begins.
+            sortieDeployment.SetDeploymentAvailable(false);
 
-            //yield return new WaitForSecondsRealtime(0.3f);
+            // WEEK 7: Play the opening cutscene first.
+            if (openingCutscene != null)
+            {
+                PlayCutscene(openingCutscene);
+
+                // WEEK 7: Wait until the entire cutscene finishes.
+                yield return new WaitUntil(() => !isPlaying);
+            }
+
+            // WEEK 7: Reveal deployment after the opening dialogue.
+            sortieDeployment.SetDeploymentAvailable(true);
+
+            // WEEK 7: Wait for the player to press START MISSION.
+            yield return new WaitUntil(
+                () => sortieDeployment.DeploymentConfirmed);
         }
-        if (openingCutscene != null)
+        else
         {
-            PlayCutscene(openingCutscene);
+            // WEEK 6: Preserve the original deployment-first behavior.
+            if (sortieDeployment != null)
+            {
+                yield return new WaitUntil(
+                    () => sortieDeployment.DeploymentConfirmed);
+            }
 
+            if (openingCutscene != null)
+            {
+                PlayCutscene(openingCutscene);
+            }
         }
     }
-    //private void Start()
-    //{
-        // WEEK 6: Automatically begin the opening cutscene.
-       // if (openingCutscene != null)
-        //{
-           // PlayCutscene(openingCutscene);
-        //}
-    //}
 
     private void Update()
     {
@@ -160,6 +184,21 @@ public class CutsceneManager : MonoBehaviour
         StartCoroutine(RunCutscene(cutscene));
     }
 
+    // WEEK 7: FINAL STAGE - Play a cutscene and wait
+    // until all its dialogue has finished.
+    public IEnumerator PlayCutsceneAndWait(CutsceneData cutscene)
+    {
+        if (cutscene == null)
+        {
+            yield break;
+        }
+
+        // WEEK 7: Wait for any current cutscene to finish.
+        yield return new WaitUntil(() => !isPlaying);
+
+        // WEEK 7: Run the requested cutscene to completion.
+        yield return RunCutscene(cutscene);
+    }
     private IEnumerator RunCutscene(CutsceneData cutscene)
     {
         isPlaying = true;

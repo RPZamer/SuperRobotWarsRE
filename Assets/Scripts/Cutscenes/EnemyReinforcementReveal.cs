@@ -26,6 +26,49 @@ public class EnemyReinforcementReveal : MonoBehaviour
     private bool enemyRevealStarted;
     private bool allyRevealStarted;
 
+    // WEEK 7: FINAL STAGE REINFORCEMENTS
+    // Keep reinforcements unavailable until their reveal finishes.
+    public bool IsWaitingEnemy(BattleUnit unit)
+    {
+        return unit != null &&
+               enemyUnits.Contains(unit) &&
+               enemiesHidden;
+    }
+
+    // WEEK 7: FINAL STAGE REINFORCEMENTS
+    // Check whether the first enemy wave has been defeated.
+    // Only enemies assigned to this reinforcement controller
+    // are excluded from the first-wave count.
+    public bool IsFirstWaveDefeated(IEnumerable<BattleUnit> battlefieldUnits)
+    {
+        if (enemyRevealStarted || enemyUnits.Count == 0)
+        {
+            return false;
+        }
+
+        foreach (BattleUnit unit in battlefieldUnits)
+        {
+            if (unit == null ||
+                unit.Team != BattleTeam.Enemy ||
+                unit.IsDefeated)
+            {
+                continue;
+            }
+
+            // WEEK 7: Ignore Char and the four unrevealed Zakus.
+            if (IsWaitingEnemy(unit))
+            {
+                continue;
+            }
+
+            // At least one first-wave enemy is still alive.
+            return false;
+        }
+
+        // Every first-wave enemy has been defeated.
+        return true;
+    }
+
     // WEEK 6: Hide reinforcement sprites before opening dialogue.
     private void Awake()
     {
