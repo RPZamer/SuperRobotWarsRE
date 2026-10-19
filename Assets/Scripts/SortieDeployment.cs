@@ -1,7 +1,8 @@
-
+using TMPro;
 using UnityEngine;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using UnityEngine.Analytics;
 
 public class SortieDeployment : MonoBehaviour
 {
@@ -12,43 +13,51 @@ public class SortieDeployment : MonoBehaviour
     [SerializeField] private BattleUnit mazingerZ;
     [SerializeField] private BattleUnit greatMazinger;
     [SerializeField] private BattleUnit gundam;
+    [SerializeField] private BattleUnit getter1;
+
+    [Header("Available Sortie Units")]
+    [SerializeField] private List<BattleUnit> availableUnits = new();
+
+    [HeaderAttribute("Selected Sortie Units")]
+    [SerializeField] private List<BattleUnit> selectedUnits = new();
+
     [Header ("Deployment Selection Buttons")]
     [SerializeField] private GameObject mazingerZButton;
     [SerializeField] private GameObject greatMazingerButton;
     [SerializeField] private GameObject gundamButton;
     [Header("Mission Deployment Restrictions")]
     [SerializeField] private bool greatMazingerIsReinforcement = false;
+    [Header("Sortie Counter")]
+    [SerializeField] private TMP_Text sortieCounterText;
 
     private BattleUnit selectedUnit;
-    public bool DeploymentConfirmed { get; private set; }
+
+    public bool DeploymentConfirmed 
+    { 
+        get; private set; 
+    }
+    private bool deploymentInitialized = false;
+    private void UpdateSortieCounter()
+    {
+        if (sortieCounterText != null)
+        {
+            sortieCounterText.text =
+                "Selected Mechs: " + selectedUnits.Count + " / " + maxSortieUnits;
+        }
+    }
 
     public void SelectUnit(BattleUnit unit)
     {
         if (DeploymentConfirmed || unit == null)
             return;
+
         if (greatMazingerIsReinforcement && unit == greatMazinger)
         {
             Debug.LogWarning("Great Mazinger is reserved for reinforcement.");
             return;
         }
 
-        if (!unit.gameObject.activeInHierarchy)
-        {
-            Debug.LogWarning(unit.name + " is not available for deployment.");
-            return;
-        }
-        if (SortieData.HasCustomSelection)
-        {
-            if (unit == mazingerZ && !SortieData.KojiSelected)
-                return;
-            if (unit == greatMazinger && !SortieData.TetsuyaSelected)
-                return;
-            if (unit == gundam && !SortieData.AmuroSelected)
-                return;
-        }
-        selectedUnit = unit;
-        Debug.Log("Selected for deployment: " + unit.name);
-
+        ToggleSortieUnit(unit);
     }
     public void SelectMazingerZ()
     {
@@ -63,6 +72,90 @@ public class SortieDeployment : MonoBehaviour
     {
         SelectUnit(gundam);
     }
+    public void SelectGetter1()
+    {
+        SelectUnit(availableUnits[3]);
+    }
+    public void SelectVenusA()
+    {
+        SelectUnit(availableUnits[4]);
+    }
+
+    public void SelectDianaA()
+    {
+        SelectUnit(availableUnits[5]);
+    }
+
+    public void SelectBossBorot()
+    {
+        SelectUnit(availableUnits[6]);
+    }
+
+    public void SelectGetterQ()
+    {
+        Debug.Log("Getter Q button clicked!");
+        SelectUnit(availableUnits[7]);
+    }
+    public void ToggleSortieUnit(BattleUnit unit)
+    {
+        if (!deploymentInitialized || DeploymentConfirmed ||
+            unit == null || battlefield == null)
+            return;
+
+        if (!availableUnits.Contains(unit))
+            return;
+
+        
+        if (selectedUnits.Contains(unit))
+        {
+            battlefield.Remove(unit);
+            selectedUnits.Remove(unit);
+
+            UpdateSortieCounter();
+
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+                sprite.enabled = false;
+
+            if (selectedUnit == unit)
+                selectedUnit = null;
+
+            Debug.Log(unit.name + " removed from sortie.");
+            return;
+        }
+
+        if (selectedUnits.Count >= maxSortieUnits)
+        {
+            Debug.LogWarning("Maximum sortie units selected.");
+            return;
+        }
+        unit.PlaceOn(battlefield);
+
+        foreach (Vector2Int position in deploymentPositions)
+        {
+            if (!battlefield.IsInside(position))
+                continue;
+
+            if (battlefield.GetUnit(position) != null)
+                continue;
+
+            if (!battlefield.TryDeployUnit(unit, position))
+                continue;
+            selectedUnits.Add(unit);
+
+            UpdateSortieCounter();
+
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
+            if (sprite != null)
+                sprite.enabled = true;
+
+            Debug.Log(unit.name + " deployed at " + position);
+            return;
+        }
+
+        Debug.LogWarning("No available deployment tiles.");
+    }
+
     public void PlaceSelectedUnit(Vector2Int gridPosition)
     {
         if (selectedUnit == null)
@@ -80,6 +173,23 @@ public class SortieDeployment : MonoBehaviour
     }
     public void StartMission()
     {
+        if (selectedUnits.Count == 0)
+        {
+            Debug.LogWarning("Select at least one mech before starting.");
+            return;
+
+        }
+        if (selectedUnits.Count > maxSortieUnits)
+        {
+            Debug.LogWarning("Too many mechs selected for sortie.");
+            return;
+        }
+
+        if (!deploymentInitialized)
+        {
+            Debug.LogWarning("Deployment is not ready.");
+            return;
+        }
         DeploymentConfirmed = true;
 
         Debug.Log("Deployment confirmed. Starting mission!");
@@ -93,36 +203,46 @@ public class SortieDeployment : MonoBehaviour
                 child.gameObject.SetActive(false);
             }
         }
-
     }
-
     private void Update()
     {
-        if (DeploymentConfirmed)
+        if (!deploymentInitialized || DeploymentConfirmed)
             return;
 
         if (!Input.GetMouseButtonDown(0))
             return;
+        /*
+        if (UnityEngine.EventSystems.EventSystem.current != null &&
+            UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            return;
+        */
+        Camera camera = Camera.main;
+        if (camera == null)
+            return;
 
-        Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2Int gridPosition = battlefield.WorldToGrid(mousePosition);
+        Vector3 mousePosition =
+            camera.ScreenToWorldPoint(Input.mousePosition);
 
-        Debug.Log("Clicked grid position: " + gridPosition);
-        BattleUnit[] units = { mazingerZ, greatMazinger, gundam };
+        Vector2Int gridPosition =
+            battlefield.WorldToGrid(mousePosition);
 
-        foreach (BattleUnit unit in units)
+        if (!deploymentPositions.Contains(gridPosition))
+            return;
+
+        BattleUnit clickedUnit = battlefield.GetUnit(gridPosition);
+        if (selectedUnit == null)
         {
-            if (unit.gameObject.activeInHierarchy && battlefield.WorldToGrid(unit.transform.position) == gridPosition)
+            if (clickedUnit != null &&
+                selectedUnits.Contains(clickedUnit))
             {
-                SelectUnit(unit);
-                return;
+                selectedUnit = clickedUnit;
+                Debug.Log("Selected: " + clickedUnit.name);
             }
         }
-        if (selectedUnit != null)
+        else
         {
-            PlaceSelectedUnit(gridPosition);
+            MoveDeploymentUnit(gridPosition);
         }
-
     }
 
     [Header("Sortie Settings")]
@@ -136,27 +256,33 @@ public class SortieDeployment : MonoBehaviour
 
     private void Awake()
     {
-        CheckSortieSelection();
-        DeploySelectedUnits();
-        UpdateDeploymentButtons();
-        ShowDeploymentTiles();
-    }
-   private void UpdateDeploymentButtons()
-    {
-        //if (!SortieData.HasCustomSelection)
-           // return;
+        
+        selectedUnits.Clear();
+        selectedUnit = null;
+        DeploymentConfirmed = false;
+        deploymentInitialized = false;
 
+        UpdateSortieVisibility();
+        ShowDeploymentTiles();
+        UpdateDeploymentButtons();
+    }
+
+    private System.Collections.IEnumerator Start()
+    {
+        yield return null;
+        InitializeDeployment();
+    }
+
+    private void UpdateDeploymentButtons()
+    {
         if (mazingerZButton != null)
-            mazingerZButton.SetActive(SortieData.KojiSelected);
+            mazingerZButton.SetActive(true);
 
         if (greatMazingerButton != null)
-        {
-            greatMazingerButton.SetActive(!greatMazingerIsReinforcement &&
-            (!SortieData.HasCustomSelection || SortieData.TetsuyaSelected));
-        }
+            greatMazingerButton.SetActive(!greatMazingerIsReinforcement);
 
         if (gundamButton != null)
-            gundamButton.SetActive(SortieData.AmuroSelected);
+            gundamButton.SetActive(true);
     }
     private void ShowDeploymentTiles()
     {
@@ -232,10 +358,105 @@ public class SortieDeployment : MonoBehaviour
 
     private bool IsOptionalUnit(BattleUnit unit)
     {
-        return unit == mazingerZ ||
-               unit == greatMazinger ||
-               unit == gundam;
+        return unit != null && availableUnits.Contains(unit);
     }
+    public bool IsAvailableSortieUnit(BattleUnit unit)
+    {
+        return unit != null && availableUnits.Contains(unit);
+    }
+    private void LoadSortieSelection()
+    {
+        selectedUnits.Clear();
+
+        if (!SortieData.HasCustomSelection)
+        {
+            Debug.LogWarning("No Intermission sortie selection found.");
+            return;
+        }
+
+        if (availableUnits.Count < 8)
+        {
+            Debug.LogError("The sortie roster needs eight units.");
+            return;
+        }
+
+        if (SortieData.KojiSelected)
+            selectedUnits.Add(availableUnits[0]);
+
+        if (SortieData.TetsuyaSelected)
+            selectedUnits.Add(availableUnits[1]);
+
+        if (SortieData.AmuroSelected)
+            selectedUnits.Add(availableUnits[2]);
+
+        if (SortieData.RyomaSelected)
+            selectedUnits.Add(availableUnits[3]);
+
+        if (SortieData.SayakaSelected)
+            selectedUnits.Add(availableUnits[4]);
+
+        if (SortieData.JunSelected)
+            selectedUnits.Add(availableUnits[5]);
+
+        if (SortieData.BossSelected)
+            selectedUnits.Add(availableUnits[6]);
+
+        if (SortieData.MichiruSelected)
+            selectedUnits.Add(availableUnits[7]);
+
+        Debug.Log("Loaded " + selectedUnits.Count +
+                  " units from Intermission.");
+    }
+    private bool IsSelectedSortieUnit(BattleUnit unit)
+    {
+        return unit != null && selectedUnits.Contains(unit);
+
+    }
+    private void UpdateSortieVisibility()
+    {
+        foreach (BattleUnit unit in availableUnits)
+        {
+            if (unit == null)
+                continue;
+            SpriteRenderer sprite = unit.GetComponent<SpriteRenderer>();
+
+            if (sprite != null)
+            {
+                sprite.enabled = IsSelectedSortieUnit(unit);
+            }
+        }
+    }
+    private void InitializeDeployment()
+    {
+        deploymentInitialized = false;
+
+        if (battlefield == null ||
+            deploymentPositions.Count < maxSortieUnits)
+        {
+            Debug.LogError("Sortie configuration is incomplete.");
+            return;
+        }
+
+        selectedUnits.Clear();
+        selectedUnit = null;
+        foreach (BattleUnit unit in availableUnits)
+        {
+            if (unit == null)
+                continue;
+
+            battlefield.Remove(unit);
+        }
+
+        UpdateSortieVisibility();
+
+        deploymentInitialized = true;
+
+        UpdateSortieCounter();
+        Debug.Log("Sortie deployment ready for unit selection.");
+        
+    }
+    
+
     private void CheckSortieSelection()
     {
         if (!SortieData.HasCustomSelection)
@@ -326,55 +547,124 @@ public class SortieDeployment : MonoBehaviour
                 ". Keeping its original mission position.");
         }
     }
-    private void DeploySelectedUnits()
+    private bool DeploySelectedUnits()
     {
-        if (!SortieData.HasCustomSelection)
+        if(selectedUnits.Count == 0 || selectedUnits.Count > maxSortieUnits)
         {
-            Debug.Log("Using default mission deployment.");
-            return;
+            Debug.LogError("Invalid number of sortie units.");
+            return false;
         }
-
-        if (battlefield == null ||
-            deploymentPositions.Count < maxSortieUnits)
+       if (battlefield == null|| deploymentPositions.Count < maxSortieUnits)
         {
-            Debug.LogError("Sortie configuration is incomplete.");
-            return;
+            Debug.LogError("Sortie configureation is incomplete.");
+            return false;
+        }
+        HashSet<Vector2Int> usedPositions = new();
+        HashSet<BattleUnit> usedUnits = new();
+
+        for (int i = 0; i < selectedUnits.Count; i++)
+        {
+            BattleUnit unit = selectedUnits[i];
+            Vector2Int position = deploymentPositions[i];
+           
+
+            if (unit == null || !availableUnits.Contains(unit))
+            {
+                Debug.LogError("Invalid sortie unit.");
+                return false;
+            }
+            if (!usedUnits.Add(unit))
+            {
+                Debug.LogError("Duplicate sortie unit selected.");
+                return false;
+            }
+
+            if (!battlefield.IsInside(position))
+            {
+                Debug.LogError("Deployment position is outside battlefield.");
+                return false;
+            }
+
+            if (!usedPositions.Add(position))
+            {
+                Debug.LogError("Duplicate deployment position.");
+                return false;
+            }
+
+            if (battlefield.GetUnit(position) != null)
+            {
+                Debug.LogError("Deployment position is occupied.");
+                return false;
+            }
         }
         int slotIndex = 0;
 
-        if (SortieData.KojiSelected)
+        foreach (BattleUnit unit in selectedUnits)
         {
-            DeployUnit(mazingerZ, true, slotIndex);
+            Vector2Int position = deploymentPositions[slotIndex];
+
+            unit.PlaceOn(battlefield);
+            if (!battlefield.TryDeployUnit(unit, position))
+            {
+                Debug.LogError("Failed to deploy " + unit.name);
+                return false;
+            }
+
             slotIndex++;
         }
-        else
+        return true;
+    }
+    private void MoveDeploymentUnit(Vector2Int targetPosition)
+    {
+        if (selectedUnit == null ||
+            !deploymentPositions.Contains(targetPosition))
+            return;
+
+        BattleUnit targetUnit = battlefield.GetUnit(targetPosition);
+        if (targetUnit != null &&
+            !selectedUnits.Contains(targetUnit))
+            return;
+
+        Vector2Int originalPosition = selectedUnit.GridPosition;
+
+        if (targetPosition == originalPosition)
         {
-            DeployUnit(mazingerZ, false, slotIndex);
-        }
-        
-       
-        if (SortieData.TetsuyaSelected)
-        {
-          DeployUnit(greatMazinger, true, slotIndex);
-          slotIndex++;
-        }
-        else
-        {
-          DeployUnit(greatMazinger, false, slotIndex);
+            selectedUnit = null;
+            return;
         }
 
-        
-        
-    
-        if (SortieData.AmuroSelected)
+        if (targetUnit == null)
         {
-            DeployUnit(gundam, true, slotIndex);
-            slotIndex++;
+            if (battlefield.TryDeployUnit(selectedUnit, targetPosition))
+            {
+                Debug.Log(selectedUnit.name + " repositioned.");
+            }
         }
         else
         {
-            DeployUnit(gundam, false, slotIndex);
+           
+            battlefield.Remove(selectedUnit);
+            battlefield.Remove(targetUnit);
+
+            bool firstPlaced =
+                battlefield.TryDeployUnit(selectedUnit, targetPosition);
+
+            bool secondPlaced = firstPlaced &&
+                battlefield.TryDeployUnit(targetUnit, originalPosition);
+
+            if (!firstPlaced || !secondPlaced)
+            {
+                battlefield.Remove(selectedUnit);
+                battlefield.Remove(targetUnit);
+
+                battlefield.TryDeployUnit(selectedUnit, originalPosition);
+                battlefield.TryDeployUnit(targetUnit, targetPosition);
+
+                Debug.LogError("Could not swap deployment positions.");
+            }
         }
+
+        selectedUnit = null;
     }
 }
 
