@@ -93,6 +93,7 @@ public class SortieDeployment : MonoBehaviour
 
     public void SelectGetterQ()
     {
+        Debug.Log("Getter Q button clicked!");
         SelectUnit(availableUnits[7]);
     }
     public void ToggleSortieUnit(BattleUnit unit)
