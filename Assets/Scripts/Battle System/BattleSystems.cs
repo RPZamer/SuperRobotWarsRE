@@ -57,6 +57,18 @@ public class BattleSystem : MonoBehaviour
     [SerializeField] private EnemyReinforcementReveal finalStageReinforcements;
     [SerializeField] private CutsceneData charArrivalCutscene;
 
+    // WEEK 7: FINAL STAGE - Special pilot conversations with Char.
+    // Each conversation plays only once during the Final Stage.
+    [Header("WEEK 7: Final Stage Battle Conversations")]
+    [SerializeField] private CutsceneData kojiVsCharCutscene;
+    [SerializeField] private CutsceneData amuroVsCharCutscene;
+    [SerializeField] private CutsceneData ryomaVsCharCutscene;
+
+    // WEEK 7: Track conversations already played.
+    private bool kojiVsCharPlayed;
+    private bool amuroVsCharPlayed;
+    private bool ryomaVsCharPlayed;
+
     // WEEK 7: Prevent Char's arrival from triggering more than once.
     private bool charArrivalTriggered;
     private bool charArrivalInProgress;
@@ -1369,6 +1381,21 @@ public class BattleSystem : MonoBehaviour
             yield break;
         }
 
+        // WEEK 7: FINAL STAGE - MAP attacks bypass the reaction menu,
+        // so check for Char's special battle conversation here.
+        yield return PlayCharBattleConversation(attacker, target);
+
+        // WEEK 7: Stop the attack if combat became invalid during dialogue.
+        if (ScenarioEnded ||
+            attacker == null ||
+            target == null ||
+            attacker.IsDefeated ||
+            target.IsDefeated ||
+            !attacker.CanUseWeapon(weapon, target))
+        {
+            yield break;
+        }
+
         // WEEK 5 FIXES: Originally, a MAP attack could trigger the same defensive first-strike lookup as an ordinary attack.
         // MAP attacks now skip that lookup because units in their area do not counter them.
         // Ordinary attacks still request a defensive weapon explicitly so a moved defender can use FirstStrike without PostMovement.
@@ -1385,6 +1412,70 @@ public class BattleSystem : MonoBehaviour
         yield return PerformAttack(attacker, target, weapon, allowSupportDefend: attacker.Team != playerTeam);
         if (!ScenarioEnded && weapon.Classification == WeaponClassification.SingleTarget && attacker.Team == playerTeam)
             yield return ResolvePilotFollowup(attacker, target);
+    }
+
+    // WEEK 7: FINAL STAGE - Play each pilot's special conversation
+    // with Char only once, before their first confirmed battle.
+    private IEnumerator PlayCharBattleConversation(
+        BattleUnit attacker,
+        BattleUnit defender)
+    {
+        if (charArrivalCutscene == null ||
+            !charArrivalTriggered ||
+            cutsceneManager == null ||
+            attacker == null ||
+            defender == null ||
+            attacker.Pilot == null ||
+            defender.Pilot == null)
+        {
+            yield break;
+        }
+
+        // WEEK 7: Identify Char and the pilot fighting him.
+        string attackerName = attacker.Pilot.PilotName;
+        string defenderName = defender.Pilot.PilotName;
+
+        if (attackerName != "Char" && defenderName != "Char")
+        {
+            yield break;
+        }
+
+        string otherPilot = attackerName == "Char"
+            ? defenderName
+            : attackerName;
+
+        CutsceneData conversation = null;
+
+        // WEEK 7: Select the appropriate conversation.
+        if (otherPilot == "Koji Kabuto" && !kojiVsCharPlayed)
+        {
+            conversation = kojiVsCharCutscene;
+            if (conversation != null) kojiVsCharPlayed = true;
+        }
+        else if (otherPilot == "Amuro Ray" && !amuroVsCharPlayed)
+        {
+            conversation = amuroVsCharCutscene;
+            if (conversation != null) amuroVsCharPlayed = true;
+        }
+        else if (otherPilot == "Ryoma" && !ryomaVsCharPlayed)
+        {
+            conversation = ryomaVsCharCutscene;
+            if (conversation != null) ryomaVsCharPlayed = true;
+        }
+
+        if (conversation == null)
+        {
+            yield break;
+        }
+
+        // WEEK 7: Play dialogue and wait until it finishes.
+        cutsceneManager.PlayCutscene(conversation);
+
+        yield return new WaitUntil(
+            () => cutsceneManager.IsPlaying);
+
+        yield return new WaitUntil(
+            () => !cutsceneManager.IsPlaying);
     }
 
     // WEEK 6 CHANGES PLEASE READ: Enemy defenders need an automatic response before the player confirms combat.
@@ -1421,6 +1512,21 @@ public class BattleSystem : MonoBehaviour
             reactionPending = false;
             actionsMenu.Hide();
             if (!reactionConfirmed || ScenarioEnded || !attacker.CanUseWeapon(incoming, defender)) yield break;
+
+            // WEEK 7: FINAL STAGE - Play the special Char conversation
+            // after combat confirmation but before either unit attacks.
+            yield return PlayCharBattleConversation(attacker, defender);
+
+            // WEEK 7: Recheck combat conditions after the dialogue finishes.
+            if (ScenarioEnded ||
+                attacker == null ||
+                defender == null ||
+                attacker.IsDefeated ||
+                defender.IsDefeated ||
+                !attacker.CanUseWeapon(incoming, defender))
+            {
+                yield break;
+            }
 
             bool counter = selectedReaction == BattleReaction.Counter && CanCounterWith(reactionCounterWeapon);
             // WEEK 7: Both participants use the same dynamic First Strike rule, including Clear Mind.
@@ -2233,7 +2339,19 @@ public class BattleSystem : MonoBehaviour
             return;
         }
 
-        // WEEK 3: Victory occurs when every enemy has been defeated.
+        // WEEK 7: FINAL STAGE - Defeating Char completes the final battle.
+        // Other stages retain their existing all-enemies-defeated objective.
+        if (finalStageReinforcements != null &&
+            charArrivalCutscene != null &&
+            charArrivalTriggered &&
+            enemyObjectiveUnit != null &&
+            enemyObjectiveUnit.IsDefeated)
+        {
+            EndScenario(ScenarioResult.Victory);
+            return;
+        }
+
+        // WEEK 3: All other stages require every enemy to be defeated.
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
 
         if (FindFirstUnit(enemyTeam) == null)
@@ -2281,12 +2399,25 @@ public class BattleSystem : MonoBehaviour
             Debug.LogWarning(
                 "[WEEK 7] Char arrival cutscene or Cutscene Manager is missing.",
                 this);
+            // WEEK 7: FINAL STAGE MUSIC - Play the enemy reinforcement
+            // theme when Char and his second wave arrive.
+            if (battleMusic != null)
+            {
+                battleMusic.PlayEnemyReinforcementMusic();
+            }
         }
 
         // WEEK 7: Reveal Char and his assigned reinforcement units.
         if (finalStageReinforcements != null)
         {
             yield return finalStageReinforcements.RevealEnemies();
+        }
+
+        // WEEK 7: FINAL STAGE MUSIC - Fade back to the Squad Theme
+        // after Char's arrival dialogue and reinforcement reveal.
+        if (battleMusic != null)
+        {
+            battleMusic.FadeToOverworldMusic();
         }
 
         // WEEK 7: Restore the phase that was active before Char arrived.
