@@ -22,9 +22,39 @@ public class SortieDeployment : MonoBehaviour
     private BattleUnit selectedUnit;
     public bool DeploymentConfirmed { get; private set; }
 
+    // WEEK 7: CUTSCENE SORTIE INTEGRATION
+    // Prevent deployment interaction until the opening cutscene finishes.
+    private bool deploymentAvailable = true;
+
+    // WEEK 7: Hide deployment during opening dialogue without
+    // disabling the SortieDeployment component itself.
+    public void SetDeploymentAvailable(bool available)
+    {
+        deploymentAvailable = available;
+
+        Transform deploymentCanvas = transform.Find("Deployment Canvas");
+
+        if (deploymentCanvas != null)
+        {
+            deploymentCanvas.gameObject.SetActive(
+                available && !DeploymentConfirmed);
+        }
+
+        // WEEK 7: Hide deployment tiles during the opening cutscene.
+        foreach (Transform child in transform)
+        {
+            if (child.name == "Deployment Zone")
+            {
+                child.gameObject.SetActive(
+                    available && !DeploymentConfirmed);
+            }
+        }
+    }
+
     public void SelectUnit(BattleUnit unit)
     {
-        if (DeploymentConfirmed || unit == null)
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || DeploymentConfirmed || unit == null)
             return;
         if (greatMazingerIsReinforcement && unit == greatMazinger)
         {
@@ -65,8 +95,10 @@ public class SortieDeployment : MonoBehaviour
     }
     public void PlaceSelectedUnit(Vector2Int gridPosition)
     {
-        if (selectedUnit == null)
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || selectedUnit == null)
             return;
+
         if (!deploymentPositions.Contains(gridPosition))
             return;
 
@@ -80,6 +112,10 @@ public class SortieDeployment : MonoBehaviour
     }
     public void StartMission()
     {
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || DeploymentConfirmed)
+            return;
+
         DeploymentConfirmed = true;
 
         Debug.Log("Deployment confirmed. Starting mission!");
@@ -98,7 +134,8 @@ public class SortieDeployment : MonoBehaviour
 
     private void Update()
     {
-        if (DeploymentConfirmed)
+        // WEEK 7: CUTSCENE SORTIE INTEGRATION
+        if (!deploymentAvailable || DeploymentConfirmed)
             return;
 
         if (!Input.GetMouseButtonDown(0))

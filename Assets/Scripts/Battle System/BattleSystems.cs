@@ -51,6 +51,15 @@ public class BattleSystem : MonoBehaviour
     // WEEK 6: CUTSCENES - Dialogue played after Level 1 victory.
     [SerializeField] private CutsceneData victoryCutscene;
 
+    // WEEK 7: FINAL STAGE - Char's second-wave reinforcements.
+    // These fields are optional so Levels 1-4 remain unchanged.
+    [Header("WEEK 7: Final Stage Reinforcements")]
+    [SerializeField] private EnemyReinforcementReveal finalStageReinforcements;
+    [SerializeField] private CutsceneData charArrivalCutscene;
+
+    // WEEK 7: Prevent Char's arrival from triggering more than once.
+    private bool charArrivalTriggered;
+    private bool charArrivalInProgress;
     private void Awake() => BattleDebug.Enabled = debugBattleCalculations;
     private void OnValidate() => BattleDebug.Enabled = debugBattleCalculations;
 
@@ -1186,18 +1195,37 @@ public class BattleSystem : MonoBehaviour
         }
         BattleTeam enemyTeam = OpposingTeam(playerTeam);
 
+        // WEEK 7: FINAL STAGE REINFORCEMENTS
+        // Find the reinforcement controller for this scene.
+        EnemyReinforcementReveal reinforcementReveal =
+            FindFirstObjectByType<EnemyReinforcementReveal>();
+
         // WEEK 3: Create a snapshot of the enemy units before processing
         // actions so battlefield changes during combat do not modify the
         // collection currently being processed.
         List<BattleUnit> enemies = new();
 
+        // WEEK 7: FINAL STAGE REINFORCEMENTS
+        // Prevent unrevealed reinforcements from taking enemy turns.
         foreach (BattleUnit unit in battlefield.Units)
         {
-            if (unit != null && unit.Team == enemyTeam && !unit.IsDefeated)
+            if (unit == null ||
+                unit.Team != enemyTeam ||
+                unit.IsDefeated)
             {
-                unit.BeginTurn();
-                enemies.Add(unit);
+                continue;
             }
+
+            // WEEK 7: Skip Char and reinforcement Zakus
+            // until their arrival sequence begins.
+            if (reinforcementReveal != null &&
+                reinforcementReveal.IsWaitingEnemy(unit))
+            {
+                continue;
+            }
+
+            unit.BeginTurn();
+            enemies.Add(unit);
         }
 
 

@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd3be70ca96bae41afa4b68d83c5026, type: 3}
+  m_Name: Level5_CharArrival
+  m_EditorClassIdentifier: Assembly-CSharp::CutsceneData
+  cutsceneName: Level 5 - Char Arrival
+  lines:
+  - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
+    emotion: 0
+    dialogue: Char!
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: You have all done well making it this far, I'm impressed!
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+    emotion: 0
+    dialogue: We don't need your praise.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
+    emotion: 0
+    dialogue: Char, why have you done this?
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: To get all of you ready for the upcoming war at hand.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
+    emotion: 0
+    dialogue: We don't need you to get us ready for anything.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: It's not you, but them.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
+    emotion: 0
+    dialogue: Who are you talking about?
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: It doesn't matter.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
+    emotion: 0
+    dialogue: What war are you talking about?
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: The Super Robot War. And one powered by a Recursive Element.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+    emotion: 0
+    dialogue: Must be the "Original"
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: Right you are, now prove yourselves, all of you!!
+    showPortrait: 1
+  transitionToScene: 0
+  destinationScene: 

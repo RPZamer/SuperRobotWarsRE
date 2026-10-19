@@ -8873,7 +8873,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1130420270}
+  m_Father: {fileID: 1228546328}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -9117,11 +9117,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1125559857}
   m_CullTransparentMesh: 1
---- !u!224 &1130420270 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 2045541684, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
-  m_PrefabInstance: {fileID: 1365336932}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1176506040 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
@@ -9315,6 +9310,11 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 18, y: 9}
   moraleMaximumBonus: 0
+--- !u!224 &1228546328 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2045541684, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_PrefabInstance: {fileID: 1365336932}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1265930456
 GameObject:
   m_ObjectHideFlags: 0
@@ -11812,6 +11812,7 @@ MonoBehaviour:
   dialogSystem: {fileID: 0}
   sceneTransition: {fileID: 665353181}
   openingCutscene: {fileID: 11400000, guid: 14e11455a91adce44b666c09a1393773, type: 2}
+  sortieAfterOpeningCutscene: 0
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: 5
