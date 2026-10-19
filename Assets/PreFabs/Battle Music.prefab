@@ -144,8 +144,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleMusic
   musicSource: {fileID: 6647964986206259864}
   musicVolume: 0.15
-  overworldMusic: {fileID: 8300000, guid: f9ec60b7ccdc5954f949a37089d661ec, type: 3}
+  musicFadeDuration: 1.5
+  overworldMusic: {fileID: 8300000, guid: 5f652b1400a054f44b9998a6b290308d, type: 3}
   allyReinforcementMusic: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
-  allyReinforcementMusicAlt: {fileID: 0}
+  allyReinforcementMusicAlt: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
+  enemyReinforcementMusic: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
   splashScreenMusic: {fileID: 8300000, guid: 60dc0275ea104b64794f144120a67d6a, type: 3}
   intermissionMusic: {fileID: 8300000, guid: 95a224949cd577a4aa1aee0b091dae9d, type: 3}
+  startingMusic: 0

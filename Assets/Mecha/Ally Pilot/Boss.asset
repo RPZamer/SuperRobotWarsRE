@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Boss
   level: 1
-  melee: 100
-  ranged: 100
-  defense: 100
-  evade: 100
-  accuracy: 100
+  melee: 160
+  ranged: 110
+  defense: 125
+  evade: 90
+  accuracy: 110
   skill: 100
   morale: 100
   maxSpiritPoints: 100
@@ -56,13 +56,14 @@ MonoBehaviour:
   clearMind: 0
   battler: 0
   getterOverflow: 0
-  spirit1: {fileID: 11400000, guid: 192439a57fa3af54cac4da2485958808, type: 2}
+  spirit1: {fileID: 11400000, guid: afccfcad019c55b46a22fe36d47e2421, type: 2}
   spirit2: {fileID: 11400000, guid: f4eb471bcb60a6b4ca95a344637b0dc2, type: 2}
   spirit3: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
   spirit4: {fileID: 11400000, guid: a531b742106e7774d9cee91ed7d3d676, type: 2}
   spirit5: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
   spirit6: {fileID: 0}
-  onSuccessLines: []
+  onSuccessLines:
+  - Dan Da Dan! when you have me who needs Koji
   defaultPortrait: {fileID: 7367577043056571712, guid: 29c7f9440549f60439256846b4e0aa66, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}

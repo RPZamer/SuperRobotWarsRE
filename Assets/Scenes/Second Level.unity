@@ -252,6 +252,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 9, y: 9}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &78635313
 SpriteRenderer:
   serializedVersion: 3
@@ -7440,6 +7441,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 8, y: 12}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &791658976
 SpriteRenderer:
   serializedVersion: 3
@@ -7691,6 +7693,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 7, y: 11}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &935442804
 SpriteRenderer:
   serializedVersion: 3
@@ -7810,6 +7813,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 18, y: 11}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1001861788
 SpriteRenderer:
   serializedVersion: 3
@@ -8182,6 +8186,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 10, y: 8}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1122503237
 SpriteRenderer:
   serializedVersion: 3
@@ -8908,6 +8913,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 7, y: 9}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1276938064
 SpriteRenderer:
   serializedVersion: 3
@@ -9114,6 +9120,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 19, y: 10}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1347874229
 SpriteRenderer:
   serializedVersion: 3
@@ -9228,6 +9235,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 9, y: 11}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1395595270
 SpriteRenderer:
   serializedVersion: 3
@@ -9342,6 +9350,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 18, y: 9}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1435154528
 SpriteRenderer:
   serializedVersion: 3
@@ -9776,6 +9785,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 17, y: 10}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1516142470
 SpriteRenderer:
   serializedVersion: 3
@@ -10287,6 +10297,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 10, y: 12}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1714534272
 SpriteRenderer:
   serializedVersion: 3
@@ -10401,6 +10412,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 8, y: 8}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1733850280
 SpriteRenderer:
   serializedVersion: 3
@@ -10526,6 +10538,7 @@ MonoBehaviour:
   tileType: 0
   startingPosition: {x: 8, y: 10}
   moraleMaximumBonus: 0
+  movementSpeed: 3
 --- !u!212 &1785125824
 SpriteRenderer:
   serializedVersion: 3
@@ -15544,6 +15557,7 @@ MonoBehaviour:
   spiritPointText: {fileID: 0}
   spiritButtonTemplate: {fileID: 0}
   spiritButtonContent: {fileID: 0}
+  spiritTooltipText: {fileID: 0}
   weaponsPanel: {fileID: 4463505497223497075}
   confirmButton: {fileID: 2483257020875517600}
   weaponContent: {fileID: 6728642143008058208}
@@ -19450,7 +19464,13 @@ MonoBehaviour:
   selectedUnitNameText: {fileID: 7983133059689312338}
   selectedUnitHPText: {fileID: 6911307246347457146}
   tileInforText: {fileID: 3102624207917404684}
-  scenarioResultText: {fileID: 1620615110402035509}
+  victoryCanvas: {fileID: 0}
+  defeatCanvas: {fileID: 0}
+  defeatBackgroundGroup: {fileID: 0}
+  defeatTextGroup: {fileID: 0}
+  backgroundFadeDuration: 2
+  textFadeDuration: 1
+  resultButtons: {fileID: 0}
   targetedEnemyNameText: {fileID: 5078456229097012657}
   targetedEnemyHPText: {fileID: 7369744994512839803}
   EndPhaseButton: {fileID: 5699012689705298721}

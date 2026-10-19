@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &9022321355713670614
 Transform:
   m_ObjectHideFlags: 0
@@ -49,6 +49,10 @@ MonoBehaviour:
   mazingerZ: {fileID: 0}
   greatMazinger: {fileID: 0}
   gundam: {fileID: 0}
+  mazingerZButton: {fileID: 0}
+  greatMazingerButton: {fileID: 0}
+  gundamButton: {fileID: 0}
+  greatMazingerIsReinforcement: 0
   maxSortieUnits: 3
   deploymentPositions:
   - {x: 17, y: 10}

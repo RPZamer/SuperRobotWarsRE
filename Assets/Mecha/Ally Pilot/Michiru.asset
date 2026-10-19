@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PilotBase
   pilotName: Michiru
   level: 1
-  melee: 100
-  ranged: 100
-  defense: 100
+  melee: 145
+  ranged: 145
+  defense: 120
   evade: 100
-  accuracy: 100
-  skill: 100
+  accuracy: 120
+  skill: 110
   morale: 100
   maxSpiritPoints: 100
   terrainRatings:
@@ -60,10 +60,11 @@ MonoBehaviour:
   spirit2: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
   spirit3: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
   spirit4: {fileID: 11400000, guid: f6739056b987aa14999a3a973aca35e9, type: 2}
-  spirit5: {fileID: 0}
-  spirit6: {fileID: 0}
-  onSuccessLines: []
-  defaultPortrait: {fileID: 0}
+  spirit5: {fileID: 11400000, guid: 192439a57fa3af54cac4da2485958808, type: 2}
+  spirit6: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
+  onSuccessLines:
+  - I can take you on
+  defaultPortrait: {fileID: 3240618866788870712, guid: f307718ea9b14364392437aeaa9ed94b, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

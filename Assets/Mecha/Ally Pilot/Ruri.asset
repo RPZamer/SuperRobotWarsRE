@@ -58,9 +58,9 @@ MonoBehaviour:
   getterOverflow: 0
   spirit1: {fileID: 11400000, guid: 24434f7ab9ea3c54cb45d4e2ec6617a0, type: 2}
   spirit2: {fileID: 11400000, guid: 37acd000b9fda9240b5901976f9b99cc, type: 2}
-  spirit3: {fileID: 0}
-  spirit4: {fileID: 0}
-  spirit5: {fileID: 0}
+  spirit3: {fileID: 11400000, guid: de9b109c32b55bd4899427d9b8a9230a, type: 2}
+  spirit4: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit5: {fileID: 11400000, guid: cb90f1260ba03134db521bd75f833c76, type: 2}
   spirit6: {fileID: 0}
   onSuccessLines: []
   defaultPortrait: {fileID: 773273671123853354, guid: 3d1b0607e0cbf9d458cd1d77fa6f21b8, type: 3}

@@ -403,6 +403,15 @@ public static class SpiritSystem
             $"{spiritPilot.PilotName} used {spirit.CommandName}. " +
             $"SP remaining: {caster.GetSpiritPoints(spiritPilot)}");
 
+        BattleUnit affectedUnit = target != null ? target : caster;
+
+        BattleEffects effects = affectedUnit.GetComponent<BattleEffects>();
+
+        if (effects != null)
+        {
+            effects.PlaySkillEffect();
+        }
+
         return true;
     }
 }

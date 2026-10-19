@@ -16,11 +16,11 @@ MonoBehaviour:
   battleSprite: {fileID: -6584631759191363767, guid: 1580c6bebb0a6954cabb0f32512a873f, type: 3}
   menuSprite: {fileID: 0}
   battleTheme: {fileID: 8300000, guid: 7fc1f00c757d4864790cd453e888bedd, type: 3}
-  health: 3200
-  energy: 120
+  health: 5000
+  energy: 150
   movement: 6
-  mobility: 120
-  armor: 1000
+  mobility: 80
+  armor: 1500
   size: 2
   terrainRatings:
     air: 3
@@ -36,7 +36,7 @@ MonoBehaviour:
     attributes: 0
     requiredMode: 0
     requiredMorale: 0
-    canBeParried: 0
+    canBeParried: 1
     requiredNewtypeLevel: 0
     requiredAuraPowerLevel: 0
     statusEffects: 0
@@ -57,10 +57,10 @@ MonoBehaviour:
       ground: 3
       water: 3
       space: 3
-  - weaponName: Drill Pressure Punch
+  - weaponName: Great Typhoon
     damageType: 0
     travelsToTargetTerrain: 0
-    weaponType: 2
+    weaponType: 0
     classification: 0
     attributes: 0
     requiredMode: 0
@@ -74,9 +74,38 @@ MonoBehaviour:
     mapLength: 3
     mapWidth: 3
     mapHitsAllies: 1
+    minRange: 1
+    maxRange: 6
+    power: 2000
+    accuracyModifier: 20
+    criticalModifier: 20
+    energyCost: 20
+    maxAmmo: 0
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
+      space: 3
+  - weaponName: Drill Pressure Punch
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 2
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 1
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
     minRange: 2
     maxRange: 3
-    power: 1700
+    power: 2300
     accuracyModifier: 15
     criticalModifier: 15
     energyCost: 0
@@ -105,7 +134,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 3
-    power: 2500
+    power: 3000
     accuracyModifier: 20
     criticalModifier: 20
     energyCost: 40
@@ -134,7 +163,7 @@ MonoBehaviour:
     mapHitsAllies: 1
     minRange: 1
     maxRange: 5
-    power: 3000
+    power: 3500
     accuracyModifier: 30
     criticalModifier: 10
     energyCost: 70
@@ -143,6 +172,35 @@ MonoBehaviour:
       air: 3
       ground: 3
       water: 1
+      space: 3
+  - weaponName: Great Booster
+    damageType: 0
+    travelsToTargetTerrain: 0
+    weaponType: 0
+    classification: 0
+    attributes: 0
+    requiredMode: 0
+    requiredMorale: 0
+    canBeParried: 0
+    requiredNewtypeLevel: 0
+    requiredAuraPowerLevel: 0
+    statusEffects: 0
+    statusStrength: 10
+    mapShape: 0
+    mapLength: 3
+    mapWidth: 3
+    mapHitsAllies: 1
+    minRange: 1
+    maxRange: 5
+    power: 4200
+    accuracyModifier: 30
+    criticalModifier: 10
+    energyCost: 0
+    maxAmmo: 1
+    terrainRatings:
+      air: 3
+      ground: 3
+      water: 2
       space: 3
   canFly: 1
   shieldHealth: 0
