@@ -64,7 +64,7 @@ MonoBehaviour:
   spirit6: {fileID: 0}
   onSuccessLines:
   - Dan Da Dan! when you have me who needs Koji
-  defaultPortrait: {fileID: 7367577043056571712, guid: 29c7f9440549f60439256846b4e0aa66, type: 3}
+  defaultPortrait: {fileID: -2712256054251217700, guid: 29c7f9440549f60439256846b4e0aa66, type: 3}
   angryPortrait: {fileID: 0}
   madPortrait: {fileID: 0}
   sadPortrait: {fileID: 0}

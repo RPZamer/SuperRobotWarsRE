@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd3be70ca96bae41afa4b68d83c5026, type: 3}
+  m_Name: Level5_RyomaVsChar
+  m_EditorClassIdentifier: Assembly-CSharp::CutsceneData
+  cutsceneName: 
+  lines:
+  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+    emotion: 0
+    dialogue: How about you get of that red mech of yours and start a cozy life with Amuro, there is only room for 1 red mech.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: You talk like you know Amuro and I perfectly.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+    emotion: 0
+    dialogue: You don''t leave much to the imagination.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
+    emotion: 0
+    dialogue: Well you will have plenty to imagine when the Red Comet shoots you down.
+    showPortrait: 1
+  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+    emotion: 0
+    dialogue: I would love to see you try!
+    showPortrait: 1
+  transitionToScene: 0
+  destinationScene: 

@@ -9,6 +9,10 @@ public class CutsceneLine
     public PilotBase pilot;
     public PilotEmotion emotion;
 
+    // WEEK 7: FINAL STAGE - Optionally display a custom speaker name.
+    // Leave empty to use the pilot's normal name.
+    public string speakerNameOverride;
+
     [Header("Dialogue")]
     [TextArea(2, 5)]
     public string dialogue;

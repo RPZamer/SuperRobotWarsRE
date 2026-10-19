@@ -12,84 +12,103 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bd3be70ca96bae41afa4b68d83c5026, type: 3}
   m_Name: Level2_Opening
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneData
-  cutsceneName: Level 2 - Victory
+  cutsceneName: Level 2 - Launch to space
   lines:
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Oh, the Nadesico. That could work!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: 'A white transport ship with a Gravity Blast...
 
 '
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: How did you manage to get the captain to agree to help?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: I told her that if she helped us, that she would be able to see her Akito in the full game.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: She?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: f1f6aee8b11083c44a3fd071f0a45f7b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Don't even think about it Koji
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 66afce49a66d46f47b26d4b276aaf0e2, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Chan Cha Chan! Now the real help is here!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 43757131f16a5284daa37df66447c5ff, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: When Koji contacted Tetsuya, he went ahead and got the rest of us to support you!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Heh, I hope you can handle it.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Don't get too cocky Koji.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Im glad to know everyone is in good spirits here!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: but before we ste off, looks like we have some company to deal with.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: f1f6aee8b11083c44a3fd071f0a45f7b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Remember Koji, Diana and the Getter Q have a repair device to keep your mechs up and running.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 66afce49a66d46f47b26d4b276aaf0e2, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: And I got a resupply device from photon lab!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Actually making the Borot useful huh, well lets get-em guys!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Don't forget that we can't let the Nadeisco get shot down or we won't be able to keep on.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: I know you can all handle it!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Now, on forth, Super Robot Army!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 4e78661fcf68c12489d144d08e86bee6, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Idiots
     showPortrait: 1
   transitionToScene: 0

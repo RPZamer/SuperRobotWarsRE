@@ -232,7 +232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8473676382726844747, guid: ea6546e00bc4e80438029ec5f794d6ba, type: 3}
       propertyPath: m_Name
-      value: Getter Q placeholder
+      value: Getter Q
       objectReference: {fileID: 0}
     - target: {fileID: 9162221244014377103, guid: ea6546e00bc4e80438029ec5f794d6ba, type: 3}
       propertyPath: m_LocalPosition.x
@@ -6706,6 +6706,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 53563040271494900, guid: b829016b733880541bfee7bc3c0291da, type: 3}
   m_PrefabInstance: {fileID: 490648110}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &490648112 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 850463559597450625, guid: b829016b733880541bfee7bc3c0291da, type: 3}
+  m_PrefabInstance: {fileID: 490648110}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -6986,6 +6997,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8590139177930702367, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
   m_PrefabInstance: {fileID: 709114816}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &709114818 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 709114816}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &835755229
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7271,6 +7293,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1171838590}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1171838592 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1171838590}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &1176506040 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
@@ -7337,17 +7370,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyReinforcementReveal
   enemyUnits:
-  - {fileID: 0}
+  - {fileID: 2022372493}
   - {fileID: 8858045}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 709114818}
+  - {fileID: 1171838592}
+  - {fileID: 1465714037}
   alliedUnits:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 1574846822}
+  - {fileID: 490648112}
+  - {fileID: 1907803185}
+  - {fileID: 1771635591}
+  - {fileID: 2030040739}
   fadeDuration: 0.5
   delayBetweenEnemies: 0.3
 --- !u!1001 &1316871224
@@ -7447,6 +7480,10 @@ PrefabInstance:
     - target: {fileID: 148661013785264876, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 674518691655949363, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 748035698433201420, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Pivot.x
@@ -7848,6 +7885,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1465714035}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1465714037 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1465714035}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &1555752616
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8004,6 +8052,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 6223572989912653067, guid: 07992911f61171e4da67f322f6d5beb2, type: 3}
   m_PrefabInstance: {fileID: 1574846820}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1574846822 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2582310608526220184, guid: 07992911f61171e4da67f322f6d5beb2, type: 3}
+  m_PrefabInstance: {fileID: 1574846820}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &1758598626
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8074,6 +8133,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8590139177930702367, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
   m_PrefabInstance: {fileID: 1758598626}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1771635591 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8147655291037576199, guid: 85a3e8ed8d69ffe429233a1d20dae58f, type: 3}
+  m_PrefabInstance: {fileID: 482045454}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &1808454566
 GameObject:
   m_ObjectHideFlags: 0
@@ -8369,6 +8439,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4874773289508328588, guid: 4f7146ef49cf94a4daca1d8bad40181a, type: 3}
   m_PrefabInstance: {fileID: 1907803183}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1907803185 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1708601042787660360, guid: 4f7146ef49cf94a4daca1d8bad40181a, type: 3}
+  m_PrefabInstance: {fileID: 1907803183}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &1923294752
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8655,6 +8736,28 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2196389327976452306, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
   m_PrefabInstance: {fileID: 4482251231403353719}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2022372493 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1037936930}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
+--- !u!114 &2030040739 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6041424333356752676, guid: ea6546e00bc4e80438029ec5f794d6ba, type: 3}
+  m_PrefabInstance: {fileID: 129497065}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &2097613160
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8781,9 +8884,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 1365336938}
   sceneTransition: {fileID: 665353181}
   openingCutscene: {fileID: 11400000, guid: 14e11455a91adce44b666c09a1393773, type: 2}
+  sortieAfterOpeningCutscene: 0
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: 5

@@ -189,6 +189,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 23599490}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &23599492 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 23599490}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &63563717
 GameObject:
   m_ObjectHideFlags: 0
@@ -7368,6 +7379,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 865169959}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &865169961 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 865169959}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &978212464
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7516,11 +7538,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyReinforcementReveal
   enemyUnits:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 4482251231403353720}
+  - {fileID: 2078119612}
+  - {fileID: 1394990860}
+  - {fileID: 865169961}
+  - {fileID: 23599492}
   alliedUnits: []
   fadeDuration: 0.5
   delayBetweenEnemies: 0.3
@@ -7637,6 +7659,10 @@ PrefabInstance:
     - target: {fileID: 148661013785264876, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 674518691655949363, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 748035698433201420, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Pivot.x
@@ -8098,11 +8124,11 @@ PrefabInstance:
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: overworldMusic
       value: 
-      objectReference: {fileID: 8300000, guid: 5f652b1400a054f44b9998a6b290308d, type: 3}
+      objectReference: {fileID: 8300000, guid: 44611f508bdde1b4dbbb169ffd2a6dd8, type: 3}
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: enemyReinforcementMusic
       value: 
-      objectReference: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
+      objectReference: {fileID: 8300000, guid: 91c9c475da1d0bb469aa04880808589d, type: 3}
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: allyReinforcementMusicAlt
       value: 
@@ -8209,6 +8235,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8590139177930702367, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
   m_PrefabInstance: {fileID: 2078119610}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2078119612 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 2078119610}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &2106571072
 GameObject:
   m_ObjectHideFlags: 0
@@ -8238,9 +8275,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 1780256367}
   sceneTransition: {fileID: 665353181}
   openingCutscene: {fileID: 11400000, guid: 24b1a7be3e55321418be03703df80ec5, type: 2}
+  sortieAfterOpeningCutscene: 0
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: -1
@@ -8601,6 +8639,17 @@ PrefabInstance:
       addedObject: {fileID: 23599491}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+--- !u!114 &4482251231403353720 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3204841076768535429, guid: 3695ea11c459be34da55e4389cbf6cb5, type: 3}
+  m_PrefabInstance: {fileID: 4482251231403353719}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &5117294907938600271
 PrefabInstance:
   m_ObjectHideFlags: 0

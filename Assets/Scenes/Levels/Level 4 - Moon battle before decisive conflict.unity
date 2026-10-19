@@ -210,6 +210,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sortie Deployment
       objectReference: {fileID: 0}
+    - target: {fileID: 2488987195055869539, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5801070558638352766, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 1600
@@ -8467,7 +8471,7 @@ PrefabInstance:
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: overworldMusic
       value: 
-      objectReference: {fileID: 8300000, guid: 44611f508bdde1b4dbbb169ffd2a6dd8, type: 3}
+      objectReference: {fileID: 8300000, guid: 7d2e9f7528d0c5f479d3fdb87a50bdf7, type: 3}
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: enemyReinforcementMusic
       value: 
@@ -8685,9 +8689,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 950135120}
   sceneTransition: {fileID: 665353181}
   openingCutscene: {fileID: 11400000, guid: 36e7bdd03e0d13c49beba54544f1e58b, type: 2}
+  sortieAfterOpeningCutscene: 1
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: -1

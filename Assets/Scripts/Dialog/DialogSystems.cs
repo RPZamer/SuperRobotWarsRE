@@ -34,22 +34,29 @@ public class DialogSystem : MonoBehaviour
         }
     }
 
+    // WEEK 7: FINAL STAGE - Support custom speaker names
+    // while preserving normal pilot names and portraits.
     public void DisplayLine(
         PilotBase pilot,
         PilotEmotion emotion,
         string line,
-        bool showPortrait = false)
+        bool showPortrait = false,
+        string speakerNameOverride = "")
     {
         StopTyping();
 
         completeLine = line ?? string.Empty;
 
-        // WEEK 4: Null checks prevent missing dialogue UI references
-        // from stopping the entire battle.
+        // WEEK 7: Use the custom speaker name when provided.
+        // Otherwise, display the assigned pilot's normal name.
         if (speakerNameText != null)
         {
             speakerNameText.text =
-                pilot != null ? pilot.PilotName : string.Empty;
+                !string.IsNullOrWhiteSpace(speakerNameOverride)
+                    ? speakerNameOverride
+                    : pilot != null
+                        ? pilot.PilotName
+                        : string.Empty;
         }
 
         if (dialogueText != null)
@@ -57,6 +64,7 @@ public class DialogSystem : MonoBehaviour
             dialogueText.text = string.Empty;
         }
 
+        // WEEK 7: Preserve existing portrait behavior.
         if (profileBox != null)
         {
             profileBox.sprite =

@@ -235,11 +235,14 @@ public class CutsceneManager : MonoBehaviour
 
                 advanceRequested = false;
 
+                // WEEK 7: FINAL STAGE - Allow individual cutscene lines
+                // to display custom speaker names such as "Everyone".
                 dialogSystem.DisplayLine(
                     line.pilot,
                     line.emotion,
                     line.dialogue,
-                    line.showPortrait);
+                    line.showPortrait,
+                    line.speakerNameOverride);
 
                 // WEEK 6: Wait for the player to advance the dialogue.
                 yield return new WaitUntil(
