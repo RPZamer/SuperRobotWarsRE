@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 6470250168403619401}
   - component: {fileID: 6041424333356752676}
   m_Layer: 0
-  m_Name: Getter Q placeholder
+  m_Name: Getter Q
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

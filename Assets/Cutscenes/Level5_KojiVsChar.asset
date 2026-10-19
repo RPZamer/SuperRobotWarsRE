@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1bd3be70ca96bae41afa4b68d83c5026, type: 3}
-  m_Name: Level5_Victory 1
+  m_Name: Level5_KojiVsChar
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneData
-  cutsceneName: Level 5 - Victory
+  cutsceneName: Level 5 - Koji vs Char
   lines:
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: Char doesn't let up does he.
+    dialogue: I don't know who you think you are, but if you're going to spread war, then Mazinger will be there to protect everyone from you!
     showPortrait: 1
-  - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
+  - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
     emotion: 0
-    dialogue: But it doesn't matter what he throws at us, he won't stop us!
+    dialogue: Your heroics make you see everything only in black and white. A curse, but also your greatest strength.
     showPortrait: 1
-  - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
+  - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: Char is just ahead, be ready everyone!
+    dialogue: How about you stay quite about philosophy and get Rocket Punched!
     showPortrait: 1
   transitionToScene: 0
   destinationScene: 

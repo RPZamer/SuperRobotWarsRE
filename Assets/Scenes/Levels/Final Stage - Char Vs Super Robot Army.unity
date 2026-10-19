@@ -7328,6 +7328,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sortie Deployment
       objectReference: {fileID: 0}
+    - target: {fileID: 2488987195055869539, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5801070558638352766, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchoredPosition.x
       value: 1600
@@ -8577,6 +8581,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 26
       objectReference: {fileID: 0}
+    - target: {fileID: 674518691655949363, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 350
+      objectReference: {fileID: 0}
     - target: {fileID: 748035698433201420, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -9794,11 +9802,11 @@ PrefabInstance:
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: overworldMusic
       value: 
-      objectReference: {fileID: 8300000, guid: 5f652b1400a054f44b9998a6b290308d, type: 3}
+      objectReference: {fileID: 8300000, guid: 994721be9bd9eb342b0fc8f02d6fbcd2, type: 3}
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: enemyReinforcementMusic
       value: 
-      objectReference: {fileID: 8300000, guid: 11c00b3b4f351b24ca03e22ced085f4e, type: 3}
+      objectReference: {fileID: 8300000, guid: 91c9c475da1d0bb469aa04880808589d, type: 3}
     - target: {fileID: 9020928647298297249, guid: 5dbebcd43ad595347bf602b431cdfe73, type: 3}
       propertyPath: allyReinforcementMusicAlt
       value: 
@@ -10255,11 +10263,19 @@ PrefabInstance:
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: victoryCutscene
       value: 
-      objectReference: {fileID: 11400000, guid: a3591910599bd1f41b403116415bbd76, type: 2}
+      objectReference: {fileID: 11400000, guid: d28c789f8f3b2c34f886e6cb131e5562, type: 2}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: enemyObjectiveUnit
       value: 
       objectReference: {fileID: 4822278370739641011}
+    - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
+      propertyPath: kojiVsCharCutscene
+      value: 
+      objectReference: {fileID: 11400000, guid: ed9647b1238c266479fa4c05d4fe79c6, type: 2}
+    - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
+      propertyPath: amuroVsCharCutscene
+      value: 
+      objectReference: {fileID: 11400000, guid: 6a5a08b06ad79a445a6b43b0e22f46a1, type: 2}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: charArrivalCutscene
       value: 
@@ -10268,6 +10284,10 @@ PrefabInstance:
       propertyPath: playerObjectiveUnit
       value: 
       objectReference: {fileID: 4482251231403353720}
+    - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
+      propertyPath: ryomaVsCharCutscene
+      value: 
+      objectReference: {fileID: 11400000, guid: 3ba914ad5851ef44b958c197d67b8169, type: 2}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: finalStageReinforcements
       value: 
