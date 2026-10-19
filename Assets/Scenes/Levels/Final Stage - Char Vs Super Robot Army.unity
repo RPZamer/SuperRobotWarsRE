@@ -7906,6 +7906,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8590139177930702367, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
   m_PrefabInstance: {fileID: 875841121}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &875841123 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 875841121}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &935843972
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7976,6 +7987,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8590139177930702367, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
   m_PrefabInstance: {fileID: 935843972}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &935843974 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 935843972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &951109393
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8370,11 +8392,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyReinforcementReveal
   enemyUnits:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 4822278370739641011}
+  - {fileID: 1195466190}
+  - {fileID: 935843974}
+  - {fileID: 875841123}
+  - {fileID: 1951501721}
   alliedUnits: []
   fadeDuration: 0.5
   delayBetweenEnemies: 0.3
@@ -8440,6 +8462,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1195466188}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1195466190 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1195466188}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &1235683962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9852,6 +9885,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1951501719}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1951501721 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1951501719}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &1994994358
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10104,13 +10148,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ecf0892679f6453488c52e70663aac9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CutsceneManager
-  dialogSystem: {fileID: 0}
+  dialogSystem: {fileID: 1235683968}
   sceneTransition: {fileID: 665353181}
-  openingCutscene: {fileID: 11400000, guid: 24b1a7be3e55321418be03703df80ec5, type: 2}
+  openingCutscene: {fileID: 11400000, guid: a3591910599bd1f41b403116415bbd76, type: 2}
+  sortieAfterOpeningCutscene: 1
   reinforcementReveal: {fileID: 1179897697}
   battleMusic: {fileID: 1848334065}
   alliedReinforcementAfterLine: -1
-  enemyReinforcementAfterLine: 13
+  enemyReinforcementAfterLine: -1
   skipDialogueInterval: 0.08
 --- !u!4 &2106571074
 Transform:
@@ -10210,15 +10255,23 @@ PrefabInstance:
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: victoryCutscene
       value: 
-      objectReference: {fileID: 11400000, guid: 50dc70677b23dba408290f2539c82b1d, type: 2}
+      objectReference: {fileID: 11400000, guid: a3591910599bd1f41b403116415bbd76, type: 2}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: enemyObjectiveUnit
       value: 
       objectReference: {fileID: 4822278370739641011}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
+      propertyPath: charArrivalCutscene
+      value: 
+      objectReference: {fileID: 11400000, guid: ff3dfe46a4390cd49a40ce2f8555465c, type: 2}
+    - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: playerObjectiveUnit
       value: 
       objectReference: {fileID: 4482251231403353720}
+    - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
+      propertyPath: finalStageReinforcements
+      value: 
+      objectReference: {fileID: 1179897697}
     - target: {fileID: 3631214903243623898, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: m_Name
       value: Battle System

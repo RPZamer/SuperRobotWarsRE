@@ -27,12 +27,12 @@ public class EnemyReinforcementReveal : MonoBehaviour
     private bool allyRevealStarted;
 
     // WEEK 7: FINAL STAGE REINFORCEMENTS
-    // Identify enemies that have not been revealed yet.
+    // Keep reinforcements unavailable until their reveal finishes.
     public bool IsWaitingEnemy(BattleUnit unit)
     {
         return unit != null &&
                enemyUnits.Contains(unit) &&
-               !enemyRevealStarted;
+               enemiesHidden;
     }
 
     // WEEK 7: FINAL STAGE REINFORCEMENTS

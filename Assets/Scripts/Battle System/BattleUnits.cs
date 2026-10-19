@@ -516,12 +516,37 @@ public class BattleUnit : MonoBehaviour
     }
 
     // WEEK 3: Check that an extra adjacent target is a living enemy with pilot and mech data.
-    // WEEK 5 CHANGES PLEASE READ: Combined components remain actual unit objects so Separate can restore them.
-    // Their hidden objects must not attack or become independent combat targets while part of another mech.
-    // This guard keeps the ordinary team/health checks and rejects both a hidden target and a hidden attacker.
+    // WEEK 7: FINAL STAGE REINFORCEMENTS
+    // Prevent unrevealed reinforcements from being targeted.
     public bool CanBeTargetedBy(BattleUnit attacker)
     {
-        return attacker != null && !attacker.IsDocked && !attacker.IsCombinedComponent && !IsCombinedComponent && Team != attacker.Team && !IsDefeated && !IsDocked && mech != null && pilot != null;
+        // WEEK 7: Preserve all existing targeting restrictions.
+        if (attacker == null ||
+            attacker.IsDocked ||
+            attacker.IsCombinedComponent ||
+            IsCombinedComponent ||
+            Team == attacker.Team ||
+            IsDefeated ||
+            IsDocked ||
+            mech == null ||
+            pilot == null)
+        {
+            return false;
+        }
+
+        // WEEK 7: Find the reinforcement controller for this scene.
+        EnemyReinforcementReveal reinforcementReveal =
+            FindFirstObjectByType<EnemyReinforcementReveal>();
+
+        // WEEK 7: Hidden reinforcements cannot be attacked
+        // until their arrival sequence begins.
+        if (reinforcementReveal != null &&
+            reinforcementReveal.IsWaitingEnemy(this))
+        {
+            return false;
+        }
+
+        return true;
     }
 
     // WEEK 4: MOTHERSHIP - Pay EN and one round together, once per attack, even on a miss.
