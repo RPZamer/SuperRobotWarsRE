@@ -8459,6 +8459,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 783281108}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &866283962 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 504724813}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1001 &875841121
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9163,11 +9174,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyReinforcementReveal
   enemyUnits:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 4822278370739641011}
+  - {fileID: 1782737621}
+  - {fileID: 866283962}
+  - {fileID: 1418622418}
+  - {fileID: 1528549786}
   alliedUnits: []
   fadeDuration: 0.5
   delayBetweenEnemies: 0.3
@@ -10049,6 +10060,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1387832952}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1418622418 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 951109393}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &1422951926
 GameObject:
   m_ObjectHideFlags: 0
@@ -10240,6 +10262,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1528549784}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1528549786 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3892124508234128323, guid: ef040f17596814949b1246d7df87fd85, type: 3}
+  m_PrefabInstance: {fileID: 1528549784}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &1659713994
 GameObject:
   m_ObjectHideFlags: 0
@@ -10532,6 +10565,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3824785375742684317, guid: ef040f17596814949b1246d7df87fd85, type: 3}
   m_PrefabInstance: {fileID: 1735546487}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1782737621 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5674167718081064850, guid: 6f566024e93d33e49a8a22bcfb0733c7, type: 3}
+  m_PrefabInstance: {fileID: 1313587065}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
 --- !u!1 &1808454566
 GameObject:
   m_ObjectHideFlags: 0

@@ -56,12 +56,12 @@ MonoBehaviour:
   clearMind: 0
   battler: 0
   getterOverflow: 0
-  spirit1: {fileID: 11400000, guid: 6edc0b0cebcc5464e85756d59d76872b, type: 2}
+  spirit1: {fileID: 11400000, guid: 1a47f97882802c649ae7a47565478cb8, type: 2}
   spirit2: {fileID: 11400000, guid: d8073cc4578b8654e96fae6c37ffabda, type: 2}
   spirit3: {fileID: 11400000, guid: cdc50405f5ade01459fcfd9965c894c6, type: 2}
-  spirit4: {fileID: 11400000, guid: 1d42c17c54bbe84439b07239c8b0fadc, type: 2}
+  spirit4: {fileID: 11400000, guid: 557227f052265b94baa1b99fe54f2e69, type: 2}
   spirit5: {fileID: 11400000, guid: a363d0b2849d6a44d9f386dc76d1ed7a, type: 2}
-  spirit6: {fileID: 11400000, guid: d89de4f3bbbf83e4cbbff0963f602781, type: 2}
+  spirit6: {fileID: 0}
   onSuccessLines:
   - Down it goes
   defaultPortrait: {fileID: 4784539839655129246, guid: bbd2d68eb0339c542b11307aebc09f38, type: 3}
