@@ -7581,6 +7581,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1558589085728746887, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: m_VertexColorAlwaysGammaSpace
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1618161946306391404, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -7904,6 +7908,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2007392315}
     m_Modifications:
+    - target: {fileID: 2885243087400331778, guid: 7ab9c9894e1dc8b4c9d53150ecf635e5, type: 3}
+      propertyPath: m_DrawMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2885243087400331778, guid: 7ab9c9894e1dc8b4c9d53150ecf635e5, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
     - target: {fileID: 4642935125860324112, guid: 7ab9c9894e1dc8b4c9d53150ecf635e5, type: 3}
       propertyPath: startingPosition.x
       value: 4

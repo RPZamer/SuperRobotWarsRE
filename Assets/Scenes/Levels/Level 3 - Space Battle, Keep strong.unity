@@ -29481,11 +29481,11 @@ PrefabInstance:
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: enemyObjectiveUnit
       value: 
-      objectReference: {fileID: 1225498011}
+      objectReference: {fileID: 4482251231403353720}
     - target: {fileID: 2553632033691845991, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: playerObjectiveUnit
       value: 
-      objectReference: {fileID: 4482251231403353720}
+      objectReference: {fileID: 1225498011}
     - target: {fileID: 3631214903243623898, guid: 2f432f9a885edd045a25ebb699424f95, type: 3}
       propertyPath: m_Name
       value: Battle System
