@@ -6472,7 +6472,8 @@ PrefabInstance:
       propertyPath: m_Tiles.Array.data[385].second.m_TileColorIndex
       value: 1
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 8460037940041937923, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
