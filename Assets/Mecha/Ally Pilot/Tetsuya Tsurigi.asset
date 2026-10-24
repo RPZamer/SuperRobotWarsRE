@@ -31,7 +31,7 @@ MonoBehaviour:
   saveELevel: 1
   potentialLevel: 6
   supportAttackLevel: 2
-  secondAttackLevel: 1
+  secondAttackLevel: 0
   supportDefendLevel: 0
   fightersSpiritLevel: 0
   breakMoraleLimitLevel: 0
