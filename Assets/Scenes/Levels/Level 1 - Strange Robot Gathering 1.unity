@@ -378,11 +378,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5240319518447736802, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5240319518447736802, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5240319518447736802, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6919,10 +6919,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1176506043}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
 --- !u!1001 &364405919
 PrefabInstance:
@@ -7467,32 +7464,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80b1abcbd856d8042ac32cf3267a66dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleUnit
---- !u!1839735485 &985161428 stripped
-Tilemap:
-  m_CorrespondingSourceObject: {fileID: 6970392572373139877, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
-  m_PrefabInstance: {fileID: 174391826}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1176506040 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 5089801972470094036, guid: 7ee4e41d5d4ba9f46b2f5b5b230ddf84, type: 3}
-  m_PrefabInstance: {fileID: 174391826}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1176506043
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1176506040}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 424c49dc50a8ba14dac23eb715d85853, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TerrainDetector
-  terrainTilemap: {fileID: 985161428}
-  battlefield: {fileID: 2007392314}
-  defaultTerrain: 1
-  terrainCells: []
 --- !u!1 &1179897695
 GameObject:
   m_ObjectHideFlags: 0
@@ -7660,10 +7631,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 674518691655949363, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 350
-      objectReference: {fileID: 0}
     - target: {fileID: 748035698433201420, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -7779,10 +7746,6 @@ PrefabInstance:
     - target: {fileID: 2545191091701894968, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Name
       value: W4 UI
-      objectReference: {fileID: 0}
-    - target: {fileID: 2545191091701894968, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3068066549724907795, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_AnchorMax.y
@@ -8666,10 +8629,6 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 519420031}
-    - target: {fileID: 1782842038480981538, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
-      propertyPath: m_AdditionalShaderChannelsFlag
-      value: 25
-      objectReference: {fileID: 0}
     - target: {fileID: 8687095800101834179, guid: 5049b9dc8235e754bbfe80d6bd11b3af, type: 3}
       propertyPath: m_Name
       value: Battle Canvas
