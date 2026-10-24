@@ -26787,7 +26787,7 @@ PrefabInstance:
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: evadeButton
       value: 
-      objectReference: {fileID: 615586224}
+      objectReference: {fileID: 615586222}
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: defendButton
       value: 
@@ -26803,7 +26803,7 @@ PrefabInstance:
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: counterButton
       value: 
-      objectReference: {fileID: 615586225}
+      objectReference: {fileID: 615586224}
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: reactionPanel
       value: 
@@ -26819,7 +26819,7 @@ PrefabInstance:
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: beginCombatButton
       value: 
-      objectReference: {fileID: 615586222}
+      objectReference: {fileID: 615586218}
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: getterChangeButton
       value: 
@@ -26827,7 +26827,7 @@ PrefabInstance:
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: reactionPreviewText
       value: 
-      objectReference: {fileID: 615586218}
+      objectReference: {fileID: 615586225}
     - target: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: passengerRowTemplate
       value: 
@@ -27240,15 +27240,15 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &615586218 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7686904186050093643, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1211335963220546026, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
   m_PrefabInstance: {fileID: 615586214}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &615586219 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 232566731468087083, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
@@ -27284,7 +27284,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatHUD
 --- !u!114 &615586222 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1828641821440390138, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_CorrespondingSourceObject: {fileID: 8474966410150563243, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
   m_PrefabInstance: {fileID: 615586214}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -27295,7 +27295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &615586223 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7366579102944692244, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7234928412846231139, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
   m_PrefabInstance: {fileID: 615586214}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -27306,7 +27306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &615586224 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8986468425956438718, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_CorrespondingSourceObject: {fileID: 5029844641440375006, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
   m_PrefabInstance: {fileID: 615586214}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
@@ -27317,15 +27317,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
 --- !u!114 &615586225 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 6554438148641149586, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+  m_CorrespondingSourceObject: {fileID: 7563441019686735495, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
   m_PrefabInstance: {fileID: 615586214}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!225 &615586226 stripped
 CanvasGroup:
   m_CorrespondingSourceObject: {fileID: 8737425004630465914, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
@@ -27677,7 +27677,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 743967057118815451, guid: 85a3e8ed8d69ffe429233a1d20dae58f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 743967057118815451, guid: 85a3e8ed8d69ffe429233a1d20dae58f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -27721,7 +27721,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8147655291037576199, guid: 85a3e8ed8d69ffe429233a1d20dae58f, type: 3}
       propertyPath: startingPosition.x
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 8147655291037576199, guid: 85a3e8ed8d69ffe429233a1d20dae58f, type: 3}
       propertyPath: startingPosition.y
@@ -28870,7 +28870,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3798990985003920895, guid: 971df53ba1e1a2c48aefc90adff4b260, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3
+      value: 3.5
       objectReference: {fileID: 0}
     - target: {fileID: 3798990985003920895, guid: 971df53ba1e1a2c48aefc90adff4b260, type: 3}
       propertyPath: m_LocalPosition.y
@@ -28914,7 +28914,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7115629601215252718, guid: 971df53ba1e1a2c48aefc90adff4b260, type: 3}
       propertyPath: startingPosition.x
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7115629601215252718, guid: 971df53ba1e1a2c48aefc90adff4b260, type: 3}
       propertyPath: startingPosition.y
