@@ -16,50 +16,62 @@ MonoBehaviour:
   lines:
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: Woah! That's a lot of enemies
+    speakerNameOverride: 
+    dialogue: Woah! That's a lot of enemies...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ec010821aa8d52942ae662822e5b7d02, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: It looks like we are on the right track. No choice but to break through them.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
-    dialogue: It looks like they are all coming from the moon, so clean up everyone and we can get there as soon as possible.
+    speakerNameOverride: 
+    dialogue: It looks like they are all coming from the moon, so clean  everyone out and  we can get there as soon as possible.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: And when we finally find him we can figure out what Char wants.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: You're pretty obessed with Char, aren't you?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: You know that if you keep that up people might start getting the wrong idea.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: What do you mean?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: He means you and Char are like Akito and I!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: What!?! Noo Way!!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 4e78661fcf68c12489d144d08e86bee6, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Idiots...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Annnyways... Not all our of units are built for space combat, and we have limited resources, so everyone plan accordingly when you launch!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Got it!
     showPortrait: 1
   transitionToScene: 0

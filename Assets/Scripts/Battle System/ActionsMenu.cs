@@ -478,8 +478,12 @@ public class ActionsMenu : MonoBehaviour
                         hasPassengers = true;
                         break;
                     }
-            hangarButton.gameObject.SetActive(hasPassengers);
-            hangarButton.interactable = HasHangarUI;
+            // WEEK 8: ACTION MENU BUG FIX
+            // Keep the Hangar button visible even when unavailable.
+            // Only allow interaction when the selected mothership
+            // has passengers and its Hangar UI is configured.
+            hangarButton.gameObject.SetActive(true);
+            hangarButton.interactable = hasPassengers && HasHangarUI;
         }
         // WEEK 6 CHANGES PLEASE READ - WEEK 6 DEBUG: The Hangar button previously exposed no explanation for missing or disabled UI.
         // This diagnostic runs when a ship's actions are displayed and reports its passengers, button state and individual required references.
@@ -546,11 +550,23 @@ public class ActionsMenu : MonoBehaviour
         SetSkillButton(repairButton, mech.RepairDevice, repair);
         SetSkillButton(resupplyButton, mech.ResupplyDevice, resupply);
     }
+    // WEEK 8: ACTION MENU BUG FIX
+    // Keep mech ability buttons visible instead of hiding them.
+    // Unavailable abilities appear faded and cannot be clicked.
+    // Preserve the existing ability eligibility checks.
     private static void SetSkillButton(Button button, bool visible, bool available)
     {
-        if (button == null) return;
-        button.gameObject.SetActive(visible);
-        button.interactable = available;
+        if (button == null)
+        {
+            return;
+        }
+
+        // WEEK 8: Keep the button visible in the action menu.
+        button.gameObject.SetActive(true);
+
+        // WEEK 8: Only allow clicking when the mech has the
+        // required ability and its conditions are satisfied.
+        button.interactable = visible && available;
     }
 
     // WEEK 6 CHANGES PLEASE READ: The same weapon list now serves ordinary attacks and the pending counter choice.

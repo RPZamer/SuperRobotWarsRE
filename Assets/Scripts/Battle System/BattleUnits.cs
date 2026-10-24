@@ -278,11 +278,13 @@ public class BattleUnit : MonoBehaviour
     public bool IsDefeated => CurrentHealth <= 0;
     private void Awake()
     {
-        // WEEK 3: Cache the SpriteRenderer and remember its normal color.
-        // The Unit Selection System uses these values to visually distinguish
-        // the currently selected player unit without permanently changing its appearance.
+        // WEEK 8 BUG FIX: Cache the SpriteRenderer and preserve its visible color.
+        // Reinforcement units may be hidden before BattleUnit initializes.
+        // Prevent the normal visual state from restoring a transparent sprite.
         spriteRenderer = GetComponent<SpriteRenderer>();
+
         normalColor = spriteRenderer.color;
+        normalColor.a = 1f;
 
         // WEEK 3: Initialize the mech's current battle health and energy
         // using the newer MechBase data used by the battle system.

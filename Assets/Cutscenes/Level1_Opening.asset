@@ -16,102 +16,127 @@ MonoBehaviour:
   lines:
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: Well this is something
+    speakerNameOverride: 
+    dialogue: Well this is something...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
-    dialogue: I get the getter team and you showing up together, but not every day you see the White Meteor with us
+    speakerNameOverride: 
+    dialogue: I get the getter team and you showing up together, but it's not every day that you see the White Meteor with us.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: "please don\u2019t call me that, im nobody special"
+    speakerNameOverride: 
+    dialogue: "Please don\u2019t call me that, I'm not anyone  special."
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: "Nobody special?! You\u2019re THE gundam pilot"
+    speakerNameOverride: 
+    dialogue: "Nobody special?! You\u2019re the Gundam pilot!!"
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
     emotion: 0
-    dialogue: Yeah, when you think about it, all of us here are special
+    speakerNameOverride: 
+    dialogue: Yeah, when you really think about it, all of us here are special!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Even me, right guys?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: ...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: ...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: ...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
     emotion: 0
-    dialogue: awe come on guys, I can carry myself, I promise. I have the GUTS for it
+    speakerNameOverride: 
+    dialogue: Aww! Come on guys, I can hold my own, I promise. I have the GUTS for it!!!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: your not Noriko
+    speakerNameOverride: 
+    dialogue: You're not Noriko...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
-    dialogue: is Noriko even in this demo?
+    speakerNameOverride: 
+    dialogue: Is Noriko even in this demo?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: heck if I know
+    speakerNameOverride: 
+    dialogue: Heck if I know...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: "looks like we don\u2019t have time to think about that, look!"
+    speakerNameOverride: 
+    dialogue: "Looks like we don\u2019t have time to think about that. Attention! We have incoming!!!"
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Zakus?! Is Zeon after us?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: and Mechanical Beasts! Zeon must be working with Dr. Hell
+    speakerNameOverride: 
+    dialogue: We have Mechanical Beasts too!?! Zeon must be working with Dr. Hell!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: "no, I don\u2019t think so. Besides, that\u2019s too big for a demo"
+    speakerNameOverride: 
+    dialogue: "No, I don\u2019t think so. Besides, that\u2019s too big for a demo."
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
     emotion: 0
-    dialogue: what could it be then?
+    speakerNameOverride: 
+    dialogue: What could it be then?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: Char.
+    speakerNameOverride: 
+    dialogue: Char...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: He must be testing us to see if we can make it to him in this "demo war"
+    speakerNameOverride: 
+    dialogue: 'He must be testing us to see if we can make it to him in this "demo war". '
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: in that case all we have to do is smash them all!!!
+    speakerNameOverride: 
+    dialogue: In that case all we have to do is smash them all!!!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: lets go everyone! We are the dream team after all!
+    speakerNameOverride: 
+    dialogue: Lets go everyone! We are the dream team after all!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Lauching the Gundam!!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Change Getter 1, Switch on!
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Mazing-GO!
     showPortrait: 1
   transitionToScene: 0

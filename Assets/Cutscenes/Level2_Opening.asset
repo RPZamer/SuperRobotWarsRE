@@ -44,7 +44,7 @@ MonoBehaviour:
   - pilot: {fileID: 11400000, guid: f1f6aee8b11083c44a3fd071f0a45f7b, type: 2}
     emotion: 0
     speakerNameOverride: 
-    dialogue: Don't even think about it Koji
+    dialogue: Don't even think about it Koji.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 66afce49a66d46f47b26d4b276aaf0e2, type: 2}
     emotion: 0
@@ -74,7 +74,7 @@ MonoBehaviour:
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
     speakerNameOverride: 
-    dialogue: but before we ste off, looks like we have some company to deal with.
+    dialogue: But before we set off, looks like we have some company to deal with.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: f1f6aee8b11083c44a3fd071f0a45f7b, type: 2}
     emotion: 0
@@ -109,7 +109,7 @@ MonoBehaviour:
   - pilot: {fileID: 11400000, guid: 4e78661fcf68c12489d144d08e86bee6, type: 2}
     emotion: 0
     speakerNameOverride: 
-    dialogue: Idiots
+    dialogue: Idiots...
     showPortrait: 1
   transitionToScene: 0
   destinationScene: 

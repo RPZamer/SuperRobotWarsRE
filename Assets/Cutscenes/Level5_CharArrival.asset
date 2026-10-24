@@ -72,7 +72,7 @@ MonoBehaviour:
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
     speakerNameOverride: 
-    dialogue: Must be the "Original"
+    dialogue: Must be the "Original"...
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
     emotion: 0

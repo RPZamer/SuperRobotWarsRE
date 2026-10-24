@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ff59f99ce25e84040af58625d311d308, type: 3}
-  m_Name: Attune
+  m_Name: Rouse
   m_EditorClassIdentifier: Assembly-CSharp::SpiritCommandBase
-  commandName: Attune
+  commandName: Rouse
   description: Raises one allied unit's Morale by 10
   commandType: 4
   effect: 22

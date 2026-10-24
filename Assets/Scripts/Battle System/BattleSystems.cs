@@ -2252,15 +2252,18 @@ public class BattleSystem : MonoBehaviour
         selectionStep = SelectionStep.Movement;
         battlefield.ShowMovement(selectedUnit);
 
-        // WEEK 4: MOTHERSHIP - Transport actions must also be accessible when no enemy is nearby.
-        // WEEK 5 CHANGES PLEASE READ: WEEK 5 GETTER previously left fresh units in the movement view when no enemy or ship was nearby.
-        // A Getter with an available form change must also open its action menu so the new W5 button is reachable immediately on selection.
-        // Adding this eligibility case preserves ordinary unit selection and does not reset movement or grant another action.
-        if (selectedUnit.HasMoved || HasAnyTarget() || CanBoardSelected() || selectedUnit.GetComponent<Mothership>() != null ||
-            MechSkillEffect.NextGetterForm(selectedUnit) != null)
-        {
-            ShowActions();
-        }
+        // WEEK 8 BUG FIX: Always display the Action Menu when selecting
+        // an available player unit, regardless of nearby enemies,
+        // movement status, boarding options, or Getter transformations.
+        //
+        // Previously, units without available targets or special actions
+        // remained in Movement mode until they moved.
+        // This caused inconsistent behavior for Venus, Mazinger Z,
+        // and Gundam in Levels 1 and 2.
+        //
+        // Existing HasActed checks above still prevent units that
+        // completed their actions from receiving another turn.
+        ShowActions();
     }
 
     // WEEK 6: Check the clicked enemy and open confirmation for the chosen weapon.
@@ -2507,16 +2510,35 @@ public class BattleSystem : MonoBehaviour
                 this);
         }
 
-        // WEEK 6: Transition only after the victory dialogue finishes.
+        // WEEK 8 BUG FIX: The Final Stage must transition to Credits
+        // instead of Intermission after the victory cutscene finishes.
+        //
+        // Final Stage is identified by its assigned Week 7 reinforcement
+        // controller and Char arrival cutscene.
+        // All earlier levels retain their normal Intermission transition.
+        bool isFinalStage =
+            finalStageReinforcements != null &&
+            charArrivalCutscene != null;
+
+        string destinationScene = isFinalStage
+            ? "Credits"
+            : "Intermission";
+
+        // WEEK 8 BUG FIX: Transition to the correct destination
+        // only after the victory dialogue has finished.
         if (sceneTransition != null)
         {
-            sceneTransition.FadeToScene("Intermission");
+            Debug.Log(
+                $"[WEEK 8 BUG FIX] Victory complete. Loading {destinationScene}.",
+                this);
+
+            sceneTransition.FadeToScene(destinationScene);
         }
         else
         {
             Debug.LogWarning(
-                "SceneTransition component is not assigned. " +
-                "Cannot transition to Intermission scene.",
+                $"SceneTransition component is not assigned. " +
+                $"Cannot transition to {destinationScene} scene.",
                 this);
         }
     }

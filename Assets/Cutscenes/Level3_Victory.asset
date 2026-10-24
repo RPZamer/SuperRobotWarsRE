@@ -16,7 +16,8 @@ MonoBehaviour:
   lines:
   - pilot: {fileID: 11400000, guid: b4972229f68a26b4ca5272812f5d9743, type: 2}
     emotion: 0
-    dialogue: All enemies routed, now off to the moon!
+    speakerNameOverride: 
+    dialogue: All enemies destroyed, now off to the moon!
     showPortrait: 1
   transitionToScene: 0
   destinationScene: 

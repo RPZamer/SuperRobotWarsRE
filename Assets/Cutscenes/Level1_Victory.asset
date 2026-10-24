@@ -16,31 +16,38 @@ MonoBehaviour:
   lines:
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: hehe, serves them right. So where to now?
+    speakerNameOverride: 
+    dialogue: Hah Hah! Serves them right! So where to now?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: well Char is with Zeon, and Zeon is in space, so we need to go there I guess.
+    speakerNameOverride: 
+    dialogue: Well Char is with Zeon, and Zeon is in space, so I'm guessing that we need to go there?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
-    dialogue: but we would need a ship to get to space, so we need to go ther I guess.
+    speakerNameOverride: 
+    dialogue: But we would need a ship to get to space, so we would need to go there to get that accomplished.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: c7a96261f43436c4abb7b9c0ce8c4086, type: 2}
     emotion: 0
-    dialogue: no, I don't think so. Something about it not fitting in with the time had or lack of sprites or something.
+    speakerNameOverride: 
+    dialogue: No, I don't think so. Something about it not fitting in with the time they had to complete the demo, or the lack of sprites or something.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: ae3af38c8b715514e99a2923e7974548, type: 2}
     emotion: 0
-    dialogue: what do we do then?
+    speakerNameOverride: 
+    dialogue: What do we do then?
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 6c5c9a7f2695ae34ba63db5ad62a57dc, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: I think I know where we can go.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: b06bacec7d0355448a4bb23bac5f4496, type: 2}
     emotion: 0
-    dialogue: well if you got a plan, i'll gather Tetsuya and the others and we can go there!
+    speakerNameOverride: 
+    dialogue: Well if you got a plan, I'll gather Tetsuya and the others and we can go there!
     showPortrait: 1
   transitionToScene: 0
   destinationScene: 

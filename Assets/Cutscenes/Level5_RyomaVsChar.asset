@@ -16,22 +16,27 @@ MonoBehaviour:
   lines:
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
-    dialogue: How about you get of that red mech of yours and start a cozy life with Amuro, there is only room for 1 red mech.
+    speakerNameOverride: 
+    dialogue: How about you get of that red mech of yours and start a cozy life with Amuro, there is only room for one red mech.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: You talk like you know Amuro and I perfectly.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: You don''t leave much to the imagination.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 4eaa01649e68c3e4bb9a59c04a541ec4, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: Well you will have plenty to imagine when the Red Comet shoots you down.
     showPortrait: 1
   - pilot: {fileID: 11400000, guid: 3e44d288864a64349b6d1bdcc7bc827b, type: 2}
     emotion: 0
+    speakerNameOverride: 
     dialogue: I would love to see you try!
     showPortrait: 1
   transitionToScene: 0
