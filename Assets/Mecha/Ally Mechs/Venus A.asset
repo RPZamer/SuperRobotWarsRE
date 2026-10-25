@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Venus A
   battleSprite: {fileID: -2613398261870505282, guid: d17853f22d8681e4a8f0f65201dcd14c, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: -306303812309448848, guid: 3b439f1efe8165949b4bd3bd11ab2e44, type: 3}
   battleTheme: {fileID: 8300000, guid: 7fc1f00c757d4864790cd453e888bedd, type: 3}
   health: 4500
   energy: 130

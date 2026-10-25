@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Nadesico
   battleSprite: {fileID: 5651881652614053937, guid: 8982d9816e0032b478a56426c20c270a, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: -1738967240569753814, guid: 5f2f914f150bdbc4289384971921e2da, type: 3}
   battleTheme: {fileID: 8300000, guid: 51c584ba5e34a034aac14f3abdc96f3e, type: 3}
   health: 12000
   energy: 200

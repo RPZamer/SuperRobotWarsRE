@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Boss Borot
   battleSprite: {fileID: 7639429424499072678, guid: b1649902fd17929438d34e968d70439d, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: 8867563321769730624, guid: 642aef80be8c7a34ca9df22a68875465, type: 3}
   battleTheme: {fileID: 8300000, guid: a857ea296b3c8ea4fa19ff4fc91f348b, type: 3}
   health: 4200
   energy: 100

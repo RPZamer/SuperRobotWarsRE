@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Diana A
   battleSprite: {fileID: -5828169928009533628, guid: be004da89ed2e2e4fb94b59b1d7fb28f, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: -2243913185794921107, guid: f90a7d6d65548a847ad925ad1247b0ea, type: 3}
   battleTheme: {fileID: 8300000, guid: a857ea296b3c8ea4fa19ff4fc91f348b, type: 3}
   health: 4300
   energy: 130

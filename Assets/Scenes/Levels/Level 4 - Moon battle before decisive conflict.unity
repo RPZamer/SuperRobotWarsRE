@@ -224,7 +224,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 675529021256083802, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -335
+      value: -333.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 675529021256083802, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -70.4
       objectReference: {fileID: 0}
     - target: {fileID: 1013747503154278913, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchorMax.y
@@ -296,6 +300,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3571593877318563842, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4074175695803357636, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4172732670717438114, guid: 7aaacce24c1c7d8429fb0df75a437d00, type: 3}
@@ -9134,6 +9142,10 @@ PrefabInstance:
       propertyPath: flightButton
       value: 
       objectReference: {fileID: 156733968}
+    - target: {fileID: 712515042930255542, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -7.949524
+      objectReference: {fileID: 0}
     - target: {fileID: 748035698433201420, guid: cbc944d797117d54e81b1d1c912446ac, type: 3}
       propertyPath: m_Pivot.x
       value: 0

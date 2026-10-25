@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Getter Q
   battleSprite: {fileID: 1703320063166510317, guid: 5499c5759a203f74cafcbbf01bef269c, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: -6101561366432871191, guid: 768d739c5a8c154429fe19cacefdb4ef, type: 3}
   battleTheme: {fileID: 8300000, guid: 10d1fddabc045054cb280c2550751b77, type: 3}
   health: 4500
   energy: 130

@@ -32,6 +32,12 @@ public class IntermissionMenu : MonoBehaviour
 
     [Header("Mechs")]
     [SerializeField] private List<MechBase> mechs = new();
+    [Header("Mech Availability")]
+    [SerializeField] private List<GameObject> mechButtons = new();
+    [Header("Getter Forms")]
+    
+    [SerializeField] private GameObject getterFormsPanel;
+
     [SerializeField] private TMP_Text mechInfoText;
     [SerializeField] private GameObject mechInfoBox;
     [SerializeField] private GameObject weaponsBox;
@@ -331,6 +337,11 @@ public class IntermissionMenu : MonoBehaviour
         mainMenu.SetActive(false);
         mechsPanel.SetActive(true);
 
+        UpdateMechAvailability();
+        if(getterFormsPanel != null)
+        {
+            getterFormsPanel.SetActive(false);
+        }
         mechInfoBox.SetActive(false);
         weaponsBox.SetActive(false);
 
@@ -356,10 +367,76 @@ public class IntermissionMenu : MonoBehaviour
         if(mechImage != null)
         {
             mechImage.sprite = null;
+            mechImage.gameObject.SetActive(false);
         }   
 
     }
+    private void UpdateMechAvailability()
+    {
+        int levelIndex = campaignLevels.IndexOf(nextScene);
+        int visibleIndex = 0;
 
+        for (int i = 0; i < mechButtons.Count; i++)
+        {
+            if (mechButtons[i] == null)
+                continue;
+
+            bool available = levelIndex >= 2 || i == 0 || i == 2 || i == 3;
+
+            mechButtons[i].SetActive(available);
+
+            if (available)
+            {
+                RectTransform buttonRect =
+                    mechButtons[i].GetComponent<RectTransform>();
+
+                if (buttonRect != null)
+                {
+                    buttonRect.anchoredPosition = new Vector2(
+                        0,
+                        -35 - (visibleIndex * 40)
+                    );
+                }
+
+                visibleIndex++;
+            }
+        }
+    }
+    public void ShowMech(int index)
+    {
+        if (index < 0 || index >= mechs.Count)
+            return;
+
+        if (getterFormsPanel != null)
+        {
+            getterFormsPanel.SetActive(index == 3);
+        }
+
+        DisplayMech(mechs[index]);
+    }
+    public void ShowGetterForm(int formIndex)
+    {
+        if (mechs.Count <= 3 || mechs[3] == null)
+            return;
+
+        MechBase getter1 = mechs[3];
+
+        if (formIndex == 0)
+        {
+            DisplayMech(getter1);
+            return;
+        }
+
+
+
+        int getterFormIndex = formIndex - 1;
+
+        if (getterFormIndex < 0 ||
+            getterFormIndex >= getter1.GetterForms.Count)
+            return;
+
+        DisplayMech(getter1.GetterForms[getterFormIndex]);
+    }
     public void ShowMazingerZ()
     {
         if (mechs.Count > 0)

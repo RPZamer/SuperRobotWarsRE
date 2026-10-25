@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MechBase
   mechName: Gundam
   battleSprite: {fileID: -1886470498139493953, guid: ffd42a78764a1504d991671e218a7c61, type: 3}
-  menuSprite: {fileID: 0}
+  menuSprite: {fileID: 2687713993400654939, guid: 318845e6138a6ce4ca3524b0eba68ba6, type: 3}
   battleTheme: {fileID: 8300000, guid: 9776a501a042d254e8f69ab27857fb96, type: 3}
   health: 3500
   energy: 80
