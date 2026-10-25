@@ -25,6 +25,7 @@ public class TerrainDetector : MonoBehaviour
     [Header("Battlefield Terrain")]
     //Any cell not specifically listed below will be treated as ground.
     [SerializeField] private TerrainType defaultTerrain = TerrainType.Ground;
+    public bool IsSpaceMission => defaultTerrain == TerrainType.Space;
     // Find the terrain assigned to a bttlefield grid position.
     [SerializeField] private List<TerrainCell> terrainCells = new();
 
@@ -89,9 +90,34 @@ public class TerrainDetector : MonoBehaviour
         CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
 
         if (tile == null)
+        {
             return true;
+        } 
 
+        if (tile.Tile == TileTypes.Canyon || tile.Tile == TileTypes.Impassable)
+        {
+            return false;
+        }
         return !tile.NotPassable && tile.GroundUnitPassable;
+        
+    }
+    public bool CanFlyingUnitPass(Vector2Int position)
+    {
+        if (terrainTilemap == null || battlefield == null)
+            return false;
+
+        Vector3 worldPosition = battlefield.GridToWorld(position);
+        Vector3Int tilePosition = terrainTilemap.WorldToCell(worldPosition);
+        CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
+
+        if (tile == null)
+            return true;
+        if (tile.Tile == TileTypes.Canyon)
+            return true;
+        if (tile.Tile == TileTypes.Impassable || tile.NotPassable)
+            return false;
+
+        return true;
     }
 
     // WEEK 7: Read the painted tile's benefits using the existing world-to-cell mapping.
@@ -107,16 +133,15 @@ public class TerrainDetector : MonoBehaviour
         return tileType switch
         {
 
-            //BONUSES HAVE NOT BEEN VERIFIED FOR ALL TERRAIN TYPES. Some terrain types may not have bonuses implemented yet, so they will default to ground.
-            //Asteroid is not currently implemented, so it will default to ground.
+         
             TileTypes.Ground => TerrainType.Ground,
             TileTypes.Water => TerrainType.Water,
             TileTypes.Forest => TerrainType.Ground,
             TileTypes.Mountain => TerrainType.Ground,
             TileTypes.Space => TerrainType.Space,
-            //TileTypes.Asteroid => TerrainType.Asteroid,
+            TileTypes.Asteroid => TerrainType.Space,
             TileTypes.Colony => TerrainType.Ground,
-            //TileTypes.Canyon => TerrainType.Canyon,
+            TileTypes.Canyon => TerrainType.Ground,
             _ => TerrainType.Ground
         };
     }

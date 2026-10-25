@@ -571,6 +571,16 @@ public class SortieDeployment : MonoBehaviour
 
         unit.transform.position = battlefield.GridToWorld(gridPosition);
 
+        TerrainDetector detector = FindFirstObjectByType<TerrainDetector>();
+
+        if (detector != null)
+         
+        {
+            unit.SetTerrain(detector.GetTerrain(gridPosition));
+            unit.SetTileType(detector.GetTileType(gridPosition));
+        }
+        
+
         Debug.Log(unit.name + " assigned to sortie slot " +
             (slotIndex + 1));
 

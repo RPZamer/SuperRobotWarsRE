@@ -131,7 +131,7 @@ public class BattleSystem : MonoBehaviour
     public bool IsDockConfirmation => pendingDock != null && selectedUnit != null &&
         selectionStep == SelectionStep.Actions;
     // WEEK 4: MOTHERSHIP - Keep unconfirmed movement rollback per unit when switching selection.
-    private readonly Dictionary<BattleUnit, (Vector2Int position, int energy)> unconfirmedMoves = new();
+    private readonly Dictionary<BattleUnit, (Vector2Int position, int energy, bool wasFlying)> unconfirmedMoves = new();
     public bool CanUndoSelectedMove => selectedUnit != null && !selectedUnit.HasActed &&
         unconfirmedMoves.TryGetValue(selectedUnit, out var move) &&
         (battlefield.GetUnit(move.position) == null || battlefield.GetUnit(move.position) == selectedUnit);
@@ -496,9 +496,10 @@ public class BattleSystem : MonoBehaviour
             Debug.Log($"[Move Debug] Trying {selectedUnit.name} from {selectedUnit.GridPosition} to {position}.", this);
         Vector2Int moveOrigin = selectedUnit.GridPosition;
         int energyBeforeMove = selectedUnit.CurrentEnergy;
+        bool flyingBeforeMove = selectedUnit.IsFlying;
         if (occupant == null && battlefield.TryMove(selectedUnit, position))
         {
-            unconfirmedMoves[selectedUnit] = (moveOrigin, energyBeforeMove);
+            unconfirmedMoves[selectedUnit] = (moveOrigin, energyBeforeMove, flyingBeforeMove);
             battlefield.ShowMovement(selectedUnit);
             // Preserve the team's terrain HUD refresh after movement.
             if (combatHUD != null) combatHUD.ShowSelectedUnit(selectedUnit);
@@ -530,6 +531,7 @@ public class BattleSystem : MonoBehaviour
         // They must follow the selected unit's actual recipe, resources and action state rather than staying visible for every mech.
         // The menu now reads the shared skill rules here, keeping ordinary action and transport handling in place.
         actionsMenu.ShowMechSkillActions(selectedUnit);
+        actionsMenu.UpdateFlightButton(selectedUnit);
         // WEEK 4: MOTHERSHIP - One menu refresh always restores the correct Dock/Standby state.
         actionsMenu.SetDockConfirmation(pendingDock != null);
         // WEEK 6 CHANGES PLEASE READ - WEEK 6 QUALITY OF LIFE: A passenger hovering above the occupied carrier tile cannot finish an action on that tile.
@@ -786,6 +788,53 @@ public class BattleSystem : MonoBehaviour
         selectionStep = SelectionStep.Movement;
         battlefield.ShowMovement(selectedUnit);
     }
+    public void ToggleFlightSelected()
+    {
+        if (!isPlayerTurn ||
+            selectedUnit == null ||
+            selectionStep != SelectionStep.Actions ||
+            selectedUnit.HasActed ||
+            selectedUnit.IsDocked ||
+            !selectedUnit.CanFly ||
+            pendingDock != null ||
+            deploymentShip != null)
+        {
+            return;
+        }
+
+        bool newFlyingState = !selectedUnit.IsFlying;
+        TerrainDetector spaceDetector = FindFirstObjectByType<TerrainDetector>();
+        if (spaceDetector != null && spaceDetector.IsSpaceMission)
+        {
+            Debug.Log("FLight controls are disabled during Space mission.");
+            return;
+        }
+        if (!newFlyingState)
+        {
+            TerrainDetector detector =
+                FindFirstObjectByType<TerrainDetector>();
+
+            if (detector == null ||
+                !detector.CanGroundUnitPass(selectedUnit.GridPosition))
+            {
+                Debug.Log("Cannot descend onto this terrain.");
+                return;
+            }
+
+            if (selectedUnit.TryGetComponent(out Mothership ship) &&
+                detector.GetTileType(selectedUnit.GridPosition) != TileTypes.Water)
+            {
+                Debug.Log("Nadesico can only land over water.");
+                return;
+            }
+        }
+
+        selectedUnit.SetFlying(newFlyingState);
+        Debug.Log($"{selectedUnit.name} is now " +
+            (selectedUnit.IsFlying ? "Flying" : "Grounded"));
+
+        ShowActions();
+    }
     // WEEK 3: Attack opens all weapons; start by previewing the first usable one.
     public void OpenWeapons()
     {
@@ -849,8 +898,16 @@ public class BattleSystem : MonoBehaviour
     {
         if (!CanUndoSelectedMove) return false;
         var move = unconfirmedMoves[selectedUnit];
-        if (!battlefield.TryUndoMove(selectedUnit, move.position, move.energy)) return false;
+        if (!battlefield.TryUndoMove(selectedUnit, move.position, move.energy)) 
+            return false;
+
+        selectedUnit.SetFlying(move.wasFlying);
+
         unconfirmedMoves.Remove(selectedUnit);
+
+        if (combatHUD != null)
+            combatHUD.ShowSelectedUnit(selectedUnit);
+
         return true;
     }
 

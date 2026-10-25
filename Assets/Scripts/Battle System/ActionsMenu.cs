@@ -14,6 +14,8 @@ public class ActionsMenu : MonoBehaviour
     [SerializeField] private Button moveButton;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button standbyButton;
+    [Header("Flight Controls")]
+    [SerializeField] private Button flightButton;
     // WEEK 5 CHANGES PLEASE READ: Some saved menu prefabs already contain mech buttons, but this script no longer reads those references.
     // Restoring their field names lets the existing controls call the new shared ability rules without prefab edits.
     // The references remain optional because older scenes can use the same commands through the battle keyboard shortcuts.
@@ -241,6 +243,8 @@ public class ActionsMenu : MonoBehaviour
         moveButton.onClick.AddListener(battle.OpenMovement);
         attackButton.onClick.AddListener(battle.OpenWeapons);
         standbyButton.onClick.AddListener(battle.Standby);
+        if (flightButton != null)
+            flightButton.onClick.AddListener(battle.ToggleFlightSelected);
         confirmButton.onClick.AddListener(battle.ConfirmWeapon);
         // WEEK 6 CHANGES PLEASE READ: New reaction buttons need the same guarded runtime binding as existing controls.
         // These listeners select a response, open counter weapons or confirm the waiting exchange without persistent prefab callbacks.
@@ -550,6 +554,29 @@ public class ActionsMenu : MonoBehaviour
         SetSkillButton(repairButton, mech.RepairDevice, repair);
         SetSkillButton(resupplyButton, mech.ResupplyDevice, resupply);
     }
+    public void UpdateFlightButton(BattleUnit selectedUnit)
+    {
+        if (flightButton == null)
+            return;
+
+        bool canFly = selectedUnit != null && selectedUnit.CanFly;
+        TerrainDetector detector = FindFirstObjectByType<TerrainDetector>();
+
+        if (detector != null && detector.IsSpaceMission)
+        {
+            canFly = false;
+        }
+
+        flightButton.gameObject.SetActive(canFly);
+        flightButton.interactable = canFly;
+
+        TMP_Text label = flightButton.GetComponentInChildren<TMP_Text>(true);
+
+        if(label != null)
+        {
+            label.text = selectedUnit != null && selectedUnit.IsFlying ? "Descend" : "Fly";
+        }
+    }
     // WEEK 8: ACTION MENU BUG FIX
     // Keep mech ability buttons visible instead of hiding them.
     // Unavailable abilities appear faded and cannot be clicked.
@@ -557,15 +584,9 @@ public class ActionsMenu : MonoBehaviour
     private static void SetSkillButton(Button button, bool visible, bool available)
     {
         if (button == null)
-        {
             return;
-        }
 
-        // WEEK 8: Keep the button visible in the action menu.
-        button.gameObject.SetActive(true);
-
-        // WEEK 8: Only allow clicking when the mech has the
-        // required ability and its conditions are satisfied.
+        button.gameObject.SetActive(visible && available);
         button.interactable = visible && available;
     }
 

@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -69,6 +70,16 @@ public class BattleUnit : MonoBehaviour
     // WEEK 3: Assign the mech asset and the terrain this unit is currently using.
     [SerializeField] private MechBase mech;
     [SerializeField] private TerrainType terrain = TerrainType.Ground;
+    public bool CanFly => mech != null && mech.CanFly;
+    public bool IsFlying { get; private set; }
+    public void SetFlying(bool flying)
+    {
+        if (!CanFly)
+            return;
+
+        IsFlying = flying;
+    }
+
     [SerializeField] private BattleTeam team;
     [SerializeField] private TileTypes tileType = TileTypes.Ground;
     [SerializeField] private Vector2Int startingPosition;
@@ -147,7 +158,8 @@ public class BattleUnit : MonoBehaviour
     public PilotBase Pilot { get => pilot; internal set => pilot = value; }
     // WEEK 3: Expose mech settings and keep energy and movement state on this individual unit.
     public MechBase Mech { get => mech; internal set => mech = value; }
-    public TerrainType Terrain => terrain;
+    public TerrainType Terrain => terrain == TerrainType.Space ? TerrainType.Space : IsFlying ? TerrainType.Air : terrain;
+    
 
     // Allow the terrain detector to update this unit's terrain type when it moves to a new grid cell.
     public void SetTerrain(TerrainType newTerrain)
@@ -300,7 +312,8 @@ public class BattleUnit : MonoBehaviour
         // using the newer MechBase data used by the battle system.
         CurrentHealth = mech != null ? mech.Health : 1;
         CurrentEnergy = mech != null ? mech.Energy : 0;
-
+        IsFlying = CanFly;
+        
         // WEEK 4: Start battle with the pilot's maximum Spirit Points.
         CurrentSpiritPoints = pilot != null ? pilot.MaxSpiritPoints : 0;
         // WEEK 4 MORALE SYSTEM: Reset morale to its required battle starting value.
