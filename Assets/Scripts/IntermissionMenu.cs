@@ -49,6 +49,9 @@ public class IntermissionMenu : MonoBehaviour
     [Header("Pilots")]
     [SerializeField] private List<PilotBase> pilots = new();
     [SerializeField] private TMP_Text pilotInfoText;
+    [Header("Pilot Portrait")]
+    [SerializeField] private Image pilotImage;
+    [SerializeField] private GameObject pilotPortraitBox;
     [SerializeField] private GameObject sortiePanel;
 
     private bool IsSortieAvailable()
@@ -223,7 +226,21 @@ public class IntermissionMenu : MonoBehaviour
         {
             return;
         }
+        if (pilotImage != null)
+       
+        {
+            Sprite portrait = pilot.GetPortrait(PilotEmotion.Default);
 
+            pilotImage.sprite = portrait;
+            pilotImage.gameObject.SetActive(portrait != null);
+        }
+       
+        if (pilotPortraitBox != null)
+        {
+            pilotPortraitBox.SetActive(
+                pilotImage != null && pilotImage.sprite != null
+            );
+        }
         string spritsText = "\nSPIRIT COMMANDS\n";
         bool hasSpirits = false;
 
@@ -286,7 +303,16 @@ public class IntermissionMenu : MonoBehaviour
         {
             pilotInfoText.text = "Select a pilot to view their stats.";
         }
+        if (pilotImage != null)
+        {
+            pilotImage.sprite = null;
+            pilotImage.gameObject.SetActive(false);
+        }
 
+        if (pilotPortraitBox != null)
+        {
+            pilotPortraitBox.SetActive(false);
+        }
     }
 
     public void ClosePilots()
