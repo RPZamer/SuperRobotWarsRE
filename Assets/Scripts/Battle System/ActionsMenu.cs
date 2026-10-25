@@ -557,15 +557,9 @@ public class ActionsMenu : MonoBehaviour
     private static void SetSkillButton(Button button, bool visible, bool available)
     {
         if (button == null)
-        {
             return;
-        }
 
-        // WEEK 8: Keep the button visible in the action menu.
-        button.gameObject.SetActive(true);
-
-        // WEEK 8: Only allow clicking when the mech has the
-        // required ability and its conditions are satisfied.
+        button.gameObject.SetActive(visible && available);
         button.interactable = visible && available;
     }
 
