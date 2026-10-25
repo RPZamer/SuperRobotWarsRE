@@ -268,13 +268,16 @@ public class Battlefield : MonoBehaviour
         // The existing unit validation stays here while the search accepts a starting tile and movement allowance separately.
         // Normal movement therefore keeps its original limits, occupied-tile blocking and shortest-path EN costs.
         if (unit == null || unit.IsDefeated || GetUnit(unit.GridPosition) != unit) return new();
-        return GetReachableCells(unit.GridPosition, unit.AvailableMovement);
+        bool waterOnly = unit.TryGetComponent(out Mothership ship) && !unit.IsFlying;
+
+        return GetReachableCells(unit.GridPosition, unit.AvailableMovement, unit.IsFlying, waterOnly);
+
     }
 
     // WEEK 6 CHANGES PLEASE READ: A stored passenger cannot use the registered-unit movement entry point before it launches.
     // This shared search starts from the carrier without removing or replacing its map occupancy.
     // Both launch and ordinary movement now follow the same empty-cell paths and stop at their supplied movement limit.
-    internal Dictionary<Vector2Int, int> GetReachableCells(Vector2Int origin, int movement)
+    internal Dictionary<Vector2Int, int> GetReachableCells(Vector2Int origin, int movement, bool isFlying = false, bool waterOnly = false)
     {
         Dictionary<Vector2Int, int> distances = new();
         Queue<Vector2Int> pending = new();
@@ -290,8 +293,15 @@ public class Battlefield : MonoBehaviour
             {
                 Vector2Int next = position + direction;
                 if (!IsInside(next) || occupants.ContainsKey(next) || distances.ContainsKey(next)) continue;
-                if (terrainDetector != null && !terrainDetector.CanGroundUnitPass(next))
-                    continue;
+                if (terrainDetector != null)
+                {
+                    bool canPass = isFlying ? terrainDetector.CanFlyingUnitPass(next) : terrainDetector.CanGroundUnitPass(next);
+                    if (waterOnly && terrainDetector.GetTileType(next) != TileTypes.Water)
+                        canPass = false;
+
+                    if (!canPass)
+                        continue;
+                }
                 distances[next] = steps + 1;
                 pending.Enqueue(next);
             }

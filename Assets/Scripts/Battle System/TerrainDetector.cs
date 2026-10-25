@@ -25,6 +25,7 @@ public class TerrainDetector : MonoBehaviour
     [Header("Battlefield Terrain")]
     //Any cell not specifically listed below will be treated as ground.
     [SerializeField] private TerrainType defaultTerrain = TerrainType.Ground;
+    public bool IsSpaceMission => defaultTerrain == TerrainType.Space;
     // Find the terrain assigned to a bttlefield grid position.
     [SerializeField] private List<TerrainCell> terrainCells = new();
 
@@ -99,6 +100,24 @@ public class TerrainDetector : MonoBehaviour
         }
         return !tile.NotPassable && tile.GroundUnitPassable;
         
+    }
+    public bool CanFlyingUnitPass(Vector2Int position)
+    {
+        if (terrainTilemap == null || battlefield == null)
+            return false;
+
+        Vector3 worldPosition = battlefield.GridToWorld(position);
+        Vector3Int tilePosition = terrainTilemap.WorldToCell(worldPosition);
+        CustomTiles tile = terrainTilemap.GetTile<CustomTiles>(tilePosition);
+
+        if (tile == null)
+            return true;
+        if (tile.Tile == TileTypes.Canyon)
+            return true;
+        if (tile.Tile == TileTypes.Impassable || tile.NotPassable)
+            return false;
+
+        return true;
     }
 
     // WEEK 7: Read the painted tile's benefits using the existing world-to-cell mapping.
