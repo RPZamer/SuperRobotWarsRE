@@ -242,7 +242,17 @@ public class BattleUnit : MonoBehaviour
             ship.BeginPassengerTurn();
         }
     }
-    public void MarkMoved() => HasMoved = true;
+    // WEEK 8: DASH BUG FIX
+    // Mark the unit as moved and consume Dash's temporary
+    // +5 movement bonus so it cannot be reused.
+    public void MarkMoved()
+    {
+        HasMoved = true;
+
+        // WEEK 8: Dash only applies to the next movement.
+        // Once movement is completed, remove the bonus.
+        ConsumeDash();
+    }
     public BattleTeam Team => team;
     // WEEK 4 UNIT IDENTITY: This serialized cell is the authoritative spawn
     // location. Runtime movement changes GridPosition, never this value.
