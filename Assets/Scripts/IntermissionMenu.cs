@@ -49,6 +49,9 @@ public class IntermissionMenu : MonoBehaviour
     [Header("Pilots")]
     [SerializeField] private List<PilotBase> pilots = new();
     [SerializeField] private TMP_Text pilotInfoText;
+    [Header("Pilot Availability")]
+    [SerializeField] private List<GameObject> pilotButtons = new();
+
     [Header("Pilot Portrait")]
     [SerializeField] private Image pilotImage;
     [SerializeField] private GameObject pilotPortraitBox;
@@ -297,7 +300,7 @@ public class IntermissionMenu : MonoBehaviour
     {
         mainMenu.SetActive(false);
         pilotsPanel.SetActive(true);
-        
+        UpdatePilotAvailability();
 
         if (pilotInfoText != null)
         {
@@ -428,6 +431,38 @@ public class IntermissionMenu : MonoBehaviour
             }
         }
     }
+    private void UpdatePilotAvailability()
+    {
+        int levelIndex = campaignLevels.IndexOf(nextScene);
+        int visibleIndex = 0;
+
+        for (int i = 0; i < pilotButtons.Count; i++)
+        {
+            if (pilotButtons[i] == null)
+                continue;
+
+
+            bool isStartingPilot = i == 0 || i == 2 || i == 3 ||i == 4 || i == 5;
+
+            bool available = isStartingPilot || levelIndex >= 1;
+
+            pilotButtons[i].SetActive(available);
+
+            if (available)
+            {
+                RectTransform buttonRect =
+                    pilotButtons[i].GetComponent<RectTransform>();
+
+                if (buttonRect != null)
+                {
+                    buttonRect.anchoredPosition = new Vector2(
+                        0, -35 - (visibleIndex * 40));
+                }
+
+                visibleIndex++;
+            }
+        }
+    }
     public void ShowMech(int index)
     {
         if (index < 0 || index >= mechs.Count)
@@ -492,7 +527,13 @@ public class IntermissionMenu : MonoBehaviour
         mechsPanel.SetActive(false);
         mainMenu.SetActive(true);
     }
+    public void ShowPilot(int index)
+    {
+        if (index < 0 || index >= pilots.Count)
+            return;
 
+        DisplayPilot(pilots[index]);
+    }
     public void ShowKojiKauto()
     {
         if (pilots.Count > 0)
